@@ -85,7 +85,7 @@ func TestParseHealthCheck(t *testing.T) {
 
 func TestConvertReadinessProbe(t *testing.T) {
 	t.Run("test valid readiness probe", func(t *testing.T) {
-
+		//TODO: Convert to cdk8s readiness probes (from command)
 	})
 }
 

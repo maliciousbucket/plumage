@@ -8,6 +8,9 @@ import (
 	"strconv"
 )
 
+//TODO: App protocol
+//TODO: Host IP
+
 type Port struct {
 	Name          *string
 	ContainerPort *float64
@@ -69,7 +72,11 @@ func ParseComposeContainerPorts(containerPorts []compose.ServicePortConfig) ([]*
 				continue
 			}
 			port.Protocol = protocol
+		} else {
+			protocol := ProtocolTCP
+			port.Protocol = &protocol
 		}
+
 		ports = append(ports, port)
 
 	}

@@ -3,8 +3,8 @@ package types
 import (
 	"errors"
 	"fmt"
+	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	compose "github.com/compose-spec/compose-go/v2/types"
-	"github.com/maliciousbucket/plumage/imports/k8s"
 	"strconv"
 )
 
@@ -44,37 +44,10 @@ func ParseComposeContainerPorts(containerPorts []compose.ServicePortConfig) ([]*
 	var portErrors error
 
 	for _, containerPort := range containerPorts {
-		port := &Port{}
-		if containerPort.Name != "" {
-			port.Name = &containerPort.Name
-		}
-
-		if containerPort.Target != 0 {
-			portNumber := float64(containerPort.Target)
-			port.ContainerPort = &portNumber
-		}
-
-		if containerPort.Published != "" {
-			portNumber, err := strconv.ParseFloat(containerPort.Published, 64)
-			if err != nil {
-				pubErr := fmt.Errorf("error parsing published port number: %s. Error: %w", containerPort.Published, err)
-				portErrors = errors.Join(portErrors, pubErr)
-				continue
-			}
-			port.PublishedPort = &portNumber
-		}
-
-		if containerPort.Protocol != "" {
-			protocol, err := ValidProtocol(containerPort.Protocol)
-			if err != nil {
-				protoErr := fmt.Errorf("error validating protocol: %s. Error: %w", containerPort.Protocol, err)
-				portErrors = errors.Join(portErrors, protoErr)
-				continue
-			}
-			port.Protocol = protocol
-		} else {
-			protocol := ProtocolTCP
-			port.Protocol = &protocol
+		port, err := ParseComposeContainerPort(containerPort)
+		if err != nil {
+			portErrors = errors.Join(portErrors, err)
+			continue
 		}
 
 		ports = append(ports, port)
@@ -87,7 +60,45 @@ func ParseComposeContainerPorts(containerPorts []compose.ServicePortConfig) ([]*
 	return ports, portErrors
 }
 
-func (p *Port) K8sContainerPort() (*k8s.ContainerPort, error) {
+func ParseComposeContainerPort(containerPort compose.ServicePortConfig) (*Port, error) {
+	var port Port
+
+	if containerPort.Name != "" {
+		port.Name = &containerPort.Name
+	}
+
+	if containerPort.Target == 0 {
+		return nil, fmt.Errorf("invalid target port: %d", containerPort.Target)
+	}
+	portNumber := float64(containerPort.Target)
+	port.ContainerPort = &portNumber
+
+	if containerPort.Published == "" {
+		return nil, fmt.Errorf("published container port is required")
+	}
+
+	portNumber, err := strconv.ParseFloat(containerPort.Published, 64)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing published port number: %s. Error: %w", containerPort.Published, err)
+
+	}
+	port.PublishedPort = &portNumber
+
+	if containerPort.Protocol != "" {
+		protocol, err := ValidProtocol(containerPort.Protocol)
+		if err != nil {
+			return nil, fmt.Errorf("error validating protocol: %s. Error: %w", containerPort.Protocol, err)
+
+		}
+		port.Protocol = protocol
+	} else {
+		protocol := ProtocolTCP
+		port.Protocol = &protocol
+	}
+	return &port, nil
+}
+
+func (p *Port) K8sContainerPort() (*cdk8splus30.ContainerPort, error) {
 
 	port := p.ContainerPort
 	if port == nil {
@@ -101,12 +112,21 @@ func (p *Port) K8sContainerPort() (*k8s.ContainerPort, error) {
 
 	protocol := string(*p.Protocol)
 
-	containerPort := k8s.ContainerPort{
-		ContainerPort: port,
-		HostPort:      hostPort,
-		Name:          p.Name,
-		Protocol:      &protocol,
+	//
+	//containerPort := k8s.ContainerPort{
+	//	ContainerPort: port,
+	//	HostPort:      hostPort,
+	//	Name:          p.Name,
+	//	Protocol:      &protocol,
+	//}
+	containerPort := cdk8splus30.ContainerPort{
+		Number:   port,
+		HostIp:   nil,
+		HostPort: hostPort,
+		Name:     p.Name,
+		Protocol: cdk8splus30.Protocol(protocol),
 	}
+
 	return &containerPort, nil
 
 }

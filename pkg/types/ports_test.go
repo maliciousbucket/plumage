@@ -1,6 +1,7 @@
 package types
 
 import (
+	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	compose "github.com/compose-spec/compose-go/v2/types"
 	"github.com/stretchr/testify/require"
 	"reflect"
@@ -111,8 +112,31 @@ func TestParseComposeContainerPorts(t *testing.T) {
 }
 
 func TestConvertToK8sContainerPorts(t *testing.T) {
-	t.Run("test single port configuration", func(t *testing.T) {
 
+	number := float64(80)
+	hostPort := float64(8080)
+	name := "http-metrics"
+	protocol := ProtocolTCP
+
+	var expected = &cdk8splus30.ContainerPort{
+		Number:   &number,
+		HostIp:   nil,
+		HostPort: &hostPort,
+		Name:     &name,
+		Protocol: cdk8splus30.Protocol_TCP,
+	}
+
+	t.Run("test single port configuration", func(t *testing.T) {
+		var port = Port{
+			Name:          &name,
+			ContainerPort: &number,
+			PublishedPort: &hostPort,
+			Protocol:      &protocol,
+		}
+
+		cdk8sPort, err := port.K8sContainerPort()
+		require.NoError(t, err)
+		assertCDK8sPortsEqual(t, cdk8sPort, expected)
 	})
 
 	t.Run("test multiple port configuration", func(t *testing.T) {
@@ -121,6 +145,13 @@ func TestConvertToK8sContainerPorts(t *testing.T) {
 }
 
 func assertPortsEqual(t testing.TB, got, want *Port) {
+	t.Helper()
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got: %v, want: %v", got, want)
+	}
+}
+
+func assertCDK8sPortsEqual(t testing.TB, got, want *cdk8splus30.ContainerPort) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got: %v, want: %v", got, want)

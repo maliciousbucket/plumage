@@ -8,6 +8,7 @@ require (
 	github.com/aws/constructs-go/constructs/v10 v10.3.0
 	github.com/aws/jsii-runtime-go v1.102.0
 	github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2 v2.68.98
+	github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2 v2.2.0
 	github.com/compose-spec/compose-go/v2 v2.1.6
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0

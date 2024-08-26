@@ -6,6 +6,8 @@ github.com/aws/jsii-runtime-go v1.102.0 h1:ioz2f1eLB6+bb/z0LcflDc4ize/a02DI+Ozzg
 github.com/aws/jsii-runtime-go v1.102.0/go.mod h1:ZlLvPqSh0zXs0jw+hhoFSa9lq5kXRqInl1/raLZY964=
 github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2 v2.68.98 h1:1jByi+XNyrQuuQR30OyDMdkOE9uIuwMupJooBin3dGo=
 github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2 v2.68.98/go.mod h1:5dDqDGcxygOsTOEB86sHpJIZx+iJKXtbWY9y2SRV050=
+github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2 v2.2.0 h1:Q1VvJAhJtDTTEJkEJKnxi3dI7iMfDVhucqoHqinxCdM=
+github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2 v2.2.0/go.mod h1:O4erYcDoklG0U42uqzylEpXXnZpAgAB9cZ52+LL0CFs=
 github.com/compose-spec/compose-go/v2 v2.1.6 h1:d0Cs0DffmOwmSzs0YPHwKCskknGq2jfGg4uGowlEpps=
 github.com/compose-spec/compose-go/v2 v2.1.6/go.mod h1:lFN0DrMxIncJGYAXTfWuajfwj5haBJqrBkarHcnjJKc=
 github.com/cpuguy83/go-md2man/v2 v2.0.4/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=

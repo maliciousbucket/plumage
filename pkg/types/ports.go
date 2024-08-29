@@ -111,14 +111,7 @@ func (p *Port) K8sContainerPort() (*cdk8splus30.ContainerPort, error) {
 	}
 
 	protocol := string(*p.Protocol)
-
-	//
-	//containerPort := k8s.ContainerPort{
-	//	ContainerPort: port,
-	//	HostPort:      hostPort,
-	//	Name:          p.Name,
-	//	Protocol:      &protocol,
-	//}
+	
 	containerPort := cdk8splus30.ContainerPort{
 		Number:   port,
 		HostIp:   nil,

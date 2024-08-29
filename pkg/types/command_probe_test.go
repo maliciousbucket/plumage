@@ -55,7 +55,7 @@ func TestParseHealthCheck(t *testing.T) {
 	expectedInterval := "30s"
 	expectedRetries := float64(5)
 
-	var expected = &ReadinessProbe{
+	var expected = &CommandProbe{
 		Commands: []*string{
 			&cmd1,
 			&cmd2,
@@ -83,7 +83,7 @@ func TestParseHealthCheck(t *testing.T) {
 	})
 }
 
-func TestConvertReadinessProbe(t *testing.T) {
+func TestConvertCommandProbe(t *testing.T) {
 	t.Run("test valid readiness probe", func(t *testing.T) {
 		//TODO: Convert to cdk8s readiness probes (from command)
 	})
@@ -103,7 +103,7 @@ func assertError(t testing.TB, err error) {
 	}
 }
 
-func assertProbeEquals(t testing.TB, got, want *ReadinessProbe) {
+func assertProbeEquals(t testing.TB, got, want *CommandProbe) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)

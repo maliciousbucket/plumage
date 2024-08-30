@@ -28,6 +28,17 @@ func TestParseSampleComposeFile(t *testing.T) {
 	publishedPort := float64(8080)
 	protocol := ProtocolTCP
 
+	cmd1 := "CMD"
+	cmd2 := "wget"
+	cmd3 := "-O"
+	cmd4 := "/dev/null"
+	cmd5 := "-q"
+	cmd6 := "http://store-front:80/health"
+
+	timeout := "10s"
+	interval := "30s"
+	retries := float64(5)
+
 	storefront := ContainerSpec{
 		Name:  "store-front",
 		Image: "my-image",
@@ -39,14 +50,29 @@ func TestParseSampleComposeFile(t *testing.T) {
 				Protocol:      &protocol,
 			},
 		},
-		Resources:     nil,
-		CommandProbes: nil,
-		HttpProbes:    nil,
-		Volumes:       nil,
-		Commands:      nil,
+		Resources: nil,
+		CommandProbes: []*CommandProbe{
+			&CommandProbe{
+				Commands: []*string{
+					&cmd1,
+					&cmd2,
+					&cmd3,
+					&cmd4,
+					&cmd5,
+					&cmd6,
+				},
+				Delay:    nil,
+				Timeout:  &timeout,
+				Interval: &interval,
+				Retries:  &retries,
+			},
+		},
+		HttpProbes: nil,
+		Volumes:    nil,
+		Commands:   nil,
 	}
 
-	t.Run("booking microservice - store front", func(t *testing.T) {
+	t.Run("aks microservice - store front", func(t *testing.T) {
 		composeFilePath := "../../testdata/compose/aks/docker-compose.yml"
 		projectName := "testproject"
 		ctx := context.Background()

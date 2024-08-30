@@ -32,11 +32,22 @@ func ParseServiceConfig(config compose.ServiceConfig) (*ContainerSpec, error) {
 		}
 	}
 
+	var cmdProbes []*CommandProbe
+
+	if config.HealthCheck != nil {
+		probe, err := ParseHealthCheck(config.HealthCheck)
+		if err != nil {
+			return nil, err
+		}
+		cmdProbes = append(cmdProbes, probe)
+	}
+
 	container := &ContainerSpec{
-		Name:     config.Name,
-		Image:    config.Image,
-		Ports:    ports,
-		Commands: commands,
+		Name:          config.Name,
+		Image:         config.Image,
+		Ports:         ports,
+		Commands:      commands,
+		CommandProbes: cmdProbes,
 	}
 	return container, nil
 }

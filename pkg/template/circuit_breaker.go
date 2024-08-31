@@ -1,6 +1,8 @@
 package template
 
-import "fmt"
+import (
+	"fmt"
+)
 
 const (
 	ExpressionLatency           = "LatencyAtQuantileMS"
@@ -8,15 +10,60 @@ const (
 	ExpressionResponseCodeRatio = "ResponseCodeRatio"
 )
 
+type CircuitBreakerConfig struct {
+	Expressions             []ExpressionList `yaml:"expressionGroups"`
+	CircuitCheckPeriod      string           `yaml:"checkPeriod"`
+	CircuitFallbackDuration string           `yaml:"fallbackDuration"`
+	CircuitRecoveryDuration string           `yaml:"recoveryDuration"`
+}
+
+func (c *CircuitBreakerConfig) Validate() error {
+	return nil
+}
+
+func (c *CircuitBreakerConfig) CircuitBreakerExpression() string {
+	var expressions []string
+	for _, expr := range c.Expressions {
+		var innerExpressions string
+		ExpressionWithAndArgs(expr.Expressions)(innerExpressions)
+		expressions = append(expressions, innerExpressions)
+
+	}
+	var circuitBreakerExpression string
+	if len(expressions) > 0 {
+		circuitBreakerExpression = expressions[0]
+		for _, expr := range expressions[1:] {
+			circuitBreakerExpression = fmt.Sprintf("%s || %s", circuitBreakerExpression, expr)
+		}
+	}
+	return circuitBreakerExpression
+}
+
+func (c *CircuitBreakerConfig) CheckPeriod() string {
+	return c.CircuitCheckPeriod
+}
+
+func (c *CircuitBreakerConfig) FallbackDuration() string {
+	return c.CircuitFallbackDuration
+}
+
+func (c *CircuitBreakerConfig) RecoveryDuration() string {
+	return c.CircuitRecoveryDuration
+}
+
 type CircuitBreakerExpression interface {
 	Expression() string
 	Validate() error
 }
 
+type ExpressionList struct {
+	Expressions []CircuitBreakerExpression `yaml:"expressions"`
+}
+
 type Latency struct {
-	Quantile  float64
-	Operator  string
-	Parameter float64
+	Quantile  float64 `yaml:"quantile"`
+	Operator  string  `yaml:"operator"`
+	Parameter float64 `yaml:"parameter"`
 }
 
 func (l *Latency) Expression() string {
@@ -45,12 +92,12 @@ func (l *Latency) Validate() error {
 }
 
 type ResponseCodeRatio struct {
-	From       int
-	To         int
-	DivideFrom int
-	DivideTo   int
-	Operator   string
-	Parameter  float64
+	From       int     `yaml:"from"`
+	To         int     `yaml:"to"`
+	DivideFrom int     `yaml:"divideFrom"`
+	DivideTo   int     `yaml:"divideTo"`
+	Operator   string  `yaml:"operator"`
+	Parameter  float64 `yaml:"parameter"`
 }
 
 func (r *ResponseCodeRatio) Expression() string {
@@ -101,8 +148,8 @@ func (r *ResponseCodeRatio) Validate() error {
 }
 
 type NetworkErrorRatio struct {
-	Operator  string
-	Parameter float64
+	Operator  string  `yaml:"operator"`
+	Parameter float64 `yaml:"parameter"`
 }
 
 func (n *NetworkErrorRatio) Expression() string {
@@ -134,11 +181,43 @@ func WithAndArg(args ...CircuitBreakerExpression) func(s string) {
 	}
 }
 
+func ExpressionWithAndArgs(args []CircuitBreakerExpression) func(s string) {
+	return func(s string) {
+		if s == "" {
+			s = args[0].Expression()
+			for _, arg := range args[1:] {
+				s = fmt.Sprintf("%s && %s", s, arg.Expression())
+			}
+		} else {
+			for _, arg := range args {
+				s = fmt.Sprintf("%s && %s", s, arg.Expression())
+			}
+		}
+
+	}
+}
+
 func WithOrArgs(args ...CircuitBreakerExpression) func(s string) {
 	return func(s string) {
 		for _, arg := range args {
 			s = fmt.Sprintf("%s || %s", s, arg.Expression())
 		}
+	}
+}
+
+func ExpressionWithOrArgs(args []CircuitBreakerExpression) func(s string) {
+	return func(s string) {
+		if s == "" {
+			s = args[0].Expression()
+			for _, arg := range args[1:] {
+				s = fmt.Sprintf("%s || %s", s, arg.Expression())
+			}
+		} else {
+			for _, arg := range args {
+				s = fmt.Sprintf("%s || %s", s, arg.Expression())
+			}
+		}
+
 	}
 }
 

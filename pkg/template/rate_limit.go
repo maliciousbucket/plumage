@@ -57,6 +57,9 @@ func (r *RateLimitConfig) UnmarshalYAML(unmarshal func(interface{}) error) error
 	}
 	return nil
 }
+func (r *RateLimitConfig) Validate() error {
+	return nil
+}
 
 type RateLimitStrategy interface {
 	StrategyType() StrategyType

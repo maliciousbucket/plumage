@@ -12,54 +12,54 @@ import (
 const (
 	MiddlewareKind = "Middleware"
 
-	MiddlewareNameRetry          = MiddlewareName("Retry")
-	MiddlewareNameCircuitBreaker = MiddlewareName("CircuitBreaker")
-	MiddlewareNameRateLimiting   = MiddlewareName("RateLimit")
+	MiddlewareNameRetry          = MiddlewareName("retry")
+	MiddlewareNameCircuitBreaker = MiddlewareName("circuitBreaker")
+	MiddlewareNameRateLimiting   = MiddlewareName("rateLimit")
 )
 
 type MiddlewareName string
 
-func NewMiddleware(scope constructs.Construct, id string) cdk8s.Chart {
-
-	middleware := traefikio.MiddlewareProps{
-		Metadata: &cdk8s.ApiObjectMetadata{
-			Annotations:     nil,
-			Finalizers:      nil,
-			Labels:          nil,
-			Name:            nil,
-			Namespace:       nil,
-			OwnerReferences: nil,
-		},
-		Spec: &traefikio.MiddlewareSpec{
-			AddPrefix:         nil,
-			BasicAuth:         nil,
-			Buffering:         nil,
-			Chain:             nil,
-			CircuitBreaker:    nil,
-			Compress:          nil,
-			ContentType:       nil,
-			DigestAuth:        nil,
-			Errors:            nil,
-			ForwardAuth:       nil,
-			GrpcWeb:           nil,
-			Headers:           nil,
-			InFlightReq:       nil,
-			IpAllowList:       nil,
-			IpWhiteList:       nil,
-			PassTlsClientCert: nil,
-			Plugin:            nil,
-			RateLimit:         nil,
-			RedirectRegex:     nil,
-			RedirectScheme:    nil,
-			ReplacePath:       nil,
-			ReplacePathRegex:  nil,
-			Retry:             nil,
-			StripPrefix:       nil,
-			StripPrefixRegex:  nil,
-		},
-	}
-	return nil
-}
+//func NewMiddleware(scope constructs.Construct, id string) cdk8s.Chart {
+//
+//	middleware := traefikio.MiddlewareProps{
+//		Metadata: &cdk8s.ApiObjectMetadata{
+//			Annotations:     nil,
+//			Finalizers:      nil,
+//			Labels:          nil,
+//			Name:            nil,
+//			Namespace:       nil,
+//			OwnerReferences: nil,
+//		},
+//		Spec: &traefikio.MiddlewareSpec{
+//			AddPrefix:         nil,
+//			BasicAuth:         nil,
+//			Buffering:         nil,
+//			Chain:             nil,
+//			CircuitBreaker:    nil,
+//			Compress:          nil,
+//			ContentType:       nil,
+//			DigestAuth:        nil,
+//			Errors:            nil,
+//			ForwardAuth:       nil,
+//			GrpcWeb:           nil,
+//			Headers:           nil,
+//			InFlightReq:       nil,
+//			IpAllowList:       nil,
+//			IpWhiteList:       nil,
+//			PassTlsClientCert: nil,
+//			Plugin:            nil,
+//			RateLimit:         nil,
+//			RedirectRegex:     nil,
+//			RedirectScheme:    nil,
+//			ReplacePath:       nil,
+//			ReplacePathRegex:  nil,
+//			Retry:             nil,
+//			StripPrefix:       nil,
+//			StripPrefixRegex:  nil,
+//		},
+//	}
+//	return nil
+//}
 
 type MiddlewareProps struct {
 }
@@ -72,7 +72,7 @@ func defaultMiddlewareMetadata(svcName string, variant MiddlewareName) *cdk8s.Ap
 		Namespace:   &nameSpace,
 		Annotations: defaultMiddlewareAnnotations(name),
 		Labels:      defaultMiddlewareLabels(name),
-		Name:        &name,
+		Name:        jsii.String(svcName),
 	}
 }
 
@@ -92,23 +92,29 @@ func defaultMiddlewareLabels(name string) *map[string]*string {
 
 type RetrySpec interface {
 	RetryAttempts() int
-	IntervalMS() int
+	IntervalMS() string
 }
 
-func RetryMiddlewareSpec(spec RetrySpec) *traefikio.MiddlewareSpecRetry {
+func retryMiddlewareSpec(spec RetrySpec) *traefikio.MiddlewareSpecRetry {
 
 	return &traefikio.MiddlewareSpecRetry{
 		Attempts:        jsii.Number(spec.RetryAttempts()),
-		InitialInterval: traefikio.MiddlewareSpecRetryInitialInterval_FromNumber(jsii.Number(spec.IntervalMS())),
+		InitialInterval: traefikio.MiddlewareSpecRetryInitialInterval_FromString(jsii.String(spec.IntervalMS())),
 	}
 }
 
-func NewRetryMiddlewareProps(svcName string, spec RetrySpec) *traefikio.MiddlewareProps {
+func newRetryMiddlewareProps(svcName string, spec RetrySpec) *traefikio.MiddlewareProps {
 	metaData := defaultMiddlewareMetadata(svcName, MiddlewareNameRetry)
 	return &traefikio.MiddlewareProps{
 		Metadata: metaData,
-		Spec:     &traefikio.MiddlewareSpec{Retry: RetryMiddlewareSpec(spec)},
+		Spec:     &traefikio.MiddlewareSpec{Retry: retryMiddlewareSpec(spec)},
 	}
+}
+
+func NewRetryMiddleware(scope constructs.Construct, svcName string, spec RetrySpec) traefikio.Middleware {
+	props := newRetryMiddlewareProps(svcName, spec)
+	middleware := traefikio.NewMiddleware(scope, jsii.String(svcName), props)
+	return middleware
 }
 
 // RateLimitSpec TODO: Move strategy efinition to types
@@ -119,7 +125,7 @@ type RateLimitSpec interface {
 	Strategy() template.RateLimitStrategy
 }
 
-func RateLimitMiddlewareSpec(spec RateLimitSpec) *traefikio.MiddlewareSpecRateLimit {
+func rateLimitMiddlewareSpec(spec RateLimitSpec) *traefikio.MiddlewareSpecRateLimit {
 	var middleWareSpec traefikio.MiddlewareSpecRateLimit
 	if spec.Average() > 0 {
 		middleWareSpec.Average = jsii.Number(spec.Average())
@@ -156,12 +162,18 @@ func RateLimitMiddlewareSpec(spec RateLimitSpec) *traefikio.MiddlewareSpecRateLi
 	return &middleWareSpec
 }
 
-func NewRateLimitMiddlewareProps(svcName string, spec RateLimitSpec) *traefikio.MiddlewareProps {
+func newRateLimitMiddlewareProps(svcName string, spec RateLimitSpec) *traefikio.MiddlewareProps {
 	metaData := defaultMiddlewareMetadata(svcName, MiddlewareNameRateLimiting)
 	return &traefikio.MiddlewareProps{
 		Metadata: metaData,
-		Spec:     &traefikio.MiddlewareSpec{RateLimit: RateLimitMiddlewareSpec(spec)},
+		Spec:     &traefikio.MiddlewareSpec{RateLimit: rateLimitMiddlewareSpec(spec)},
 	}
+}
+
+func NewRateLimitMiddleware(scope constructs.Construct, svcName string, spec RateLimitSpec) traefikio.Middleware {
+	props := newRateLimitMiddlewareProps(svcName, spec)
+	middleware := traefikio.NewMiddleware(scope, jsii.String(svcName), props)
+	return middleware
 }
 
 type CircuitBreakerSpec interface {
@@ -171,7 +183,7 @@ type CircuitBreakerSpec interface {
 	RecoveryDuration() string
 }
 
-func CircuitBreakerMiddlewareSpec(spec CircuitBreakerSpec) *traefikio.MiddlewareSpecCircuitBreaker {
+func circuitBreakerMiddlewareSpec(spec CircuitBreakerSpec) *traefikio.MiddlewareSpecCircuitBreaker {
 	return &traefikio.MiddlewareSpecCircuitBreaker{
 		Expression:       jsii.String(spec.CircuitBreakerExpression()),
 		FallbackDuration: traefikio.MiddlewareSpecCircuitBreakerFallbackDuration_FromString(jsii.String(spec.FallbackDuration())),
@@ -180,10 +192,19 @@ func CircuitBreakerMiddlewareSpec(spec CircuitBreakerSpec) *traefikio.Middleware
 	}
 }
 
-func NewCircuitBreakerMiddleProps(svcName string, spec CircuitBreakerSpec) *traefikio.MiddlewareProps {
+func newCircuitBreakerMiddleProps(svcName string, spec CircuitBreakerSpec) *traefikio.MiddlewareProps {
 	metaData := defaultMiddlewareMetadata(svcName, MiddlewareNameCircuitBreaker)
 	return &traefikio.MiddlewareProps{
 		Metadata: metaData,
-		Spec:     &traefikio.MiddlewareSpec{CircuitBreaker: CircuitBreakerMiddlewareSpec(spec)},
+		Spec:     &traefikio.MiddlewareSpec{CircuitBreaker: circuitBreakerMiddlewareSpec(spec)},
 	}
+}
+
+func NewCircuitBreakerMiddleware(scope constructs.Construct, svcName string, spec CircuitBreakerSpec) traefikio.Middleware {
+
+	props := newCircuitBreakerMiddleProps(svcName, spec)
+
+	middleware := traefikio.NewMiddleware(scope, &svcName, props)
+
+	return middleware
 }

@@ -10,6 +10,6 @@ type CircuitBreakerPolicy struct {
 }
 
 type RetryPolicy struct {
-	Attempts          int `json:"attempts", yaml:"attempts"`
-	InitialIntervalMS int `json:"initialIntervalMs", yaml:"initialIntervalMs"`
+	Attempts          int `json:"attempts,omitempty" yaml:"attempts"`
+	InitialIntervalMS int `json:"initialIntervalMs,omitempty" yaml:"initialIntervalMs"`
 }

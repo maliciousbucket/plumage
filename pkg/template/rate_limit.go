@@ -6,10 +6,10 @@ import (
 )
 
 type RateLimitConfig struct {
-	Average  int                `yaml:"average"`
-	Burst    int                `yaml:"burst"`
-	Period   string             `yaml:"period"`
-	Strategy *RateLimitStrategy `yaml:"strategy"`
+	Average  int               `yaml:"average"`
+	Burst    int               `yaml:"burst"`
+	Period   string            `yaml:"period"`
+	Strategy RateLimitStrategy `yaml:"strategy"`
 }
 
 func (r *RateLimitConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -27,32 +27,29 @@ func (r *RateLimitConfig) UnmarshalYAML(unmarshal func(interface{}) error) error
 	r.Burst = aux.Burst
 	r.Period = aux.Period
 
-	var strat RateLimitStrategy
-
 	if len(aux.Strategy.Content) > 0 {
 		key := aux.Strategy.Content[0].Value
 		switch key {
 		case string(StrategyTypeIpDepth):
 			var strategy IpDepthStrategy
-			if err := aux.Strategy.Decode(&strategy); err != nil {
+			if err := aux.Strategy.Content[1].Decode(&strategy); err != nil {
 				return err
 			}
-			strat = strategy
-			r.Strategy = &strat
+			r.Strategy = &strategy
 		case string(StrategyTypeHost):
 			var strategy HostStrategy
-			if err := aux.Strategy.Decode(&strategy); err != nil {
+			if err := aux.Strategy.Content[1].Decode(&strategy); err != nil {
 				return err
 			}
-			strat = strategy
-			r.Strategy = &strat
+
+			r.Strategy = &strategy
 		case string(StrategyTypeHeader):
 			var strategy RequestHeaderStrategy
-			if err := aux.Strategy.Decode(&strategy); err != nil {
+			if err := aux.Strategy.Content[1].Decode(&strategy); err != nil {
 				return err
 			}
-			strat = strategy
-			r.Strategy = &strat
+
+			r.Strategy = &strategy
 		default:
 			return fmt.Errorf("unknown strategy type: %s", key)
 
@@ -69,7 +66,7 @@ type StrategyType string
 
 const (
 	StrategyTypeIpDepth = StrategyType("ipDepth")
-	StrategyTypeHost    = StrategyType("host")
+	StrategyTypeHost    = StrategyType("hostStrategy")
 	StrategyTypeHeader  = StrategyType("header")
 )
 
@@ -90,7 +87,7 @@ type IpDepthStrategy struct {
 }
 
 type RequestHeaderStrategy struct {
-	HeaderName string `yaml:"header_name"`
+	HeaderName string `yaml:"headerName"`
 }
 
 type HostStrategy struct {

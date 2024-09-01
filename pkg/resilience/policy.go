@@ -35,12 +35,13 @@ type resourcePolicy string
 type scalingPolicy string
 
 type Policy struct {
-	MinReplicas     int
-	MaxReplicas     int
-	Resources       []resource
-	ResourcePolicy  *resourcePolicy
-	ScaleUpPolicy   *scalingPolicy
-	ScaleDownPolicy *scalingPolicy
+	MinReplicas         int
+	MaxReplicas         int
+	Resources           []resource
+	ResourcePolicy      resourcePolicy
+	ScaleUpPolicy       scalingPolicy
+	ScaleDownPolicy     scalingPolicy
+	StabilisationPolicy stabilisationPolicy
 }
 
 func ParseScalingTemplate(a *template.AutoScalingTemplate) (*Policy, error) {
@@ -141,14 +142,33 @@ func ParseScalingTemplate(a *template.AutoScalingTemplate) (*Policy, error) {
 		}
 		minReplicas = a.MinReplicas
 	}
+	var stabilisation stabilisationPolicy
+	if a.Policy.Stabilisation == "" {
+		stabilisation = stabilisationPolicyNone
+	}
+
+	lowStabilisation := strings.ToLower(a.Policy.Stabilisation)
+	switch lowStabilisation {
+	case "none":
+		stabilisation = stabilisationPolicyNone
+	case "conservative":
+		stabilisation = stabilisationPolicyConservative
+	case "aggressive":
+		stabilisation = stabilisationPolicyAggressive
+	case "balanced":
+		stabilisation = stabilisationPolicyBalanced
+	default:
+		return nil, fmt.Errorf("unknown stabilisation %s", a.Policy.Stabilisation)
+	}
 
 	return &Policy{
-		MinReplicas:     minReplicas,
-		MaxReplicas:     maxReplicas,
-		Resources:       resources,
-		ResourcePolicy:  &resPolicy,
-		ScaleUpPolicy:   &scaleUpPolicy,
-		ScaleDownPolicy: &scaleDownPolicy,
+		MinReplicas:         minReplicas,
+		MaxReplicas:         maxReplicas,
+		Resources:           resources,
+		ResourcePolicy:      resPolicy,
+		ScaleUpPolicy:       scaleUpPolicy,
+		ScaleDownPolicy:     scaleDownPolicy,
+		StabilisationPolicy: stabilisation,
 	}, nil
 
 }

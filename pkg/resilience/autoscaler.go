@@ -116,8 +116,65 @@ func AutoScalingDownRules(p scalingPolicy, s stabilisationPolicy, minReplicas in
 	return &rules
 }
 
-func AutoScalerMetrics(r []resource, p resourcePolicy) []*kplus.Metric {
-	return nil
+func AutoScalerMetricsOptions(r []resource, p resourcePolicy) []*kplus.MetricOptions {
+	var metrics []*kplus.MetricOptions
+
+	for _, res := range r {
+		switch res {
+		case resourceCpu:
+			target := cpuTarget(p)
+			metric := utilizationMetrics(res, target)
+			metrics = append(metrics, metric)
+		case resourceMemory:
+			target := memoryTarget(p)
+			metric := utilizationMetrics(res, target)
+			metrics = append(metrics, metric)
+		}
+	}
+
+	return metrics
+}
+
+func utilizationMetrics(r resource, target int) *kplus.MetricOptions {
+	var options kplus.MetricOptions
+	switch r {
+	case resourceCpu:
+		target := kplus.MetricTarget_AverageUtilization(jsii.Number(target))
+		cpuTarget := kplus.Metric_ResourceCpu(target)
+		options.Target = &cpuTarget
+	case resourceMemory:
+		target := kplus.MetricTarget_AverageUtilization(jsii.Number(target))
+		memoryTarget := kplus.Metric_ResourceMemory(target)
+		options.Target = &memoryTarget
+	}
+	return &options
+}
+
+func memoryTarget(p resourcePolicy) int {
+	switch p {
+	case resourcePolicyBalanced:
+		return 75
+	case resourcePolicyConservative:
+		return 60
+	case resourcePolicyAggressive:
+		return 85
+	default:
+		return 60
+	}
+}
+
+func cpuTarget(p resourcePolicy) int {
+	switch p {
+	case resourcePolicyBalanced:
+		return 80
+	case resourcePolicyConservative:
+		return 65
+	case resourcePolicyAggressive:
+		return 90
+	default:
+		return 65
+	}
+
 }
 
 func StabilisationDuration(s stabilisationPolicy) *time.Duration {

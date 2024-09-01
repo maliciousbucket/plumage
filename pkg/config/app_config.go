@@ -9,14 +9,15 @@ import (
 )
 
 type AppConfig struct {
-	ConfigDir  string      `yaml:"configDir"`
-	ProjectDir string      `yaml:"projectDir"`
-	OutputDir  string      `yaml:"outputDir"`
-	Namespace  string      `yaml:"namespace"`
-	UserConfig *UserConfig `yaml:"userConfig"`
+	ConfigDir        string            `yaml:"configDir"`
+	ProjectDir       string            `yaml:"projectDir"`
+	OutputDir        string            `yaml:"outputDir"`
+	Namespace        string            `yaml:"namespace"`
+	UserConfig       *UserConfig       `yaml:"userConfig"`
+	MonitoringConfig *MonitoringConfig `yaml:"monitoringConfig"`
 }
 
-func NewAppConfig(projectDir string, namespace string, outputDir string) (*AppConfig, error) {
+func NewAppConfig(projectDir string, namespace string, outputDir string, monitoringEnv string) (*AppConfig, error) {
 	configDir, err := findOrCreateConfigDir("", ".env")
 	if err != nil {
 		return nil, err
@@ -25,13 +26,18 @@ func NewAppConfig(projectDir string, namespace string, outputDir string) (*AppCo
 	if err != nil {
 		return nil, err
 	}
+	monitoringConfig, err := NewMonitoringConfig(configDir, monitoringEnv)
+	if err != nil {
+		return nil, err
+	}
 
 	appConfig := &AppConfig{
-		ConfigDir:  configDir,
-		ProjectDir: projectDir,
-		Namespace:  namespace,
-		UserConfig: userConfig,
-		OutputDir:  outputDir,
+		ConfigDir:        configDir,
+		ProjectDir:       projectDir,
+		Namespace:        namespace,
+		UserConfig:       userConfig,
+		MonitoringConfig: monitoringConfig,
+		OutputDir:        outputDir,
 	}
 	return appConfig, nil
 }
@@ -45,7 +51,7 @@ type UserConfig struct {
 func getDefaultUserConfig() UserConfig {
 	composeDir := os.Getenv("PROJECT_DIR")
 	if composeDir == "" {
-		composeDir = "/compose"
+		composeDir = "./config/compose"
 	}
 	templateDir := os.Getenv("TEMPLATE_DIR")
 	if templateDir == "" {
@@ -169,6 +175,7 @@ func configDir(envfile string) (string, error) {
 	if envConfigDir != "" {
 		return envConfigDir, nil
 	}
+	fmt.Println("Not supposed to be here")
 	userConfigDir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
@@ -187,5 +194,6 @@ func findOrCreateConfigDir(projectName string, envFile string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	fmt.Printf("Creating config directory: %s\n", dir)
 	return dir, nil
 }

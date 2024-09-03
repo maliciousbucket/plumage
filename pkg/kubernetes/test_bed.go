@@ -1,7 +1,8 @@
 package kubernetes
 
 const (
-	TraefikApiVersion = "traefik.io/v1alpha1"
-	TestbedNamespace  = "test-bed"
-	GalahApiVersion   = "galah-monitoring.io/v1"
+	TraefikApiVersion     = "traefik.io/v1alpha1"
+	TestbedNamespace      = "test-bed"
+	GalahApiVersion       = "galah-monitoring.io/v1"
+	KubernetesAppsVersion = "apps/v1"
 )

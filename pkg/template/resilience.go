@@ -3,15 +3,17 @@ package template
 import (
 	"errors"
 	"fmt"
+	"github.com/maliciousbucket/plumage/pkg/resilience"
 )
 
-type ResiliencePolicy struct {
-	RetryPolicy          *RetryConfig          `yaml:"retryPolicy"`
-	RateLimitPolicy      *RateLimitConfig      `yaml:"rateLimitPolicy"`
-	CircuitBreakerPolicy *CircuitBreakerConfig `yaml:"circuitBreakerPolicy"`
+type ResilienceTemplate struct {
+	RetryPolicy          *resilience.RetryConfig          `yaml:"retry"`
+	RateLimitPolicy      *resilience.RateLimitConfig      `yaml:"rateLimit"`
+	CircuitBreakerPolicy *resilience.CircuitBreakerConfig `yaml:"circuitBreaker"`
+	Scaling              *ScalingTemplate
 }
 
-func (r *ResiliencePolicy) Validate() error {
+func (r *ResilienceTemplate) Validate() error {
 	var resErr error
 	if r.RetryPolicy == nil {
 		err := r.RetryPolicy.Validate()

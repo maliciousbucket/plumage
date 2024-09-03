@@ -1,19 +1,35 @@
 package template
 
 type MonitoringTemplate struct {
+	ScrapeConfig        *ScrapeConfigTemplate  `yaml:"scrape"`
+	MetricsExportConfig *MetricsExportTemplate `yaml:"metricsExport"`
+	LogsExportConfig    *LogsExportTemplate    `yaml:"logsExport"`
+	TracesExportConfig  *TracesExportTemplate  `yaml:"tracesExport"`
 }
 
 type ScrapeConfigTemplate struct {
-	MetricsPort int
-	MetricsPath string
+	MetricsPort int    `yaml:"metricsPort"`
+	MetricsPath string `yaml:"metricsPath"`
 }
 
 type MetricsExportTemplate struct {
+	Prometheus *PrometheusExportConfig  `yaml:"prometheus,omitempty"`
+	Otlp       *OtlpMetricsExportConfig `yaml:"otlp,omitempty"`
 	//Prom / OTLP
 }
 
 type LogsExportTemplate struct {
+	LogsProtocol    string `yaml:"logsProtocol,omitempty"`
+	LogsEndpointKey string `yaml:"logsEndpointKey,omitempty"`
+	LogsPortKey     string `yaml:"logsPortKey,omitempty"`
 	// Loki / OTLP
+}
+
+type TracesExportTemplate struct {
+	TracesExporter    string `yaml:"tracesExporter,omitempty"`
+	TracesProtocol    string `yaml:"tracesProtocol,omitempty"`
+	TracesEndpointKey string `yaml:"tracesEndpointKey,omitempty"`
+	TracesPortKey     string `yaml:"tracesPortKey,omitempty"`
 }
 
 type MetricsExportConfig interface {
@@ -24,9 +40,9 @@ type MetricsExportConfig interface {
 }
 
 type PrometheusExportConfig struct {
-	PrometheusEndpointKey string
-	PrometheusPortKey     string
-	composite             bool
+	PrometheusEndpointKey string `yaml:"prometheusEndpointKey,omitempty"`
+	PrometheusPortKey     string `yaml:"prometheusPortKey,omitempty"`
+	Composite             bool   `yaml:"composite,omitempty"`
 }
 
 func (c *PrometheusExportConfig) EndpointKey() string {
@@ -46,9 +62,25 @@ func (c *PrometheusExportConfig) Exporter() string {
 }
 
 type OtlpMetricsExportConfig struct {
-	OtlpEndpointKey string
-	OtlpPortKey     string
-	OtlpExporter    string
-	OtlpExporterKey string
-	ExportProtocol  string
+	OtlpEndpointKey string `yaml:"otlpEndpointKey,omitempty"`
+	OtlpPortKey     string `yaml:"otlpPortKey,omitempty"`
+	OtlpExporter    string `yaml:"otlpExporter,omitempty"`
+	OtlpExporterKey string `yaml:"otlpExporterKey,omitempty"`
+	ExportProtocol  string `yaml:"exportProtocol,omitempty"`
+}
+
+func (c *OtlpMetricsExportConfig) EndpointKey() string {
+	return c.OtlpEndpointKey
+}
+
+func (c *OtlpMetricsExportConfig) PortKey() string {
+	return c.OtlpPortKey
+}
+
+func (c *OtlpMetricsExportConfig) Protocol() string {
+	return c.ExportProtocol
+}
+
+func (c *OtlpMetricsExportConfig) Exporter() string {
+	return "otlp"
 }

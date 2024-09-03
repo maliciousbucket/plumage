@@ -1,0 +1,1 @@
+package plumage_template

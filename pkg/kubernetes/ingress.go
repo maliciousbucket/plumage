@@ -4,7 +4,7 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
-	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
+	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 )
 
 const (
@@ -19,9 +19,9 @@ func defaultIngressLabels() *map[string]*string {
 	return &labels
 }
 
-func defaultIngressServiceAccountProps(namespace string) cdk8splus30.ServiceAccountProps {
+func defaultIngressServiceAccountProps(namespace string) kplus.ServiceAccountProps {
 	metadata := defaultIngressServiceAccountMetadata(namespace)
-	return cdk8splus30.ServiceAccountProps{
+	return kplus.ServiceAccountProps{
 		Metadata: &metadata,
 	}
 }
@@ -33,25 +33,11 @@ func defaultIngressServiceAccountMetadata(namespace string) cdk8s.ApiObjectMetad
 	}
 }
 
-func NewIngressServiceAccount(scope constructs.Construct, namespace string) cdk8splus30.ServiceAccount {
+func NewIngressServiceAccount(scope constructs.Construct, namespace string) kplus.ServiceAccount {
 	props := defaultIngressServiceAccountProps(namespace)
-	account := cdk8splus30.NewServiceAccount(scope, jsii.String(defaultIngressName), &props)
+	account := kplus.NewServiceAccount(scope, jsii.String(defaultIngressName), &props)
 	return account
 }
-
-//func newTraefikService() *cdk8splus30.Service {
-//	return cdk8splus30.NewService(cdk8splus30.ServiceProps{
-//		Metadata:                 nil,
-//		ClusterIP:                nil,
-//		ExternalIPs:              nil,
-//		ExternalName:             nil,
-//		LoadBalancerSourceRanges: nil,
-//		Ports:                    nil,
-//		PublishNotReadyAddresses: nil,
-//		Selector:                 nil,
-//		Type:                     "",
-//	})
-//}
 
 func defaultIngressServiceMetadata(namespace string) cdk8s.ApiObjectMetadata {
 
@@ -61,20 +47,20 @@ func defaultIngressServiceMetadata(namespace string) cdk8s.ApiObjectMetadata {
 	}
 }
 
-func defaultIngressServiceProps(namespace string) *cdk8splus30.ServiceProps {
+func defaultIngressServiceProps(namespace string) *kplus.ServiceProps {
 	metadata := defaultIngressServiceMetadata(namespace)
 
-	props := &cdk8splus30.ServiceProps{
+	props := &kplus.ServiceProps{
 		Metadata: &metadata,
 
-		Ports: &[]*cdk8splus30.ServicePort{
-			&cdk8splus30.ServicePort{
+		Ports: &[]*kplus.ServicePort{
+			&kplus.ServicePort{
 				Name:       jsii.String("web"),
 				Protocol:   "TCP",
 				TargetPort: jsii.Number(8000),
 				Port:       jsii.Number(8000),
 			},
-			&cdk8splus30.ServicePort{
+			&kplus.ServicePort{
 				Name:       jsii.String("admin"),
 				Protocol:   "TCP",
 				TargetPort: jsii.Number(8080),
@@ -86,10 +72,10 @@ func defaultIngressServiceProps(namespace string) *cdk8splus30.ServiceProps {
 	return props
 }
 
-func DefaultIngressService(scope constructs.Construct, namespace string) cdk8splus30.Service {
+func DefaultIngressService(scope constructs.Construct, namespace string) kplus.Service {
 
 	props := defaultIngressServiceProps(namespace)
-	service := cdk8splus30.NewService(scope, jsii.String("traefik"), props)
+	service := kplus.NewService(scope, jsii.String("traefik"), props)
 	service.SelectLabel(jsii.String("app"), jsii.String("traefik"))
 	return service
 }
@@ -104,24 +90,24 @@ func defaultIngressDeploymentMetadata(namespace string) cdk8s.ApiObjectMetadata 
 	}
 }
 
-func defaultIngressDeploymentContainers() *cdk8splus30.ContainerProps {
+func defaultIngressDeploymentContainers() *kplus.ContainerProps {
 	args := &[]*string{
 		jsii.String("--api.insecure"),
 		jsii.String("--entryPoints.web.Address=:8000"),
 		jsii.String("--providers.kubernetescrd"),
 	}
 
-	return &cdk8splus30.ContainerProps{
+	return &kplus.ContainerProps{
 		Args:            args,
-		ImagePullPolicy: cdk8splus30.ImagePullPolicy_IF_NOT_PRESENT,
+		ImagePullPolicy: kplus.ImagePullPolicy_IF_NOT_PRESENT,
 		Name:            nil,
-		Ports: &[]*cdk8splus30.ContainerPort{
-			&cdk8splus30.ContainerPort{
+		Ports: &[]*kplus.ContainerPort{
+			&kplus.ContainerPort{
 				Number:   jsii.Number(8000),
 				Name:     jsii.String("web"),
 				Protocol: "TCP",
 			},
-			&cdk8splus30.ContainerPort{
+			&kplus.ContainerPort{
 				Number:   jsii.Number(8080),
 				Name:     jsii.String("admin"),
 				Protocol: "TCP",
@@ -131,16 +117,15 @@ func defaultIngressDeploymentContainers() *cdk8splus30.ContainerProps {
 	}
 }
 
-func defaultIngressDeploymentProps(scope constructs.Construct, namespace string) *cdk8splus30.DeploymentProps {
+func defaultIngressDeploymentProps(scope constructs.Construct, namespace string) *kplus.DeploymentProps {
 	metadata := defaultIngressDeploymentMetadata(namespace)
 	defaultContainer := defaultIngressDeploymentContainers()
-	containers := &[]*cdk8splus30.ContainerProps{
+	containers := &[]*kplus.ContainerProps{
 		defaultContainer,
 	}
-
 	serviceAccount := NewIngressServiceAccount(scope, namespace)
 
-	return &cdk8splus30.DeploymentProps{
+	return &kplus.DeploymentProps{
 		Metadata:                     &metadata,
 		AutomountServiceAccountToken: nil,
 		Containers:                   containers,
@@ -149,10 +134,10 @@ func defaultIngressDeploymentProps(scope constructs.Construct, namespace string)
 	}
 }
 
-func DefaultIngressDeployment(scope constructs.Construct, id string, namespace string) cdk8splus30.Deployment {
+func DefaultIngressDeployment(scope constructs.Construct, id string, namespace string) kplus.Deployment {
 
 	props := defaultIngressDeploymentProps(scope, namespace)
-	return cdk8splus30.NewDeployment(scope, jsii.String(id), props)
+	return kplus.NewDeployment(scope, jsii.String(id), props)
 }
 
 //func OtherIngress(scope constructs.Construct, namespace string) k8s.KubeService {

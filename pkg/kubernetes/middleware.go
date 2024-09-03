@@ -6,7 +6,7 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/maliciousbucket/plumage/imports/traefikio"
-	"github.com/maliciousbucket/plumage/pkg/template"
+	"github.com/maliciousbucket/plumage/pkg/resilience"
 )
 
 const (
@@ -119,41 +119,41 @@ func NewRetryMiddleware(scope constructs.Construct, svcName string, spec RetrySp
 
 // RateLimitSpec TODO: Move strategy efinition to types
 type RateLimitSpec interface {
-	Average() int
-	Burst() int
-	Period() string
-	Strategy() template.RateLimitStrategy
+	AverageRequests() int
+	BurstRequests() int
+	RatePeriod() string
+	LimitStrategy() resilience.RateLimitStrategy
 }
 
 func rateLimitMiddlewareSpec(spec RateLimitSpec) *traefikio.MiddlewareSpecRateLimit {
 	var middleWareSpec traefikio.MiddlewareSpecRateLimit
-	if spec.Average() > 0 {
-		middleWareSpec.Average = jsii.Number(spec.Average())
+	if spec.AverageRequests() > 0 {
+		middleWareSpec.Average = jsii.Number(spec.AverageRequests())
 	}
 
-	if spec.Burst() > 0 {
-		middleWareSpec.Burst = jsii.Number(spec.Burst())
+	if spec.BurstRequests() > 0 {
+		middleWareSpec.Burst = jsii.Number(spec.BurstRequests())
 	}
 
-	if spec.Period() != "" {
-		period := spec.Period()
+	if spec.RatePeriod() != "" {
+		period := spec.RatePeriod()
 		middleWareSpec.Period = traefikio.MiddlewareSpecRateLimitPeriod_FromString(&period)
 	}
 
-	if spec.Strategy() != nil {
-		strategy := spec.Strategy()
+	if spec.LimitStrategy() != nil {
+		strategy := spec.LimitStrategy()
 		switch s := strategy.(type) {
-		case *template.IpDepthStrategy:
+		case *resilience.IpDepthStrategy:
 			middleWareSpec.SourceCriterion = &traefikio.MiddlewareSpecRateLimitSourceCriterion{
 				IpStrategy: &traefikio.MiddlewareSpecRateLimitSourceCriterionIpStrategy{
 					Depth: jsii.Number(s.Depth),
 				},
 			}
-		case *template.RequestHeaderStrategy:
+		case *resilience.RequestHeaderStrategy:
 			middleWareSpec.SourceCriterion = &traefikio.MiddlewareSpecRateLimitSourceCriterion{
 				RequestHeaderName: jsii.String(s.HeaderName),
 			}
-		case *template.HostStrategy:
+		case *resilience.HostStrategy:
 			middleWareSpec.SourceCriterion = &traefikio.MiddlewareSpecRateLimitSourceCriterion{
 				RequestHost: jsii.Bool(s.Host),
 			}
@@ -207,4 +207,17 @@ func NewCircuitBreakerMiddleware(scope constructs.Construct, svcName string, spe
 	middleware := traefikio.NewMiddleware(scope, &svcName, props)
 
 	return middleware
+}
+
+func EmptyMiddleware(scope constructs.Construct, svcName string, mwType MiddlewareName) traefikio.Middleware {
+	props := emptyMiddlewareProps(svcName, mwType)
+	name := fmt.Sprintf("%s-%s", svcName, mwType)
+	return traefikio.NewMiddleware(scope, jsii.String(name), props)
+}
+
+func emptyMiddlewareProps(svcName string, mwType MiddlewareName) *traefikio.MiddlewareProps {
+	metaData := defaultMiddlewareMetadata(svcName, mwType)
+	return &traefikio.MiddlewareProps{
+		Metadata: metaData,
+	}
 }

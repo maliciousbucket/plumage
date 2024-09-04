@@ -9,32 +9,13 @@ import (
 )
 
 const (
-	defaultRouteType  = "Rule"
+	defaultRouteType  = traefikio.IngressRouteSpecRoutesKind_RULE
 	defaultEntryPoint = "web"
 )
 
 func newIngressRoute(scope constructs.Construct, id string) traefikio.IngressRoute {
 	return nil
 }
-
-//func newProps(scope constructs.Construct, id string) traefikio.IngressRouteProps {
-//	return nil
-//}
-
-//func newSpec(scope constructs.Construct, id string) traefikio.IngressRouteSpec {
-//	return traefikio.IngressRouteSpec{
-//		Routes: traefikio.IngressRouteSpecRoutes{
-//			Kind:        "",
-//			Match:       nil,
-//			Middlewares: nil,
-//			Priority:    nil,
-//			Services:    nil,
-//			Syntax:      nil,
-//		},
-//		EntryPoints: nil,
-//		Tls:         nil,
-//	}
-//}
 
 func defaultIngressRouteAnnotations(name string) *map[string]*string {
 	return nil
@@ -44,31 +25,40 @@ func defaultIngressRouteLabels(name string) *map[string]*string {
 	return nil
 }
 
-func defaultIngressRouteMetadata(svcName string) *cdk8s.ApiObjectMetadata {
-	namespace := TestbedNamespace
+func defaultIngressRouteMetadata(namespace string, svcName string) *cdk8s.ApiObjectMetadata {
+
+	name := fmt.Sprintf("%s-ingressRoute", svcName)
 
 	return &cdk8s.ApiObjectMetadata{
 		Namespace:   jsii.String(namespace),
+		Name:        jsii.String(name),
 		Annotations: defaultIngressRouteAnnotations(svcName),
 		Labels:      defaultIngressRouteLabels(svcName),
 	}
 }
 
-func ingressRouteSpec() *traefikio.IngressRouteSpec {
+func ingressRouteSpec(routeProps []*RouteProps) *traefikio.IngressRouteSpec {
 	entryPoints := []*string{jsii.String(defaultEntryPoint)}
+	var routes []*traefikio.IngressRouteSpecRoutes
+
+	for _, routeProp := range routeProps {
+		route := newRoute(routeProp)
+		routes = append(routes, route)
+	}
 
 	return &traefikio.IngressRouteSpec{
-		Routes:      nil,
+		Routes:      &routes,
 		EntryPoints: &entryPoints,
 		Tls:         nil,
 	}
 }
 
-func newIngressRouteProps(svcName string) *traefikio.IngressRouteProps {
-	metadata := defaultIngressRouteMetadata(svcName)
+func NewIngressRouteProps(namespace string, svcName string, routeProps []*RouteProps) *traefikio.IngressRouteProps {
+	metadata := defaultIngressRouteMetadata(namespace, svcName)
+	spec := ingressRouteSpec(routeProps)
 	return &traefikio.IngressRouteProps{
 		Metadata: metadata,
-		Spec:     nil,
+		Spec:     spec,
 	}
 }
 
@@ -135,6 +125,8 @@ func ingressRouteMiddlewareReferences(serviceName, nameSpace string) []*traefiki
 //TODO: Healthcheck and kinf
 
 func ingressRouteRouteService(r *RouteProps) *traefikio.IngressRouteSpecRoutesServices {
+
+	port := traefikio.IngressRouteSpecRoutesServicesPort_FromNumber(jsii.Number(r.Port))
 	return &traefikio.IngressRouteSpecRoutesServices{
 		Name:               &r.ServiceName,
 		HealthCheck:        nil,
@@ -143,7 +135,7 @@ func ingressRouteRouteService(r *RouteProps) *traefikio.IngressRouteSpecRoutesSe
 		NativeLb:           &r.EnableLoadBalancer,
 		NodePortLb:         nil,
 		PassHostHeader:     nil,
-		Port:               &r.Port,
+		Port:               port,
 		ResponseForwarding: nil,
 		Scheme:             nil,
 		ServersTransport:   nil,

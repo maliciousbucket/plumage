@@ -97,10 +97,17 @@ type RetrySpec interface {
 
 func retryMiddlewareSpec(spec RetrySpec) *traefikio.MiddlewareSpecRetry {
 
-	return &traefikio.MiddlewareSpecRetry{
-		Attempts:        jsii.Number(spec.RetryAttempts()),
-		InitialInterval: traefikio.MiddlewareSpecRetryInitialInterval_FromString(jsii.String(spec.IntervalMS())),
+	var retrySpec traefikio.MiddlewareSpecRetry
+
+	if spec.RetryAttempts() > 0 {
+		retrySpec.Attempts = jsii.Number(spec.RetryAttempts())
 	}
+
+	if spec.IntervalMS() == "" {
+		retrySpec.InitialInterval = traefikio.MiddlewareSpecRetryInitialInterval_FromString(jsii.String(spec.IntervalMS()))
+	}
+	return &retrySpec
+
 }
 
 func newRetryMiddlewareProps(svcName string, spec RetrySpec) *traefikio.MiddlewareProps {
@@ -113,7 +120,8 @@ func newRetryMiddlewareProps(svcName string, spec RetrySpec) *traefikio.Middlewa
 
 func NewRetryMiddleware(scope constructs.Construct, svcName string, spec RetrySpec) traefikio.Middleware {
 	props := newRetryMiddlewareProps(svcName, spec)
-	middleware := traefikio.NewMiddleware(scope, jsii.String(svcName), props)
+	name := fmt.Sprintf("%s-retry", svcName)
+	middleware := traefikio.NewMiddleware(scope, jsii.String(name), props)
 	return middleware
 }
 
@@ -172,7 +180,8 @@ func newRateLimitMiddlewareProps(svcName string, spec RateLimitSpec) *traefikio.
 
 func NewRateLimitMiddleware(scope constructs.Construct, svcName string, spec RateLimitSpec) traefikio.Middleware {
 	props := newRateLimitMiddlewareProps(svcName, spec)
-	middleware := traefikio.NewMiddleware(scope, jsii.String(svcName), props)
+	name := fmt.Sprintf("%s-ratelimit", svcName)
+	middleware := traefikio.NewMiddleware(scope, jsii.String(name), props)
 	return middleware
 }
 
@@ -184,12 +193,31 @@ type CircuitBreakerSpec interface {
 }
 
 func circuitBreakerMiddlewareSpec(spec CircuitBreakerSpec) *traefikio.MiddlewareSpecCircuitBreaker {
-	return &traefikio.MiddlewareSpecCircuitBreaker{
-		Expression:       jsii.String(spec.CircuitBreakerExpression()),
-		FallbackDuration: traefikio.MiddlewareSpecCircuitBreakerFallbackDuration_FromString(jsii.String(spec.FallbackDuration())),
-		RecoveryDuration: traefikio.MiddlewareSpecCircuitBreakerRecoveryDuration_FromString(jsii.String(spec.RecoveryDuration())),
-		CheckPeriod:      traefikio.MiddlewareSpecCircuitBreakerCheckPeriod_FromString(jsii.String(spec.CheckPeriod())),
+	var circuitBreakerSpec traefikio.MiddlewareSpecCircuitBreaker
+
+	if spec.CircuitBreakerExpression() != "" {
+		circuitBreakerSpec.Expression = jsii.String(spec.CircuitBreakerExpression())
 	}
+
+	if spec.FallbackDuration() != "" {
+		circuitBreakerSpec.FallbackDuration = traefikio.MiddlewareSpecCircuitBreakerFallbackDuration_FromString(jsii.String(spec.FallbackDuration()))
+	}
+
+	if spec.RecoveryDuration() != "" {
+		circuitBreakerSpec.RecoveryDuration = traefikio.MiddlewareSpecCircuitBreakerRecoveryDuration_FromString(jsii.String(spec.RecoveryDuration()))
+	}
+
+	if spec.CheckPeriod() != "" {
+		circuitBreakerSpec.CheckPeriod = traefikio.MiddlewareSpecCircuitBreakerCheckPeriod_FromString(jsii.String(spec.CheckPeriod()))
+	}
+	return &circuitBreakerSpec
+
+	//return &traefikio.MiddlewareSpecCircuitBreaker{
+	//	Expression:       jsii.String(spec.CircuitBreakerExpression()),
+	//	FallbackDuration: traefikio.MiddlewareSpecCircuitBreakerFallbackDuration_FromString(jsii.String(spec.FallbackDuration())),
+	//	RecoveryDuration: traefikio.MiddlewareSpecCircuitBreakerRecoveryDuration_FromString(jsii.String(spec.RecoveryDuration())),
+	//	CheckPeriod:      traefikio.MiddlewareSpecCircuitBreakerCheckPeriod_FromString(jsii.String(spec.CheckPeriod())),
+	//}
 }
 
 func newCircuitBreakerMiddleProps(svcName string, spec CircuitBreakerSpec) *traefikio.MiddlewareProps {
@@ -203,8 +231,9 @@ func newCircuitBreakerMiddleProps(svcName string, spec CircuitBreakerSpec) *trae
 func NewCircuitBreakerMiddleware(scope constructs.Construct, svcName string, spec CircuitBreakerSpec) traefikio.Middleware {
 
 	props := newCircuitBreakerMiddleProps(svcName, spec)
+	name := fmt.Sprintf("%s-circuitbreaker", svcName)
 
-	middleware := traefikio.NewMiddleware(scope, &svcName, props)
+	middleware := traefikio.NewMiddleware(scope, jsii.String(name), props)
 
 	return middleware
 }

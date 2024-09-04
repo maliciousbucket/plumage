@@ -1,51 +1,54 @@
 package kubernetes
 
 import (
-	"github.com/aws/constructs-go/constructs/v10"
+	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
-	"github.com/maliciousbucket/plumage/imports/traefikio"
+	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	"github.com/maliciousbucket/plumage/pkg/template"
 )
 
-const (
-	ClusterIpType   = "ClusterIP"
-	StatefulSetKind = "StatefulSet"
-	ServiceKind     = "Service"
-)
-
-func NewServiceChart() cdk8s.Chart {
+func defaultServiceAnnotations() *map[string]*string {
 	return nil
 }
 
-func NewService() constructs.Construct {
-	return nil
+func defaultServiceLabels(svcName string) *map[string]*string {
+	labels := map[string]*string{
+		"app": jsii.String(svcName),
+	}
+	return &labels
 }
 
-func newServiceDeployment() constructs.Construct {
-	return nil
+func DefaultServiceMetadata(nameSpace, svcName string) cdk8s.ApiObjectMetadata {
+
+	return cdk8s.ApiObjectMetadata{
+		Name:      jsii.String(svcName),
+		Namespace: jsii.String(nameSpace),
+		Labels:    defaultMiddlewareLabels(svcName),
+	}
 }
 
-func newServiceIngressRoute(scope constructs.Construct, id string) traefikio.IngressRoute {
-	return nil
-
-}
-
-func newServiceMiddleware(scope constructs.Construct, s *template.ServiceTemplate) constructs.Construct {
-	if s.Resilience.RetryPolicy != nil {
-		NewRetryMiddleware(scope, s.Name, s.Resilience.RetryPolicy)
-	} else {
-		EmptyMiddleware(scope, s.Name, MiddlewareNameRetry)
+func ServicePorts(config *template.ServiceConfig) []*kplus.ServicePort {
+	if config.Service.Monitoring.ScrapeConfig != nil {
+		if config.Service.Monitoring.ScrapeConfig.MetricsPort != 0 {
+			metricsPort := jsii.Number(config.Service.Monitoring.ScrapeConfig.MetricsPort)
+			for _, port := range config.Container.Ports {
+				if port.ContainerPort == metricsPort {
+					port.Name = jsii.String("http-metrics")
+				}
+			}
+		}
 	}
 
-	if s.Resilience.CircuitBreakerPolicy != nil {
-		NewCircuitBreakerMiddleware(scope, s.Name, s.Resilience.CircuitBreakerPolicy)
-	} else {
-		EmptyMiddleware(scope, s.Name, MiddlewareNameCircuitBreaker)
+	var ports []*kplus.ServicePort
+	for _, port := range config.Container.Ports {
+		ports = append(ports, &kplus.ServicePort{
+			Name:       port.Name,
+			Port:       port.PublishedPort,
+			TargetPort: port.ContainerPort,
+			Protocol:   port.Cdk8sProtocol(),
+		})
+
 	}
 
-	if s.Resilience.RateLimitPolicy != nil {
-		NewRateLimitMiddleware(scope, s.Name, s.Resilience.RateLimitPolicy)
-	}
-
-	return scope
+	return ports
 }

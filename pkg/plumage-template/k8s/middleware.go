@@ -11,8 +11,8 @@ import (
 
 const (
 	MiddlewareTypeRetry          = "retry"
-	MiddlewareTypeRateLimit      = "rate-limit"
-	MiddlewareTypeCircuitBreaker = "circuit-breaker"
+	MiddlewareTypeRateLimit      = "ratelimit"
+	MiddlewareTypeCircuitBreaker = "circuitbreaker"
 )
 
 type RetryProps struct {

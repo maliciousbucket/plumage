@@ -65,18 +65,39 @@ type ServiceConfig struct {
 }
 
 type Service struct {
-	Name               string            `yaml:"name"`
-	Image              string            `yaml:"image"`
-	Ports              []*ServicePort    `yaml:"ports"`
-	Commands           []string          `yaml:"commands"`
-	Args               []string          `yaml:"args"`
-	HttpHealthCheck    string            `yaml:"httpHealthCheck"`
-	Env                map[string]string `yaml:"env"`
-	ComposeVolumes     bool              `yaml:"composeVolumes"`
+	Name            string            `yaml:"name"`
+	Image           string            `yaml:"image"`
+	Host            string            `yaml:"host"`
+	Ports           []*ServicePort    `yaml:"ports"`
+	Commands        []string          `yaml:"commands"`
+	Args            []string          `yaml:"args"`
+	HttpHealthCheck string            `yaml:"httpHealthCheck"`
+	Env             map[string]string `yaml:"env"`
+
 	Resources          *ServiceResources `yaml:"resources"`
 	Scaling            *ScalingConfig    `yaml:"scaling"`
 	Monitoring         *MonitoringConfig `yaml:"monitoring"`
 	InitContainerNames []string          `yaml:"initContainers"`
+	Middleware         []string          `yaml:"middleware"`
+	Paths              []*ServicePaths   `yaml:"paths"`
+	LoadBalancer       bool              `yaml:"loadBalancer"`
+	SynthOptions       *SynthOptions     `yaml:"synthOptions"`
+}
+
+type SynthOptions struct {
+	Deployment     bool `yaml:"deployment,omitempty"`
+	IngressRoute   bool `yaml:"ingressRoute,omitempty"`
+	AutoScaling    bool `yaml:"autoScaling,omitempty"`
+	Service        bool `yaml:"service,omitempty"`
+	ComposeImage   bool `yaml:"useComposeImage,omitempty"`
+	ComposeVolumes bool `yaml:"composeVolumes"`
+	InitContainers bool `yaml:"initContainers,omitempty"`
+	ComposePorts   bool `yaml:"composePorts,omitempty"`
+}
+
+type IngressOptions struct {
+	Paths              []*ServicePaths `yaml:"paths"`
+	EnableLoadBalancer bool            `yaml:"enableLoadBalancer,omitempty"`
 }
 
 type InitContainer struct {

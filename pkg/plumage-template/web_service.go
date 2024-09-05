@@ -176,7 +176,7 @@ func AddContainerPorts(container cdk8splus30.Container, ports []*ServicePort, me
 	i := 0
 	for _, port := range ports {
 		protocol := GetProtocol(port.Protocol)
-		name := portName(port.GRPC, i)
+		name := portName(port.Grpc, i)
 		if metricsPort != 0 {
 			if port.ContainerPort == metricsPort {
 				name = "http-metrics"
@@ -240,7 +240,7 @@ func GetServicePorts(ports []*ServicePort, metricsPort int) []*cdk8splus30.Servi
 	var servicePorts []*cdk8splus30.ServicePort
 	i := 0
 	for _, port := range ports {
-		name := portName(port.GRPC, i)
+		name := portName(port.Grpc, i)
 		if metricsPort != 0 {
 			if port.ContainerPort == metricsPort {
 				name = "http-metrics"

@@ -58,51 +58,58 @@ func newWebService(scope constructs.Construct, id string, props *WebServiceProps
 
 type SynthFunc func(p *WebServiceProps) constructs.Construct
 
-func WithDeployment(scope constructs.Construct, id string) SynthFunc {
+func WithDeployment(scope constructs.Construct) SynthFunc {
 	return func(p *WebServiceProps) constructs.Construct {
 		props := p.deploymentProps()
+		id := fmt.Sprintf("%s-%s", p.Name, "deployment")
 		return NewDeployment(scope, id, p.Namespace, p.Name, props)
 	}
 }
 
-func WithService(scope constructs.Construct, id string) SynthFunc {
+func WithService(scope constructs.Construct) SynthFunc {
 	return func(p *WebServiceProps) constructs.Construct {
 		props := p.serviceProps()
+		id := fmt.Sprintf("%s-%s", p.Name, "service")
 		return NewService(scope, id, props)
 	}
 }
 
-func WithAutoScaling(scope constructs.Construct, id string) SynthFunc {
+func WithAutoScaling(scope constructs.Construct) SynthFunc {
 	return func(p *WebServiceProps) constructs.Construct {
 		props := p.autoScalingProps()
+		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
 		return NewHorizontalAutoscaler(scope, id, props)
 	}
 }
 
-func WithIngressRoute(scope constructs.Construct, id string) SynthFunc {
+func WithIngressRoute(scope constructs.Construct) SynthFunc {
 	return func(p *WebServiceProps) constructs.Construct {
 		props := p.ingressRouteProps()
+		id := fmt.Sprintf("%s-%s", p.Name, "ingressroute")
 		return NewIngressRoute(scope, id, props)
 	}
 }
 
-func WithRetry(scope constructs.Construct, id string) SynthFunc {
+func WithRetry(scope constructs.Construct) SynthFunc {
 	return func(p *WebServiceProps) constructs.Construct {
 		props := p.retryProps()
+		id := fmt.Sprintf("%s-%s", p.Name, "retry")
 		return NewRetryMiddleware(scope, id, p.Namespace, p.Name, props)
 	}
 }
 
-func WithCircuitBreaker(scope constructs.Construct, id string) SynthFunc {
+func WithCircuitBreaker(scope constructs.Construct) SynthFunc {
 	return func(p *WebServiceProps) constructs.Construct {
 		props := p.circuitBreakerProps()
+		id := fmt.Sprintf("%s-%s", p.Name, "circuitbreaker")
 		return NewCircuitBreakerMiddleware(scope, id, p.Namespace, p.Name, props)
 	}
 }
 
-func WithRateLimit(scope constructs.Construct, id string) SynthFunc {
+func WithRateLimit(scope constructs.Construct) SynthFunc {
 	return func(p *WebServiceProps) constructs.Construct {
 		props := p.rateLimitProps()
+		id := fmt.Sprintf("%s-%s", p.Name, "ratelimit")
 		return NewRateLimitMiddleware(scope, id, p.Namespace, p.Name, props)
 	}
 }

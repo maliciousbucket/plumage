@@ -42,24 +42,25 @@ func NewIngressRoute(scope constructs.Construct, id string, props *IngressRouteP
 func routes(props *IngressRouteProps) *[]*traefikio.IngressRouteSpecRoutes {
 	services := ingressRouteServices(props)
 	middlewares := ingressRouteMiddlewareReferences(props.Namespace, props.Name, props.Middlewares)
-	//rule := fmt.Sprintf("Host('%s') && PathPrefix('%s')",props.Config.Host, props.Name)
+
 	var ingressRoutes []*traefikio.IngressRouteSpecRoutes
 	for _, path := range props.Config.Paths {
-		routeSpecification := routeSpec(services, path.Path, middlewares)
+		routeSpecification := routeSpec(services, path.Path, middlewares, props.Config.Host)
 		ingressRoutes = append(ingressRoutes, &routeSpecification)
 	}
 
 	return &ingressRoutes
 }
 
-func routeSpec(services []*traefikio.IngressRouteSpecRoutesServices, path string, middlewares []*traefikio.IngressRouteSpecRoutesMiddlewares) traefikio.IngressRouteSpecRoutes {
-
+func routeSpec(services []*traefikio.IngressRouteSpecRoutesServices, path string,
+	middlewares []*traefikio.IngressRouteSpecRoutesMiddlewares, host string) traefikio.IngressRouteSpecRoutes {
+	rule := fmt.Sprintf("Host('%s') && PathPrefix('%s')", host, path)
 	return traefikio.IngressRouteSpecRoutes{
 		Kind:        RouteTypeRule,
-		Match:       nil,
-		Middlewares: nil,
+		Match:       jsii.String(rule),
+		Middlewares: &middlewares,
 		Priority:    nil,
-		Services:    nil,
+		Services:    &services,
 		Syntax:      nil,
 	}
 }

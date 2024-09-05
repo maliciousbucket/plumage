@@ -33,7 +33,12 @@ func ValidProtocol(input string) (*Protocol, error) {
 }
 
 type WebService struct {
-	Name   *string
-	Image  *string
+	Name      string
+	Container *ContainerSpec
+	//ResiliencePolicy *resilience.Policy
+	//CircuitBreakerPolicy *template.CircuitBreakerConfig
+	//RetryPolicy          *template.RetryConfig
+	//RateLimitPolicy      *template.RateLimitConfig
 	Labels map[string]*string
+	Env    map[string]string
 }

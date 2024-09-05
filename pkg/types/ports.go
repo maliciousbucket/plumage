@@ -27,6 +27,18 @@ func (p *Port) PortProtocol() *string {
 	return &protocol
 }
 
+func (p *Port) Cdk8sProtocol() cdk8splus30.Protocol {
+	switch *p.Protocol {
+	case ProtocolTCP:
+		return cdk8splus30.Protocol_TCP
+	case ProtocolUDP:
+		return cdk8splus30.Protocol_UDP
+	default:
+		return cdk8splus30.Protocol_TCP
+	}
+
+}
+
 func (p *Port) PortPublished() *float64 {
 	return p.PublishedPort
 }
@@ -111,7 +123,7 @@ func (p *Port) K8sContainerPort() (*cdk8splus30.ContainerPort, error) {
 	}
 
 	protocol := string(*p.Protocol)
-	
+
 	containerPort := cdk8splus30.ContainerPort{
 		Number:   port,
 		HostIp:   nil,

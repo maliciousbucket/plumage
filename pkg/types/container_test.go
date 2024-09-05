@@ -51,25 +51,25 @@ func TestParseSampleComposeFile(t *testing.T) {
 			},
 		},
 		Resources: nil,
-		CommandProbes: []*CommandProbe{
-			&CommandProbe{
-				Commands: []*string{
-					&cmd1,
-					&cmd2,
-					&cmd3,
-					&cmd4,
-					&cmd5,
-					&cmd6,
-				},
-				Delay:    nil,
-				Timeout:  &timeout,
-				Interval: &interval,
-				Retries:  &retries,
+		HealthCheck: &CommandProbe{
+
+			Commands: []*string{
+				&cmd1,
+				&cmd2,
+				&cmd3,
+				&cmd4,
+				&cmd5,
+				&cmd6,
 			},
+			Delay:    nil,
+			Timeout:  &timeout,
+			Interval: &interval,
+			Retries:  &retries,
 		},
-		HttpProbes: nil,
-		Volumes:    nil,
-		Commands:   nil,
+
+		ReadinessProbe: nil,
+		Volumes:        nil,
+		Commands:       nil,
 	}
 
 	t.Run("aks microservice - store front", func(t *testing.T) {

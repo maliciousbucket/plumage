@@ -1,12 +1,13 @@
 package types
 
 import (
+	"fmt"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	compose "github.com/compose-spec/compose-go/v2/types"
 )
 
 const (
-	DefaultImagePullPolicy = "IfNotPresent"
+	DefaultImagePullPolicy = cdk8splus30.ImagePullPolicy_IF_NOT_PRESENT
 )
 
 //Env, volumes
@@ -26,7 +27,7 @@ type ContainerSpec struct {
 	WorkingDir     string              `json:"workingDir"`
 }
 
-func ParseServiceConfig(config compose.ServiceConfig) (*ContainerSpec, error) {
+func ParseServiceConfig(projectDir string, config compose.ServiceConfig) (*ContainerSpec, error) {
 	var ports []*Port
 
 	for _, portSpec := range config.Ports {
@@ -65,6 +66,21 @@ func ParseServiceConfig(config compose.ServiceConfig) (*ContainerSpec, error) {
 		workingDir = config.WorkingDir
 	}
 
+	var volumes []*ContainerVolume
+	if len(config.Volumes) > 0 {
+		i := 0
+		for _, volumeSpec := range config.Volumes {
+			volumeName := fmt.Sprintf("%s-volume-%d", config.Name, i)
+			fmt.Println(volumeName)
+			volume, err := ParseContainerVolume(projectDir, volumeName, volumeSpec)
+			if err != nil {
+				return nil, err
+			}
+			volumes = append(volumes, volume)
+			i++
+		}
+	}
+
 	container := &ContainerSpec{
 		Name:        config.Name,
 		Image:       config.Image,
@@ -73,6 +89,7 @@ func ParseServiceConfig(config compose.ServiceConfig) (*ContainerSpec, error) {
 		Args:        args,
 		HealthCheck: cmdProbe,
 		WorkingDir:  workingDir,
+		Volumes:     volumes,
 	}
 	return container, nil
 }
@@ -96,6 +113,11 @@ func (c *ContainerSpec) ToContainerProps() (*cdk8splus30.ContainerProps, error) 
 		startup = probe
 	}
 
+	var resources *cdk8splus30.ContainerResources
+	if c.Resources != nil {
+		resources = c.Resources.ToK8sContainerResources()
+	}
+
 	return &cdk8splus30.ContainerProps{
 		Args:            &c.Args,
 		Command:         &c.Commands,
@@ -105,11 +127,10 @@ func (c *ContainerSpec) ToContainerProps() (*cdk8splus30.ContainerProps, error) 
 		Lifecycle:       nil,
 		Liveness:        nil,
 		Name:            &c.Name,
-		Port:            nil,
 		PortNumber:      nil,
 		Ports:           &ports,
 		Readiness:       c.ReadinessProbe,
-		Resources:       nil,
+		Resources:       resources,
 		RestartPolicy:   "",
 		SecurityContext: nil,
 		Startup:         &startup,

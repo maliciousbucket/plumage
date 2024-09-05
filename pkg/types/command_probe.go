@@ -3,9 +3,11 @@ package types
 import (
 	"errors"
 	"fmt"
+	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	compose "github.com/compose-spec/compose-go/v2/types"
+	"time"
 )
 
 type CommandProbe struct {
@@ -67,11 +69,21 @@ func (p *CommandProbe) parseCommandProbeOpts() (*cdk8splus30.CommandProbeOptions
 	}
 
 	if p.Interval != nil {
-		probeOpts.PeriodSeconds = cdk8s.Duration_Parse(p.Interval)
+		interval, err := time.ParseDuration(*p.Interval)
+		fmt.Printf("Interval Seconds: %v", interval.Seconds())
+		if err != nil {
+			return nil, err
+		}
+		probeOpts.PeriodSeconds = cdk8s.Duration_Seconds(jsii.Number(interval.Seconds()))
 	}
 
 	if p.Timeout != nil {
-		probeOpts.TimeoutSeconds = cdk8s.Duration_Parse(p.Timeout)
+		timeout, err := time.ParseDuration(*p.Timeout)
+		if err != nil {
+			return nil, err
+		}
+
+		probeOpts.TimeoutSeconds = cdk8s.Duration_Seconds(jsii.Number(timeout.Seconds()))
 	}
 	return &probeOpts, nil
 

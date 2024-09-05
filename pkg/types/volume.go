@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 	compose "github.com/compose-spec/compose-go/v2/types"
+	"os"
+	"path"
+	"path/filepath"
 )
 
 //TODO: Set names
@@ -11,6 +14,7 @@ import (
 type ContainerVolume interface {
 	Name() string
 	Target() string
+	Type() string
 	//Validate() error
 }
 
@@ -21,20 +25,42 @@ type VolumeFromDirectory struct {
 	Readonly   bool
 }
 
-func ParseContainerVolume(c compose.ServiceVolumeConfig) (*ContainerVolume, error) {
+func ParseContainerVolume(projectDir string, svcName string, c compose.ServiceVolumeConfig) (*ContainerVolume, error) {
+	var cv ContainerVolume
 	if c.Source == "" {
-		emptyVolume, err := ParseEmptyVolume(c)
+		emptyVolume, err := ParseEmptyVolume(svcName, c)
 		if err != nil {
 			return nil, err
 		}
-		var cv ContainerVolume = emptyVolume
+		cv = emptyVolume
 		return &cv, nil
 	}
-
+	//filePath := path.Join(projectDir, c.Source)
+	filePath := c.Source
+	file, err := os.Stat(filePath)
+	if err != nil {
+		return nil, err
+	}
+	switch mode := file.Mode(); {
+	case mode.IsDir():
+		volumeFromDir, err := ParseVolumeFromDirectory(projectDir, svcName, c)
+		if err != nil {
+			return nil, err
+		}
+		cv = volumeFromDir
+		return &cv, nil
+	case mode.IsRegular():
+		volumeFromFile, err := ParseVolumeFromFile(projectDir, svcName, c)
+		if err != nil {
+			return nil, err
+		}
+		cv = volumeFromFile
+		return &cv, nil
+	}
 	return nil, fmt.Errorf("unknown volume source %s", c.Source)
 }
 
-func ParseVolumeFromDirectory(config compose.ServiceVolumeConfig) (*VolumeFromDirectory, error) {
+func ParseVolumeFromDirectory(projectDir string, svcName string, config compose.ServiceVolumeConfig) (*VolumeFromDirectory, error) {
 
 	if config.Source == "" {
 		return nil, errors.New("volume source must be specified")
@@ -44,10 +70,17 @@ func ParseVolumeFromDirectory(config compose.ServiceVolumeConfig) (*VolumeFromDi
 		return nil, errors.New("volume target must be specified")
 	}
 
+	sourcePath := path.Join(projectDir, config.Source)
+	_, err := filepath.Abs(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+
 	volume := &VolumeFromDirectory{
-		Source:    config.Source,
-		TargetDir: config.Target,
-		Readonly:  config.ReadOnly,
+		VolumeName: svcName,
+		Source:     config.Source,
+		TargetDir:  config.Target,
+		Readonly:   config.ReadOnly,
 	}
 
 	return volume, nil
@@ -65,6 +98,10 @@ func (v *VolumeFromDirectory) Target() string {
 	return v.TargetDir
 }
 
+func (v *VolumeFromDirectory) Type() string {
+	return "directory"
+}
+
 type VolumeFromFile struct {
 	Source     string
 	TargetFile string
@@ -72,7 +109,7 @@ type VolumeFromFile struct {
 	Readonly   bool
 }
 
-func ParseVolumeFromFile(config compose.ServiceVolumeConfig) (*VolumeFromFile, error) {
+func ParseVolumeFromFile(projectDir string, svcName string, config compose.ServiceVolumeConfig) (*VolumeFromFile, error) {
 
 	if config.Source == "" {
 		return nil, errors.New("volume source must be specified")
@@ -82,7 +119,14 @@ func ParseVolumeFromFile(config compose.ServiceVolumeConfig) (*VolumeFromFile, e
 		return nil, errors.New("volume target must be specified")
 	}
 
+	sourcePath := path.Join(projectDir, config.Source)
+	_, err := filepath.Abs(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+
 	volume := &VolumeFromFile{
+		VolumeName: svcName,
 		Source:     config.Source,
 		TargetFile: config.Target,
 		Readonly:   config.ReadOnly,
@@ -101,18 +145,22 @@ func (v *VolumeFromFile) File() string {
 func (v *VolumeFromFile) Target() string {
 	return v.TargetFile
 }
+func (v *VolumeFromFile) Type() string {
+	return "file"
+}
 
 type EmptyVolume struct {
 	TargetDir  string
 	VolumeName string
 }
 
-func ParseEmptyVolume(config compose.ServiceVolumeConfig) (*EmptyVolume, error) {
+func ParseEmptyVolume(svcName string, config compose.ServiceVolumeConfig) (*EmptyVolume, error) {
 	if config.Target == "" {
 		return nil, errors.New("volume source must be specified")
 	}
 	volume := &EmptyVolume{
-		TargetDir: config.Target,
+		VolumeName: svcName,
+		TargetDir:  config.Target,
 	}
 	return volume, nil
 }
@@ -121,4 +169,7 @@ func (v *EmptyVolume) Name() string {
 }
 func (v *EmptyVolume) Target() string {
 	return v.TargetDir
+}
+func (v *EmptyVolume) Type() string {
+	return "empty"
 }

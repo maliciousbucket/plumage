@@ -1,4 +1,4 @@
-package template
+package resilience
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,7 @@ func TestValidRateLimitConfig_UnmarshalYAML(t *testing.T) {
 		},
 
 		{
-			name: "Multiple Strategy config",
+			name: "Multiple LimitStrategy config",
 			file: "../../testdata/template/retry-strategy/multiple-ratelimit-strategy-config.yaml",
 			expected: &RateLimitConfig{
 				Average: 10,
@@ -38,7 +38,7 @@ func TestValidRateLimitConfig_UnmarshalYAML(t *testing.T) {
 			},
 		},
 		{
-			name: "Valid Host Strategy config",
+			name: "Valid Host LimitStrategy config",
 			file: "../../testdata/template/retry-strategy/valid-host-strategy-config.yaml",
 			expected: &RateLimitConfig{
 				Average: 10,
@@ -50,7 +50,7 @@ func TestValidRateLimitConfig_UnmarshalYAML(t *testing.T) {
 			},
 		},
 		{
-			name: "Valid Header Strategy config",
+			name: "Valid Header LimitStrategy config",
 			file: "../../testdata/template/retry-strategy/valid-header-strategy-config.yaml",
 			expected: &RateLimitConfig{
 				Average:  10,
@@ -82,15 +82,15 @@ func TestInvalidRateLimitConfig_UnmarshalYAML(t *testing.T) {
 		file string
 	}{
 		{
-			name: "Invalid Header Strategy config",
+			name: "Invalid Header LimitStrategy config",
 			file: "../../testdata/template/retry-strategy/invalid-header-strategy-config.yaml",
 		},
 		{
-			name: "Invalid Host Strategy config",
+			name: "Invalid Host LimitStrategy config",
 			file: "../../testdata/template/retry-strategy/invalid-host-strategy-config.yaml",
 		},
 		{
-			name: "Invalid IpDepth Strategy config",
+			name: "Invalid IpDepth LimitStrategy config",
 			file: "../../testdata/template/retry-strategy/invalid-ipdepth-strategy-config.yaml",
 		},
 		{
@@ -122,9 +122,9 @@ func assertRateLimitStrategyEqual(t testing.TB, expected, actual *RateLimitConfi
 //	name: "Invalid Retry Config",
 //	file: "../../testdata/template/retry-strategy/unknown-ratelimit-strategy-config.yaml",
 //	expected: &RateLimitConfig{
-//		Average:  10,
-//		Burst:    5,
-//		Period:   "10s",
-//		Strategy: nil,
+//		AverageRequests:  10,
+//		BurstRequests:    5,
+//		RatePeriod:   "10s",
+//		LimitStrategy: nil,
 //	},
 //},

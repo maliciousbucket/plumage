@@ -1,4 +1,4 @@
-package template
+package resilience
 
 import (
 	"fmt"
@@ -10,6 +10,21 @@ type RateLimitConfig struct {
 	Burst    int               `yaml:"burst"`
 	Period   string            `yaml:"period"`
 	Strategy RateLimitStrategy `yaml:"strategy"`
+}
+
+func (r *RateLimitConfig) AverageRequests() int {
+	return r.Average
+}
+func (r *RateLimitConfig) BurstRequests() int {
+	return r.Burst
+}
+
+func (r *RateLimitConfig) RatePeriod() string {
+	return r.Period
+}
+
+func (r *RateLimitConfig) LimitStrategy() RateLimitStrategy {
+	return r.Strategy
 }
 
 func (r *RateLimitConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {

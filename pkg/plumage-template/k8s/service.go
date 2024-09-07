@@ -74,7 +74,7 @@ func ServicePorts(props *ServiceProps) []*k8s.ServicePort {
 	var ports []*k8s.ServicePort
 	i := 0
 	for _, port := range props.Ports {
-		name := PortName(port.GRPC, i)
+		name := PortName(port.Grpc, i)
 		if props.Monitoring != nil {
 			if props.Monitoring.ScrapePort != 0 {
 				if port.ContainerPort == props.Monitoring.ScrapePort {

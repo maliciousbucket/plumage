@@ -6,6 +6,8 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/maliciousbucket/plumage/imports/k8s"
 	plumagetemplate "github.com/maliciousbucket/plumage/pkg/plumage-template"
+	"github.com/maliciousbucket/plumage/pkg/plumage-template/ingress"
+	"github.com/maliciousbucket/plumage/pkg/plumage-template/middleware"
 	"github.com/maliciousbucket/plumage/pkg/resilience"
 	"github.com/maliciousbucket/plumage/pkg/types"
 	"strings"
@@ -35,82 +37,82 @@ type WebServiceProps struct {
 	InitContainers []*plumagetemplate.InitContainer
 	Scaling        *plumagetemplate.ScalingConfig
 	Resilience     *resilience.ResTemplate
-	Paths          []ServicePaths
+	Paths          []ingress.ServicePaths
 	Env            map[string]string
 	Middlewares    []string
-	Ingress        *IngressConfig
+	Ingress        *ingress.RouteConfig
 }
 
-type IngressConfig struct {
-	Host               string
-	Paths              []*ServicePaths
-	EnableLoadBalancer bool
-}
-
-type ServicePaths struct {
-	Path string
-	Port int
+type SynthOpts struct {
+	Options []SynthFunc
 }
 
 func newWebService(scope constructs.Construct, id string, props *WebServiceProps) constructs.Construct {
 	return nil
 }
 
-type SynthFunc func(p *WebServiceProps) constructs.Construct
+type SynthFunc func(scope constructs.Construct, p *WebServiceProps) constructs.Construct
 
-func WithDeployment(scope constructs.Construct) SynthFunc {
-	return func(p *WebServiceProps) constructs.Construct {
+func WithDeployment() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.deploymentProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "deployment")
 		return NewDeployment(scope, id, p.Namespace, p.Name, props)
 	}
 }
 
-func WithService(scope constructs.Construct) SynthFunc {
-	return func(p *WebServiceProps) constructs.Construct {
+func WithService() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.serviceProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "service")
 		return NewService(scope, id, props)
 	}
 }
 
-func WithAutoScaling(scope constructs.Construct) SynthFunc {
-	return func(p *WebServiceProps) constructs.Construct {
+func WithAutoScaling() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.autoScalingProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
 		return NewHorizontalAutoscaler(scope, id, props)
 	}
 }
 
-func WithIngressRoute(scope constructs.Construct) SynthFunc {
-	return func(p *WebServiceProps) constructs.Construct {
+func WithDefaultAutoScaling() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
+		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
+		return DefaultAutoScaler(scope, id, p.Namespace, p.Name)
+	}
+}
+
+func WithIngressRoute() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.ingressRouteProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "ingressroute")
-		return NewIngressRoute(scope, id, props)
+		return ingress.NewIngressRoute(scope, id, props)
 	}
 }
 
-func WithRetry(scope constructs.Construct) SynthFunc {
-	return func(p *WebServiceProps) constructs.Construct {
+func WithRetry() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.retryProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "retry")
-		return NewRetryMiddleware(scope, id, p.Namespace, p.Name, props)
+		return middleware.NewRetryMiddleware(scope, id, p.Namespace, p.Name, props)
 	}
 }
 
-func WithCircuitBreaker(scope constructs.Construct) SynthFunc {
-	return func(p *WebServiceProps) constructs.Construct {
+func WithCircuitBreaker() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.circuitBreakerProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "circuitbreaker")
-		return NewCircuitBreakerMiddleware(scope, id, p.Namespace, p.Name, props)
+		return middleware.NewCircuitBreakerMiddleware(scope, id, p.Namespace, p.Name, props)
 	}
 }
 
-func WithRateLimit(scope constructs.Construct) SynthFunc {
-	return func(p *WebServiceProps) constructs.Construct {
+func WithRateLimit() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.rateLimitProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "ratelimit")
-		return NewRateLimitMiddleware(scope, id, p.Namespace, p.Name, props)
+		return middleware.NewRateLimitMiddleware(scope, id, p.Namespace, p.Name, props)
 	}
 }
 
@@ -154,22 +156,22 @@ func (p *WebServiceProps) autoScalingProps() *AutoScalerProps {
 	}
 }
 
-func (p *WebServiceProps) retryProps() *RetryProps {
+func (p *WebServiceProps) retryProps() *middleware.RetryProps {
 	if p.Resilience == nil {
 		return nil
 	}
 
-	return &RetryProps{
+	return &middleware.RetryProps{
 		RetryAttempts: p.Resilience.RetryPolicy.RetryAttempts(),
 		IntervalMs:    p.Resilience.RetryPolicy.IntervalMS(),
 	}
 }
 
-func (p *WebServiceProps) rateLimitProps() *RateLimitProps {
+func (p *WebServiceProps) rateLimitProps() *middleware.RateLimitProps {
 	if p.Resilience == nil {
 		return nil
 	}
-	return &RateLimitProps{
+	return &middleware.RateLimitProps{
 		AverageRequests: p.Resilience.RateLimitPolicy.Average,
 		BurstRequests:   p.Resilience.RateLimitPolicy.Burst,
 		RatePeriod:      p.Resilience.RateLimitPolicy.Period,
@@ -177,11 +179,11 @@ func (p *WebServiceProps) rateLimitProps() *RateLimitProps {
 	}
 }
 
-func (p *WebServiceProps) circuitBreakerProps() *CircuitBreakerProps {
+func (p *WebServiceProps) circuitBreakerProps() *middleware.CircuitBreakerProps {
 	if p.Resilience == nil {
 		return nil
 	}
-	return &CircuitBreakerProps{
+	return &middleware.CircuitBreakerProps{
 		CircuitBreakerExpression: p.Resilience.CircuitBreakerPolicy.CircuitBreakerExpression(),
 		CheckPeriod:              p.Resilience.CircuitBreakerPolicy.CheckPeriod(),
 		FallbackDuration:         p.Resilience.CircuitBreakerPolicy.FallbackDuration(),
@@ -189,11 +191,11 @@ func (p *WebServiceProps) circuitBreakerProps() *CircuitBreakerProps {
 	}
 }
 
-func (p *WebServiceProps) ingressRouteProps() *IngressRouteProps {
+func (p *WebServiceProps) ingressRouteProps() *ingress.RouteProps {
 	if p.Ingress == nil {
 		return nil
 	}
-	return &IngressRouteProps{
+	return &ingress.RouteProps{
 		Name:        p.Name,
 		Namespace:   p.Namespace,
 		Config:      p.Ingress,
@@ -271,4 +273,22 @@ func StringSliceToK8s(sl []string) *[]*string {
 		k8sSlice = append(k8sSlice, &v)
 	}
 	return &k8sSlice
+}
+
+func loadMonitoringEnv(values, config, env map[string]string) map[string]string {
+	for k, v := range values {
+		if _, ok := env[k]; ok {
+			env[k] = v
+		}
+	}
+	//If a value in the config map is a key in the values map
+	//Set  the key from the config map - to the value of the value map's value
+	// In the env map
+	//So that some keys cna be provided for non-standard otel etc env variables
+	for key, configValue := range config {
+		if v, ok := values[configValue]; ok {
+			env[key] = v
+		}
+	}
+	return env
 }

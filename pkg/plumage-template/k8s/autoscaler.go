@@ -125,3 +125,43 @@ func autoScalerMetrics(config *plumagetemplate.ScalingConfig) *[]*k8s.MetricSpec
 	return &metrics
 
 }
+
+func DefaultAutoScaler(scope constructs.Construct, id string, ns string, appLabel string) k8s.KubeHorizontalPodAutoscalerV2 {
+	metada := autoSclaerMeta(ns, appLabel)
+
+	return k8s.NewKubeHorizontalPodAutoscalerV2(scope, jsii.String(id), &k8s.KubeHorizontalPodAutoscalerV2Props{
+		Metadata: metada,
+		Spec: &k8s.HorizontalPodAutoscalerSpecV2{
+			MaxReplicas: jsii.Number(3),
+			ScaleTargetRef: &k8s.CrossVersionObjectReferenceV2{
+				Kind:       jsii.String(DeploymentKind),
+				Name:       jsii.String(appLabel),
+				ApiVersion: jsii.String("apps/v1"),
+			},
+			Behavior: nil,
+			Metrics: &[]*k8s.MetricSpecV2{
+				&k8s.MetricSpecV2{
+					Type: jsii.String("Resource"),
+					Resource: &k8s.ResourceMetricSourceV2{
+						Name: jsii.String("cpu"),
+						Target: &k8s.MetricTargetV2{
+							Type:               jsii.String("Utilization"),
+							AverageUtilization: jsii.Number(70),
+						},
+					},
+				},
+				&k8s.MetricSpecV2{
+					Type: jsii.String("Resource"),
+					Resource: &k8s.ResourceMetricSourceV2{
+						Name: jsii.String("memory"),
+						Target: &k8s.MetricTargetV2{
+							Type:               jsii.String("Utilization"),
+							AverageUtilization: jsii.Number(70),
+						},
+					},
+				},
+			},
+			MinReplicas: jsii.Number(1),
+		},
+	})
+}

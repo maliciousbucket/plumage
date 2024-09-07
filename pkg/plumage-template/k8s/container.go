@@ -123,7 +123,7 @@ func ContainerPorts(ports []*plumagetemplate.ServicePort, metricsPort int) []*k8
 	var containerPorts []*k8s.ContainerPort
 	i := 0
 	for _, port := range ports {
-		name := PortName(port.GRPC, i)
+		name := PortName(port.Grpc, i)
 		if metricsPort != 0 {
 			if port.ContainerPort == metricsPort {
 				name = "http-metrics"

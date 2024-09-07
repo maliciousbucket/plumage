@@ -28,9 +28,9 @@ func NewDeployment(scope constructs.Construct, id string, ns string, appLabel st
 	meta := deploymentMeta(ns, props.Name)
 	labels := deploymentLabels(props.Name)
 
-	var replicas *float64
+	var replicas float64
 	if props.MinReplicas != 0 {
-		replicas = jsii.Number(props.MinReplicas)
+		replicas = float64(props.MinReplicas)
 	}
 
 	container := NewContainer(&ContainerProps{
@@ -79,7 +79,7 @@ func NewDeployment(scope constructs.Construct, id string, ns string, appLabel st
 			MinReadySeconds:         nil,
 			Paused:                  nil,
 			ProgressDeadlineSeconds: nil,
-			Replicas:                replicas,
+			Replicas:                &replicas,
 			RevisionHistoryLimit:    nil,
 			Strategy:                nil,
 		},

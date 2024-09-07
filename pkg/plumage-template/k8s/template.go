@@ -4,14 +4,39 @@ import (
 	"fmt"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	plumagetemplate "github.com/maliciousbucket/plumage/pkg/plumage-template"
+	"github.com/maliciousbucket/plumage/pkg/plumage-template/ingress"
 	"github.com/maliciousbucket/plumage/pkg/types"
 	"strconv"
 )
 
-func ServiceConfigOptions(template *plumagetemplate.PlumageTemplate, config *plumagetemplate.ServiceConfig, props *WebServiceProps) (*WebServiceProps, error) {
+func ServiceConfigOptions(template *plumagetemplate.PlumageTemplate, config *plumagetemplate.ServiceConfig, props *WebServiceProps) (*WebServiceProps, *SynthOpts, error) {
 	var options []ServiceConfigFunc
+	synthOptions := SynthOpts{
+		Options: []SynthFunc{},
+	}
 
-	if config.Service.SynthOptions.ComposeVolumes == true {
+	if config.Service.SynthOptions.Service {
+		synthOptions.Options = append(synthOptions.Options, WithService())
+	}
+
+	if config.Service.SynthOptions.Deployment {
+		synthOptions.Options = append(synthOptions.Options, WithDeployment())
+	}
+
+	if config.Service.SynthOptions.IngressRoute {
+		options = append(options, WithServiceIngressRoute(config))
+		synthOptions.Options = append(synthOptions.Options, WithIngressRoute())
+	}
+
+	if config.Service.SynthOptions.AutoScaling {
+		options = append(options, WithDeploymentAutoScaler(config, &synthOptions))
+	}
+
+	if len(config.Service.Middleware) > 0 {
+		options = append(options, WithMiddlewares(config, &synthOptions))
+	}
+
+	if config.Service.SynthOptions.ComposeVolumes {
 		options = append(options, WithComposeVolumes(config, props))
 	}
 
@@ -39,7 +64,7 @@ func ServiceConfigOptions(template *plumagetemplate.PlumageTemplate, config *plu
 		options = append(options, WithComposeStartupCheck(config))
 	}
 
-	return nil, nil
+	return nil, nil, nil
 }
 
 func loadBaseProps(template *plumagetemplate.PlumageTemplate, config *plumagetemplate.ServiceConfig, ns string) *WebServiceProps {
@@ -52,9 +77,6 @@ func loadBaseProps(template *plumagetemplate.PlumageTemplate, config *plumagetem
 			ComposeImage: false,
 		}
 	}
-
-	var ingress IngressConfig
-	loadIngressConfig(config.Service.Host, config.Service.Paths, config.Service.LoadBalancer, &ingress)
 
 	return &WebServiceProps{
 		Name:      config.Service.Name,
@@ -69,7 +91,6 @@ func loadBaseProps(template *plumagetemplate.PlumageTemplate, config *plumagetem
 		Resources:  config.Service.Resources,
 		Monitoring: config.Service.Monitoring,
 		//Resilience
-		Ingress:     &ingress,
 		Scaling:     config.Service.Scaling,
 		Env:         config.Service.Env,
 		Middlewares: config.Service.Middleware,
@@ -105,20 +126,50 @@ func WithInitContainers(template *plumagetemplate.PlumageTemplate, config *pluma
 	}
 }
 
-func WithServiceIngressRoute(config *plumagetemplate.ServiceConfig, props *WebServiceProps) ServiceConfigFunc {
+func WithServiceIngressRoute(config *plumagetemplate.ServiceConfig) ServiceConfigFunc {
 	return func(p *WebServiceProps) error {
+		ingressCfg := &ingress.RouteConfig{}
+		loadIngressConfig(config.Service.Host, config.Service.Paths, config.Service.LoadBalancer, ingressCfg)
+		if ingressCfg == nil {
+			return fmt.Errorf("no ingress configuration found")
+		}
+		p.Ingress = ingressCfg
 		return nil
 	}
 }
 
-func WithDeploymentAutoScaler(config *plumagetemplate.ServiceConfig, props *WebServiceProps) ServiceConfigFunc {
+func WithDeploymentAutoScaler(config *plumagetemplate.ServiceConfig, opts *SynthOpts) ServiceConfigFunc {
 	return func(p *WebServiceProps) error {
+		if config.Service.Scaling != nil {
+			p.Scaling = config.Service.Scaling
+			opts.Options = append(opts.Options, WithAutoScaling())
+		} else {
+			opts.Options = append(opts.Options, WithDefaultAutoScaling())
+		}
 		return nil
 	}
 }
 
-func WithMiddlewares(config *plumagetemplate.ServiceConfig, props *WebServiceProps) ServiceConfigFunc {
+func WithMiddlewares(config *plumagetemplate.ServiceConfig, opts *SynthOpts) ServiceConfigFunc {
 	return func(p *WebServiceProps) error {
+		if len(config.Service.Middleware) == 0 {
+			return fmt.Errorf("no middleware specified")
+		}
+		for _, middleware := range config.Service.Middleware {
+			switch middleware {
+			case "retry":
+				opts.Options = append(opts.Options, WithRetry())
+			case "circuitbreaker":
+				opts.Options = append(opts.Options, WithCircuitBreaker())
+			case "ratelimit":
+				opts.Options = append(opts.Options, WithRateLimit())
+
+			default:
+				return fmt.Errorf("unknown middleware %s", middleware)
+
+			}
+
+		}
 		return nil
 	}
 }
@@ -195,37 +246,20 @@ func WithMonitoringEnv(config *plumagetemplate.ServiceConfig) ServiceConfigFunc 
 	}
 }
 
-func loadIngressConfig(host string, paths []*plumagetemplate.ServicePaths, loadBalancer bool, config *IngressConfig) {
+func loadIngressConfig(host string, paths []*plumagetemplate.ServicePaths, loadBalancer bool, config *ingress.RouteConfig) {
 	if host != "" {
 		config.Host = host
 	}
 	if len(paths) > 0 {
-		var ingressPaths []*ServicePaths
+		var ingressPaths []*ingress.ServicePaths
 		for _, path := range paths {
-			ingressPaths = append(ingressPaths, &ServicePaths{
+			ingressPaths = append(ingressPaths, &ingress.ServicePaths{
 				Path: path.Path,
 				Port: path.Port,
 			})
 		}
 		if loadBalancer != false {
 			config.EnableLoadBalancer = true
-		}
-	}
-}
-
-func loadMonitoringEnv(values, config, env map[string]string) {
-	for k, v := range values {
-		if _, ok := env[k]; ok {
-			env[k] = v
-		}
-	}
-	//If a value in the config map is a key in the values map
-	//Set  the key from the config map - to the value of the value map's value
-	// In the env map
-	//So that some keys cna be provided for non-standard otel etc env variables
-	for key, configValue := range config {
-		if v, ok := values[configValue]; ok {
-			env[key] = v
 		}
 	}
 }

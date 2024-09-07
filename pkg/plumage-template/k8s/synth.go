@@ -6,6 +6,7 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/maliciousbucket/plumage/imports/k8s"
 	plumagetemplate "github.com/maliciousbucket/plumage/pkg/plumage-template"
+	"github.com/maliciousbucket/plumage/pkg/plumage-template/autoscaling"
 	"github.com/maliciousbucket/plumage/pkg/plumage-template/ingress"
 	"github.com/maliciousbucket/plumage/pkg/plumage-template/middleware"
 	"github.com/maliciousbucket/plumage/pkg/resilience"
@@ -73,14 +74,14 @@ func WithAutoScaling() SynthFunc {
 	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.autoScalingProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
-		return NewHorizontalAutoscaler(scope, id, props)
+		return autoscaling.NewHorizontalAutoscaler(scope, id, props)
 	}
 }
 
 func WithDefaultAutoScaling() SynthFunc {
 	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
-		return DefaultAutoScaler(scope, id, p.Namespace, p.Name)
+		return autoscaling.DefaultAutoScaler(scope, id, p.Namespace, p.Name)
 	}
 }
 
@@ -148,12 +149,13 @@ func (p *WebServiceProps) serviceProps() *ServiceProps {
 	}
 }
 
-func (p *WebServiceProps) autoScalingProps() *AutoScalerProps {
-	return &AutoScalerProps{
+func (p *WebServiceProps) autoScalingProps() *autoscaling.AutoScalerProps {
+	return &autoscaling.AutoScalerProps{
 		Name:      p.Name,
 		Namespace: p.Namespace,
 		Scaling:   p.Scaling,
 	}
+
 }
 
 func (p *WebServiceProps) retryProps() *middleware.RetryProps {

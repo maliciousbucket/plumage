@@ -1,10 +1,16 @@
-package k8s
+package autoscaling
 
 import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/maliciousbucket/plumage/imports/k8s"
 	plumagetemplate "github.com/maliciousbucket/plumage/pkg/plumage-template"
+)
+
+const (
+	DeploymentKind = "Deployment"
+	AppsV1         = "apps/v1"
+	AppLabel       = "app"
 )
 
 type AutoScalerProps struct {

@@ -13,13 +13,14 @@ import (
 )
 
 const (
-	containerPath = "/spec/template/containers/0/envFrom"
+	containerPath = "/spec/template/spec/containers/0/envFrom"
 )
 
 func AddServiceEnvironmentVariables(scope constructs.Construct, s *ServiceTemplate, target cdk8s.ApiObject, m *config.CollectorConfig) constructs.Construct {
 	collectorMap := m.ToStringMap()
 	envConfig := loadMonitoringEnvWithAliases(collectorMap, s.MonitoringAliases, s.MonitoringEnv)
 	envValues := StringMapToK8s(envConfig)
+	fmt.Printf("Env Values: %v", envValues)
 
 	addContainerEnvironmentVariables(scope, target, s.Namespace, s.Name, envValues)
 	return scope
@@ -84,7 +85,7 @@ func loadMonitoringEnv(values, config, env map[string]string) map[string]string 
 }
 
 func loadMonitoringEnvWithAliases(values, aliases map[string]string, env []string) map[string]string {
-	var result map[string]string
+	result := make(map[string]string)
 	for k, v := range values {
 		if slices.Contains(env, k) {
 			result[k] = v
@@ -98,7 +99,7 @@ func loadMonitoringEnvWithAliases(values, aliases map[string]string, env []strin
 }
 
 func StringMapToK8s(m map[string]string) *map[string]*string {
-	var k8sMap map[string]*string
+	k8sMap := make(map[string]*string)
 	for k, v := range m {
 		k8sMap[k] = &v
 	}

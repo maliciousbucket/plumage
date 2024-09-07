@@ -20,7 +20,9 @@ func LocalDirToConfigMap(scope constructs.Construct, v LocalDirectoryVolume, pro
 	target := v.Target()
 	directory := v.Directory()
 
-	configMap := cdk8splus30.NewConfigMap(scope, &id, props)
+	configMapId := fmt.Sprintf("%s-configmap", id)
+
+	configMap := cdk8splus30.NewConfigMap(scope, jsii.String(configMapId), props)
 
 	//path := filepath.Join(workDir, v.Directory())
 	configMap.AddDirectory(jsii.String(directory), &cdk8splus30.AddDirectoryOptions{
@@ -41,7 +43,9 @@ func LocalFileToConfigMap(scope constructs.Construct, v LocalFileVolume, props *
 	target := v.Target()
 	file := v.File()
 
-	configMap := cdk8splus30.NewConfigMap(scope, &id, props)
+	configMapId := fmt.Sprintf("%s-configmap", id)
+
+	configMap := cdk8splus30.NewConfigMap(scope, jsii.String(configMapId), props)
 
 	configMap.AddFile(jsii.String(file), jsii.String(target))
 
@@ -57,8 +61,9 @@ type EmptyVolume interface {
 func EmptyDirToConfigMap(scope constructs.Construct, v EmptyVolume, props *cdk8splus30.ConfigMapProps) cdk8splus30.ConfigMap {
 	id := v.Name()
 	target := v.Target()
+	configMapId := fmt.Sprintf("%s-configmap", id)
 
-	configMap := cdk8splus30.NewConfigMap(scope, &id, props)
+	configMap := cdk8splus30.NewConfigMap(scope, jsii.String(configMapId), props)
 	configMap.AddDirectory(nil, &cdk8splus30.AddDirectoryOptions{
 		KeyPrefix: &target,
 	})
@@ -68,7 +73,9 @@ func EmptyDirToConfigMap(scope constructs.Construct, v EmptyVolume, props *cdk8s
 
 func AddVolumeConfigMaps(scope constructs.Construct, container cdk8splus30.Container, namespace string, volumes []*types.ContainerVolume) (constructs.Construct, error) {
 	props := defaultConfigMapProps(namespace)
+	i := 0
 	for _, v := range volumes {
+
 		volume := *v
 		volumeType := volume.Type()
 
@@ -105,6 +112,7 @@ func AddVolumeConfigMaps(scope constructs.Construct, container cdk8splus30.Conta
 		default:
 			return nil, fmt.Errorf("unsupported volume type: %s", volumeType)
 		}
+		i++
 	}
 	return scope, nil
 }

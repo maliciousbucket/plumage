@@ -43,8 +43,13 @@ func newServiceDeploymentProps(sc template.ServiceConfig) *cdk8splus30.Deploymen
 	podSelect := true
 
 	replicas := 2
-	if sc.Service.Resilience.ScalingPolicy.MinReplicas != 0 {
-		replicas = int(sc.Service.Resilience.ScalingPolicy.MinReplicas)
+	if sc.Service != nil {
+		if sc.Service.Resilience != nil {
+			if sc.Service.Resilience.ScalingPolicy.MinReplicas != 0 {
+				replicas = int(sc.Service.Resilience.ScalingPolicy.MinReplicas)
+			}
+		}
+
 	}
 
 	return &cdk8splus30.DeploymentProps{
@@ -91,9 +96,9 @@ func NewServiceDeployment(scope constructs.Construct, sc template.ServiceConfig)
 	}
 	container := deployment.AddContainer(containerProps)
 
-	addPromAnnotations(deployment, sc.Service.Monitoring)
+	addPromAnnotations(deployment, sc)
 
-	_, err = AddVolumeConfigMaps(scope, container, sc.Namespace, sc.Container.Volumes)
+	scope, err = AddVolumeConfigMaps(scope, container, sc.Namespace, sc.Container.Volumes)
 	if err != nil {
 		return nil, err
 	}
@@ -110,21 +115,26 @@ func NewServiceDeployment(scope constructs.Construct, sc template.ServiceConfig)
 	return deployment, nil
 }
 
-func addPromAnnotations(deployment cdk8splus30.Deployment, m *template.MonitoringTemplate) {
-	if m != nil {
-		if m.ScrapeConfig != nil {
-			path := "/metrics"
+func addPromAnnotations(deployment cdk8splus30.Deployment, sc template.ServiceConfig) {
+	if sc.Service != nil {
+		m := sc.Service.Monitoring
 
-			if m.ScrapeConfig.MetricsPath != "" {
-				path = m.ScrapeConfig.MetricsPath
+		if m != nil {
+			if m.ScrapeConfig != nil {
+				path := "/metrics"
+
+				if m.ScrapeConfig.MetricsPath != "" {
+					path = m.ScrapeConfig.MetricsPath
+				}
+
+				deployment.Metadata().AddAnnotation(jsii.String(PrometheusScrapeAnnotation), jsii.String("true"))
+				if m.ScrapeConfig.MetricsPort != 0 {
+					deployment.Metadata().AddAnnotation(jsii.String(PrometheusPortAnnotation), jsii.String(strconv.FormatInt(int64(m.ScrapeConfig.MetricsPort), 10)))
+
+				}
+				deployment.Metadata().AddAnnotation(jsii.String(PrometheusPathAnnotation), jsii.String(path))
 			}
-
-			deployment.Metadata().AddAnnotation(jsii.String(PrometheusScrapeAnnotation), jsii.String("true"))
-			if m.ScrapeConfig.MetricsPort != 0 {
-				deployment.Metadata().AddAnnotation(jsii.String(PrometheusPortAnnotation), jsii.String(strconv.FormatInt(int64(m.ScrapeConfig.MetricsPort), 10)))
-
-			}
-			deployment.Metadata().AddAnnotation(jsii.String(PrometheusPathAnnotation), jsii.String(path))
 		}
 	}
+
 }

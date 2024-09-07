@@ -19,48 +19,6 @@ const (
 
 type MiddlewareName string
 
-//func NewMiddleware(scope constructs.Construct, id string) cdk8s.Chart {
-//
-//	middleware := traefikio.MiddlewareProps{
-//		Metadata: &cdk8s.ApiObjectMetadata{
-//			Annotations:     nil,
-//			Finalizers:      nil,
-//			Labels:          nil,
-//			Name:            nil,
-//			Namespace:       nil,
-//			OwnerReferences: nil,
-//		},
-//		Spec: &traefikio.MiddlewareSpec{
-//			AddPrefix:         nil,
-//			BasicAuth:         nil,
-//			Buffering:         nil,
-//			Chain:             nil,
-//			CircuitBreaker:    nil,
-//			Compress:          nil,
-//			ContentType:       nil,
-//			DigestAuth:        nil,
-//			Errors:            nil,
-//			ForwardAuth:       nil,
-//			GrpcWeb:           nil,
-//			Headers:           nil,
-//			InFlightReq:       nil,
-//			IpAllowList:       nil,
-//			IpWhiteList:       nil,
-//			PassTlsClientCert: nil,
-//			Plugin:            nil,
-//			RateLimit:         nil,
-//			RedirectRegex:     nil,
-//			RedirectScheme:    nil,
-//			ReplacePath:       nil,
-//			ReplacePathRegex:  nil,
-//			Retry:             nil,
-//			StripPrefix:       nil,
-//			StripPrefixRegex:  nil,
-//		},
-//	}
-//	return nil
-//}
-
 type MiddlewareProps struct {
 }
 
@@ -248,5 +206,6 @@ func emptyMiddlewareProps(svcName string, mwType MiddlewareName) *traefikio.Midd
 	metaData := defaultMiddlewareMetadata(svcName, mwType)
 	return &traefikio.MiddlewareProps{
 		Metadata: metaData,
+		Spec:     &traefikio.MiddlewareSpec{},
 	}
 }

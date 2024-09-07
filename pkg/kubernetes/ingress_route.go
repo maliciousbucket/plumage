@@ -53,6 +53,30 @@ func ingressRouteSpec(routeProps []*RouteProps) *traefikio.IngressRouteSpec {
 	}
 }
 
+func ingressRouteSpecEmpty() *traefikio.IngressRouteSpec {
+	return &traefikio.IngressRouteSpec{
+		Routes: &[]*traefikio.IngressRouteSpecRoutes{
+			&traefikio.IngressRouteSpecRoutes{
+				Kind:        defaultRouteType,
+				Match:       nil,
+				Middlewares: nil,
+				Priority:    nil,
+				Services:    nil,
+				Syntax:      nil,
+			},
+		},
+	}
+}
+
+func EmptyIngressRouteProps(namespace string, svcName string) *traefikio.IngressRouteProps {
+	metadata := defaultIngressRouteMetadata(namespace, svcName)
+	spec := ingressRouteSpecEmpty()
+	return &traefikio.IngressRouteProps{
+		Metadata: metadata,
+		Spec:     spec,
+	}
+}
+
 func NewIngressRouteProps(namespace string, svcName string, routeProps []*RouteProps) *traefikio.IngressRouteProps {
 	metadata := defaultIngressRouteMetadata(namespace, svcName)
 	spec := ingressRouteSpec(routeProps)

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 const (
@@ -25,20 +26,81 @@ type MonitoringConfig struct {
 }
 
 type CollectorConfig struct {
+	DefaultProtocol         string `yaml:"defaultProtocol"`
 	LokiWriteEndpoint       string `json:"loki_write_endpoint" yaml:"lokiWriteEndpoint"`
 	LokiWritePort           int    `json:"loki_write_port" yaml:"lokiWritePort"`
 	PrometheusWriteEndpoint string `json:"prometheus_write_endpoint" yaml:"prometheusWriteEndpoint"`
 	PrometheusWritePort     int    `json:"prometheus_write_port" yaml:"prometheusWritePort"`
 	ZipkinEndpoint          string `json:"zipkin_endpoint" yaml:"zipkinEndpoint"`
 	//TODO: Check if necessary
-	ZipkinPort       int    `json:"zipkin_port" yaml:"zipkinPort"`
-	OtlpHTTPEndpoint string `json:"otlp_http_endpoint" yaml:"otlpHTTPEndpoint"`
-	OtlpHTTPPort     int    `json:"otlp_http_port" yaml:"otlpHTTPPort"`
-	OtlpGRPCEndpoint string `json:"otlp_grpc_endpoint" yaml:"otlpGRPCEndpoint"`
-	OtlpGRPCPort     int    `json:"otlp_grpc_port" yaml:"otlpGRPCPort"`
-	OtlpMetricsPath  string `json:"otlp_metrics_path" yaml:"otlpMetricsPath"`
-	OtlpLogsPath     string `json:"otlp_logs_path" yaml:"otlpLogsPath"`
-	OtlpTracesPath   string `json:"otlp_traces_path" yaml:"otlpTracesPath"`
+	ZipkinPort                int    `json:"zipkin_port" yaml:"zipkinPort"`
+	OtlpExportProtocol        string `json:"otlp_export_protocol" yaml:"otlpExportProtocol"`
+	OtlpMetricsExportProtocol string `json:"otlp_metrics_export_protocol" yaml:"otlpMetricsExportProtocol"`
+	OtlpLogsExportProtocol    string `json:"otlp_logs_export_protocol" yaml:"otlpLogsExportProtocol"`
+	OtlpTracesExportProtocol  string `json:"otlp_traces_export_protocol" yaml:"otlpTracesExportProtocol"`
+	OtlpHTTPEndpoint          string `json:"otlp_http_endpoint" yaml:"otlpHTTPEndpoint"`
+	OtlpHTTPPort              int    `json:"otlp_http_port" yaml:"otlpHTTPPort"`
+	OtlpGRPCEndpoint          string `json:"otlp_grpc_endpoint" yaml:"otlpGRPCEndpoint"`
+	OtlpGRPCPort              int    `json:"otlp_grpc_port" yaml:"otlpGRPCPort"`
+	OtlpMetricsEndpoint       string `json:"otlp_metrics_endpoint" yaml:"otlpMetricsEndpoint"`
+	OtlpLogsEndpoint          string `json:"otlp_logs_endpoint" yaml:"otlpLogsEndpoint"`
+	OtlpTracesEndpoint        string `json:"otlp_traces_endpoint" yaml:"otlpTracesEndpoint"`
+
+	OtlpMetricsPath     string `json:"otlp_metrics_path" yaml:"otlpMetricsPath"`
+	OtlpLogsPath        string `json:"otlp_logs_path" yaml:"otlpLogsPath"`
+	OtlpTracesPath      string `json:"otlp_traces_path" yaml:"otlpTracesPath"`
+	OtlpMetricsExporter string `json:"otlp_metrics_exporter" yaml:"otlpMetricsExporter"`
+	OtlpLogsExporter    string `json:"otlp_logs_exporter" yaml:"otlpLogsExporter"`
+	OtlpTracesExporter  string `json:"otlp_traces_exporter" yaml:"otlpTracesExporter"`
+}
+
+//TODO: Add switch between http and grpc
+
+func (c CollectorConfig) ToStringMap() map[string]string {
+	useHttp := false
+	switch strings.ToLower(c.DefaultProtocol) {
+	case "http":
+		useHttp = true
+	case "grpc":
+		useHttp = false
+	default:
+		useHttp = false
+	}
+
+	metricsEndpoint := c.OtlpMetricsEndpoint
+	logsEndpoint := c.OtlpLogsEndpoint
+	tracesEndpoint := c.OtlpTracesEndpoint
+	otlpExporterProtocol := c.OtlpExportProtocol
+
+	if useHttp {
+
+		metricsEndpoint = fmt.Sprintf("%s:%d/%s", c.OtlpHTTPEndpoint, c.OtlpHTTPPort, c.OtlpMetricsEndpoint)
+		logsEndpoint = fmt.Sprintf("%s:%d/%s", c.OtlpHTTPEndpoint, c.OtlpHTTPPort, c.OtlpLogsEndpoint)
+		tracesEndpoint = fmt.Sprintf("%s:%d/%s", c.OtlpHTTPEndpoint, c.OtlpHTTPPort, c.OtlpTracesEndpoint)
+		otlpExporterProtocol = "http/protobuff"
+	}
+
+	return map[string]string{
+		"LOKI_ENDPOINT":       fmt.Sprintf("%s:%d", c.LokiWriteEndpoint, c.LokiWritePort),
+		"PROMETHEUS_ENDPOINT": fmt.Sprintf("%s:%d", c.PrometheusWriteEndpoint, c.PrometheusWritePort),
+		"ZIPKIN_ENDPOINT":     fmt.Sprintf("%s:%d", c.ZipkinEndpoint, c.ZipkinPort),
+
+		"OTEL_EXPORTER_OTLP_PROTOCOL":         otlpExporterProtocol,
+		"OTEL_EXPORTER_OTLP_METRICS_PROTOCOL": c.OtlpMetricsExportProtocol,
+		"OTEL_EXPORTER_OTLP_LOGS_PROTOCOL":    c.OtlpLogsExportProtocol,
+		"OTEL_EXPORTER_OTLP_TRACES_PROTOCOL":  c.OtlpTracesExportProtocol,
+
+		"OTEL_EXPORTER_OTLP_ENDPOINT": fmt.Sprintf("%s:%d", c.OtlpGRPCEndpoint, c.OtlpGRPCPort),
+		"OTEL_EXPORTER_HTTP_ENDPOINT": fmt.Sprintf("%s:%d", c.OtlpHTTPEndpoint, c.OtlpHTTPPort),
+
+		"OTEL_METRICS_ENDPOINT": metricsEndpoint,
+		"OTEL_LOGS_ENDPOINT":    logsEndpoint,
+		"OTEL_TRACES_ENDPOINT":  tracesEndpoint,
+
+		"OTEL_METRICS_EXPORTER": c.OtlpMetricsExporter,
+		"OTEL_LOGS_EXPORTER":    c.OtlpLogsExporter,
+		"OTEL_TRACES_EXPORTER":  c.OtlpTracesExporter,
+	}
 }
 
 func NewMonitoringConfig(configDir string, envFile string) (*MonitoringConfig, error) {
@@ -182,22 +244,34 @@ func loadMonitoringConfigFromEnv(envFile string, base *MonitoringConfig) error {
 }
 
 func loadDefaultMonitoringConfig() MonitoringConfig {
+	alloyAddress := "alloy.svc.cluster.local"
 	return MonitoringConfig{
-		AlloyAddress: "alloy.svc.cluster.local",
+		AlloyAddress: alloyAddress,
 		Collectors: &CollectorConfig{
-			LokiWriteEndpoint:       "/loki/api/push",
-			LokiWritePort:           8090,
-			PrometheusWriteEndpoint: "",
-			PrometheusWritePort:     8080,
-			ZipkinEndpoint:          "",
-			ZipkinPort:              9411,
-			OtlpHTTPEndpoint:        "",
-			OtlpHTTPPort:            4318,
-			OtlpGRPCEndpoint:        "",
-			OtlpGRPCPort:            4317,
-			OtlpMetricsPath:         "/v1/metrics",
-			OtlpLogsPath:            "/v1/logs",
-			OtlpTracesPath:          "/v1/traces",
+			DefaultProtocol:           "grpc",
+			LokiWriteEndpoint:         "/loki/api/push",
+			LokiWritePort:             8090,
+			PrometheusWriteEndpoint:   "",
+			PrometheusWritePort:       8080,
+			ZipkinEndpoint:            "",
+			ZipkinPort:                9411,
+			OtlpExportProtocol:        string(GRPCProtocol),
+			OtlpMetricsExportProtocol: string(GRPCProtocol),
+			OtlpLogsExportProtocol:    string(GRPCProtocol),
+			OtlpTracesExportProtocol:  string(GRPCProtocol),
+			OtlpHTTPEndpoint:          "",
+			OtlpHTTPPort:              4318,
+			OtlpGRPCEndpoint:          "",
+			OtlpGRPCPort:              4317,
+			OtlpMetricsEndpoint:       fmt.Sprintf("%s:%s", alloyAddress, "4317"),
+			OtlpLogsEndpoint:          fmt.Sprintf("%s:%s", alloyAddress, "4317"),
+			OtlpTracesEndpoint:        fmt.Sprintf("%s:%s", alloyAddress, "4317"),
+			OtlpMetricsPath:           "/v1/metrics",
+			OtlpLogsPath:              "/v1/logs",
+			OtlpTracesPath:            "/v1/traces",
+			OtlpMetricsExporter:       OTLPValue,
+			OtlpLogsExporter:          OTLPValue,
+			OtlpTracesExporter:        OTLPValue,
 		},
 		EnvFile: "",
 	}

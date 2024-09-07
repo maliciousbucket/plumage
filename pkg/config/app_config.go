@@ -113,7 +113,7 @@ type TemplateConfig struct {
 }
 
 type ComposeConfig struct {
-	WorkingDir   string   `yaml:"-,omitempty" json:"-,omitempty"`
+	WorkingDir   string   `yaml:"workingDir,omitempty" json:"workingDir,omitempty"`
 	ComposeFiles []string `yaml:"composeFiles,omitempty" json:"composeFiles,omitempty"`
 	EnvFiles     []string `yaml:"envFiles,omitempty" json:"envFiles,omitempty"`
 }

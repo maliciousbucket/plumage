@@ -1,4 +1,6 @@
 language: go
 app: go run .
 imports:
-  - k8s
+  - imports/traefik/kubernetes-crd-definition-v1.yml
+  - https://raw.githubusercontent.com/kubernetes/autoscaler/master/vertical-pod-autoscaler/deploy/vpa-v1-crd-gen.yaml
+  - k8s@1.30.0

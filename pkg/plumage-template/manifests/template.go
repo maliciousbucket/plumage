@@ -128,11 +128,11 @@ func (s *ServiceTemplate) rateLimitProps() *middleware.RateLimitProps {
 	}
 }
 
-func (s *ServiceTemplate) autoscalingProps() *autoscaling.AutoScalerProps {
+func (s *ServiceTemplate) autoscalingProps() *autoscaling.HorizontalAutoScalerProps {
 	if s.Scaling == nil {
 		return nil
 	}
-	return &autoscaling.AutoScalerProps{
+	return &autoscaling.HorizontalAutoScalerProps{
 		Name:      s.Name,
 		Namespace: s.Namespace,
 		Scaling:   s.Scaling,

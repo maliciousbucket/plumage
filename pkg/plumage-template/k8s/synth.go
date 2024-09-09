@@ -81,7 +81,7 @@ func WithAutoScaling() SynthFunc {
 func WithDefaultAutoScaling() SynthFunc {
 	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
-		return autoscaling.DefaultAutoScaler(scope, id, p.Namespace, p.Name)
+		return autoscaling.DefaultHorizontalAutoScaler(scope, id, p.Namespace, p.Name)
 	}
 }
 
@@ -149,8 +149,8 @@ func (p *WebServiceProps) serviceProps() *ServiceProps {
 	}
 }
 
-func (p *WebServiceProps) autoScalingProps() *autoscaling.AutoScalerProps {
-	return &autoscaling.AutoScalerProps{
+func (p *WebServiceProps) autoScalingProps() *autoscaling.HorizontalAutoScalerProps {
+	return &autoscaling.HorizontalAutoScalerProps{
 		Name:      p.Name,
 		Namespace: p.Namespace,
 		Scaling:   p.Scaling,

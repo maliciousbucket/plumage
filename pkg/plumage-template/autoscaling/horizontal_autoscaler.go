@@ -13,13 +13,13 @@ const (
 	AppLabel       = "app"
 )
 
-type AutoScalerProps struct {
+type HorizontalAutoScalerProps struct {
 	Name      string
 	Namespace string
 	Scaling   *plumagetemplate.ScalingConfig
 }
 
-func NewHorizontalAutoscaler(scope constructs.Construct, id string, props *AutoScalerProps) k8s.KubeHorizontalPodAutoscalerV2 {
+func NewHorizontalAutoscaler(scope constructs.Construct, id string, props *HorizontalAutoScalerProps) k8s.KubeHorizontalPodAutoscalerV2 {
 	metadata := autoSclaerMeta(props.Namespace, props.Name)
 	metrics := autoScalerMetrics(props.Scaling)
 	minReplicas := 1
@@ -132,7 +132,7 @@ func autoScalerMetrics(config *plumagetemplate.ScalingConfig) *[]*k8s.MetricSpec
 
 }
 
-func DefaultAutoScaler(scope constructs.Construct, id string, ns string, appLabel string) k8s.KubeHorizontalPodAutoscalerV2 {
+func DefaultHorizontalAutoScaler(scope constructs.Construct, id string, ns string, appLabel string) k8s.KubeHorizontalPodAutoscalerV2 {
 	metada := autoSclaerMeta(ns, appLabel)
 
 	return k8s.NewKubeHorizontalPodAutoscalerV2(scope, jsii.String(id), &k8s.KubeHorizontalPodAutoscalerV2Props{

@@ -6,19 +6,19 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 )
 
-func (c *Client) GetApplication(name string) (*v1alpha1.Application, error) {
-	return c.applicationClient.Get(context.Background(), &application.ApplicationQuery{
+func (c *Client) GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error) {
+	return c.applicationClient.Get(ctx, &application.ApplicationQuery{
 		Name: &name,
 	})
 }
 
-func (c *Client) ListApplications(params *AppQueryParams) (*v1alpha1.ApplicationList, error) {
+func (c *Client) ListApplications(ctx context.Context, params *AppQueryParams) (*v1alpha1.ApplicationList, error) {
 	var query application.ApplicationQuery
 
 	for _, opt := range params.Options {
 		opt(&query)
 	}
-	return c.applicationClient.List(context.Background(), &query)
+	return c.applicationClient.List(ctx, &query)
 }
 
 type AppQueryParams struct {

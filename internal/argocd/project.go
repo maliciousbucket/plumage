@@ -7,8 +7,8 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (c *Client) CreateProject(name string) (*v1alpha1.AppProject, error) {
-	return c.projectClient.Create(context.Background(), &project.ProjectCreateRequest{
+func (c *Client) CreateProject(ctx context.Context, name string) (*v1alpha1.AppProject, error) {
+	return c.projectClient.Create(ctx, &project.ProjectCreateRequest{
 		Project: &v1alpha1.AppProject{
 			ObjectMeta: v1.ObjectMeta{
 				Name: name,
@@ -17,13 +17,13 @@ func (c *Client) CreateProject(name string) (*v1alpha1.AppProject, error) {
 	})
 }
 
-func (c *Client) DeleteProject(name string) error {
-	_, err := c.projectClient.Delete(context.Background(), &project.ProjectQuery{
+func (c *Client) DeleteProject(ctx context.Context, name string) error {
+	_, err := c.projectClient.Delete(ctx, &project.ProjectQuery{
 		Name: name,
 	})
 	return err
 }
 
-func (c *Client) GetProject(name string) (*v1alpha1.AppProject, error) {
-	return c.projectClient.Get(context.Background(), &project.ProjectQuery{Name: name})
+func (c *Client) GetProject(ctx context.Context, name string) (*v1alpha1.AppProject, error) {
+	return c.projectClient.Get(ctx, &project.ProjectQuery{Name: name})
 }

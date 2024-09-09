@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"fmt"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/spf13/cobra"
@@ -38,10 +39,11 @@ func getProject(name string) error {
 	if err != nil {
 		return err
 	}
-	project, err := client.GetProject(name)
+	ctx := context.Background()
+	res, err := client.GetProject(ctx, name)
 	if err != nil {
 		return err
 	}
-	fmt.Println(project)
+	fmt.Println(res)
 	return nil
 }

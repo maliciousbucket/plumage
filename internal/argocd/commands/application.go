@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/maliciousbucket/plumage/internal/argocd"
@@ -60,7 +61,8 @@ func getAppByName(name string) error {
 	if err != nil {
 		return err
 	}
-	app, err := client.GetApplication(name)
+	ctx := context.Background()
+	app, err := client.GetApplication(ctx, name)
 	if err != nil {
 		return err
 	}
@@ -83,7 +85,8 @@ func listApps() error {
 	}
 
 	buildAppQueryParams(&params)
-	apps, err := client.ListApplications(&params)
+	ctx := context.Background()
+	apps, err := client.ListApplications(ctx, &params)
 	if err != nil {
 		return err
 	}

@@ -6,7 +6,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 )
 
-func (c *Client) AddDestination(projectName, server, namespace, name string) error {
+func (c *Client) AddDestination(ctx context.Context, projectName, server, namespace, name string) error {
 	p, err := c.GetProject(projectName)
 	if err != nil {
 		return err
@@ -20,7 +20,7 @@ func (c *Client) AddDestination(projectName, server, namespace, name string) err
 		},
 	}
 
-	_, err = c.projectClient.Update(context.Background(), &project.ProjectUpdateRequest{Project: p})
+	_, err = c.projectClient.Update(ctx, &project.ProjectUpdateRequest{Project: p})
 	if err != nil {
 		return err
 	}

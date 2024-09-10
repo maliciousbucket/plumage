@@ -7,7 +7,7 @@ import (
 )
 
 func (c *Client) AddDestination(ctx context.Context, projectName, server, namespace, name string) error {
-	p, err := c.GetProject(projectName)
+	p, err := c.GetProject(ctx, projectName)
 	if err != nil {
 		return err
 	}

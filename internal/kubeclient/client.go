@@ -8,12 +8,27 @@ import (
 	"path/filepath"
 )
 
+// Client TODO: Change to interface
 type Client struct {
-	kubeClient *kubernetes.Clientset
-	helmClient *helmClient
+	Client k8sClient
 }
 
-func New() (*kubernetes.Clientset, error) {
+type k8sClient struct {
+	kubeClient *kubernetes.Clientset
+}
+
+func NewClient() (*Client, error) {
+	kubeClient, err := newClientset()
+	if err != nil {
+		return nil, err
+	}
+	client := k8sClient{
+		kubeClient: kubeClient,
+	}
+	return &Client{Client: client}, nil
+}
+
+func newClientset() (*kubernetes.Clientset, error) {
 	kubeCfg := os.Getenv("KUBECONFIG")
 
 	if kubeCfg == "" {

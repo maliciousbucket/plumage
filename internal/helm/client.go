@@ -33,32 +33,30 @@ type helmClient struct {
 
 func (c *helmClient) InstallArgo(ctx context.Context, argo *ArgoConfig, opts ...ArgoOpts) (*release.Release, error) {
 
-	//for _, opt := range opts {
-	//	err := opt(argo)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//}
+	for _, opt := range opts {
+		err := opt(argo)
+		if err != nil {
+			return nil, err
+		}
+	}
 
-	//chartSpec := argo.ChartSpec()
+	chartSpec := argo.ChartSpec()
 
 	helmOpts := &helmc.GenericHelmOptions{
 		RollBack: c.Client,
 	}
-	fmt.Println("We here")
 
-	chartSpec := &helmc.ChartSpec{
-		Namespace:       "argocd",
-		ChartName:       "https://github.com/argoproj/argo-helm/releases/download/argo-cd-7.5.2/argo-cd-7.5.2.tgz",
-		UpgradeCRDs:     false,
-		Wait:            true,
-		Version:         argoVersion,
-		DryRun:          true,
-		ReleaseName:     "argocd-helm",
-		CreateNamespace: true,
-		Force:           true,
-	}
-	fmt.Println("Are we?")
+	//chartSpec := &helmc.ChartSpec{
+	//	Namespace:       "argocd",
+	//	ChartName:       "https://github.com/argoproj/argo-helm/releases/download/argo-cd-7.5.2/argo-cd-7.5.2.tgz",
+	//	UpgradeCRDs:     false,
+	//	Wait:            true,
+	//	Version:         argoVersion,
+	//	DryRun:          true,
+	//	ReleaseName:     "argocd-helm",
+	//	CreateNamespace: true,
+	//	Force:           true,
+	//}
 
 	res, err := c.Client.InstallOrUpgradeChart(ctx, chartSpec, helmOpts)
 	if err != nil {
@@ -86,7 +84,7 @@ func (cfg *ClientCfg) kubeClientOptions() (*helmc.KubeConfClientOptions, error) 
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Did we get this far?")
+
 	return &helmc.KubeConfClientOptions{
 		Options: &helmc.Options{
 			Namespace:        cfg.Namespace,
@@ -111,12 +109,15 @@ func getKubeConfig(configPath string) ([]byte, error) {
 		}
 		return kubeConfig, nil
 	}
-	//kubeConfig := os.Getenv("KUBECONFIG")
-	//if kubeConfig != "" {
-	//	fmt.Println("sussy")
-	//	return []byte(kubeConfig), nil
-	//
-	//}
+	kubeConfig := os.Getenv("KUBECONFIG")
+	if kubeConfig != "" {
+		data, err := os.ReadFile(kubeConfig)
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
+
+	}
 	dir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, err

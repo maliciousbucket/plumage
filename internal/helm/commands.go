@@ -2,7 +2,6 @@ package helm
 
 import (
 	"context"
-	"fmt"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +21,7 @@ func InstallArgoCmd() *cobra.Command {
 			version := cmd.Flag("version").Value.String()
 			repo := cmd.Flag("remote").Value.String()
 
-			err = InstallArgo(namespace, file, version, chart, repo)
+			err = installArgo(namespace, file, version, chart, repo)
 			if err != nil {
 				return err
 			}
@@ -44,8 +43,7 @@ func InstallArgoCmd() *cobra.Command {
 	return cmd
 }
 
-func InstallArgo(ns, file, ver, chart, remote string) error {
-	argo := defaultArgoConfig(ns)
+func installArgo(ns, file, ver, chart, remote string) error {
 	var opts []ArgoOpts
 	if ver != "" {
 		opts = append(opts, WithVersion(ver))
@@ -71,16 +69,9 @@ func InstallArgo(ns, file, ver, chart, remote string) error {
 		username:         "123",
 		password:         "abc",
 	}
-	client, err := New(clientCfg)
+	err := InstallArgo(ctx, clientCfg, ns, opts...)
 	if err != nil {
 		return err
 	}
-
-	res, err := client.InstallArgo(ctx, argo, opts...)
-	if err != nil {
-		return err
-	}
-	fmt.Println(res)
 	return nil
-
 }

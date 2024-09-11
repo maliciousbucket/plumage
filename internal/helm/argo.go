@@ -1,6 +1,7 @@
 package helm
 
 import (
+	"context"
 	"fmt"
 	helmc "github.com/mittwald/go-helm-client"
 	"github.com/mittwald/go-helm-client/values"
@@ -19,17 +20,35 @@ type ArgoConfig struct {
 	ValuesFiles []string
 }
 
+func InstallArgo(ctx context.Context, clientCfg *ClientCfg, ns string, opts ...ArgoOpts) error {
+	argo := defaultArgoConfig(ns)
+
+	client, err := New(clientCfg)
+	if err != nil {
+		return err
+	}
+
+	res, err := client.InstallArgo(ctx, argo, opts...)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Successfully installed helm chart %s in namespace %s\n", res.Name, res.Namespace)
+	return nil
+}
+
 func (c *ArgoConfig) ChartSpec() *helmc.ChartSpec {
 	valuesOpts := values.Options{
 		ValueFiles: c.ValuesFiles,
 	}
 
 	return &helmc.ChartSpec{
-		Namespace:     "argocd",
-		ChartName:     c.ChartName,
-		ReleaseName:   "argo-helm",
-		Version:       c.Version,
-		ValuesOptions: valuesOpts,
+		Namespace:       "argocd",
+		ChartName:       c.ChartName,
+		ReleaseName:     "argocd-helm",
+		Version:         c.Version,
+		ValuesOptions:   valuesOpts,
+		UpgradeCRDs:     true,
+		CreateNamespace: true,
 	}
 }
 

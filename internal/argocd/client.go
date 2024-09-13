@@ -3,9 +3,11 @@ package argocd
 import (
 	"fmt"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
 	"github.com/joho/godotenv"
 	"os"
 )
@@ -21,6 +23,8 @@ type Client struct {
 	projectClient     project.ProjectServiceClient
 	clusterClient     cluster.ClusterServiceClient
 	applicationClient application.ApplicationServiceClient
+	accountClient     account.AccountServiceClient
+	credsClient       repocreds.RepoCredsServiceClient
 }
 
 func GetConnection() (Connection, error) {
@@ -46,9 +50,11 @@ func GetConnection() (Connection, error) {
 
 func NewClient(c Connection) (*Client, error) {
 	apiClient, err := apiclient.NewClient(&apiclient.ClientOptions{
-		ServerAddr: fmt.Sprintf(c.Address),
-		Insecure:   true,
-		AuthToken:  c.Token,
+		ServerAddr:           fmt.Sprintf(c.Address),
+		Insecure:             true,
+		AuthToken:            c.Token,
+		PortForward:          true,
+		PortForwardNamespace: "argocd",
 	})
 
 	if err != nil {
@@ -67,5 +73,9 @@ func NewClient(c Connection) (*Client, error) {
 
 	_, applicationClient, err := apiClient.NewApplicationClient()
 
-	return &Client{projectClient, clusterClient, applicationClient}, nil
+	_, accountClient, err := apiClient.NewAccountClient()
+
+	_, credsClient, err := apiClient.NewRepoCredsClient()
+
+	return &Client{projectClient, clusterClient, applicationClient, accountClient, credsClient}, nil
 }

@@ -17,6 +17,55 @@ func (c *Client) CreateProject(ctx context.Context, name string) (*v1alpha1.AppP
 	})
 }
 
+func (c *Client) createProject(ctx context.Context, proj *v1alpha1.AppProject) error {
+	_, err := c.projectClient.Create(ctx, &project.ProjectCreateRequest{
+		Project: proj,
+	}, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type createProjectFunc func(project *v1alpha1.AppProject)
+
+func projectWithNamespace(namespace string) createProjectFunc {
+	return func(project *v1alpha1.AppProject) {
+		project.Namespace = namespace
+	}
+}
+
+func projectWithName(name string) createProjectFunc {
+	return func(project *v1alpha1.AppProject) {
+		project.Name = name
+	}
+}
+
+func projectWithSourceNamespaces(namespaces []string) createProjectFunc {
+	return func(project *v1alpha1.AppProject) {
+		project.Spec.SourceNamespaces = namespaces
+	}
+}
+
+func projectWithSources(sources []string) createProjectFunc {
+	return func(project *v1alpha1.AppProject) {
+		project.Spec.SourceRepos = sources
+	}
+}
+
+func projectWithDestinations([]v1alpha1.ApplicationDestination) createProjectFunc {
+	return func(project *v1alpha1.AppProject) {
+		project.Spec.Destinations = make([]v1alpha1.ApplicationDestination, len(project.Spec.Destinations))
+		copy(project.Spec.Destinations, project.Spec.Destinations)
+	}
+}
+
+func projectWithDescription(description string) createProjectFunc {
+	return func(project *v1alpha1.AppProject) {
+		project.Spec.Description = description
+	}
+}
+
 func (c *Client) DeleteProject(ctx context.Context, name string) error {
 	_, err := c.projectClient.Delete(ctx, &project.ProjectQuery{
 		Name: name,

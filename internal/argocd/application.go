@@ -22,9 +22,12 @@ func (c *Client) GetApplication(ctx context.Context, name string) (*v1alpha1.App
 func (c *Client) ListApplications(ctx context.Context, params *AppQueryParams) (*v1alpha1.ApplicationList, error) {
 	var query application.ApplicationQuery
 
-	for _, opt := range params.Options {
-		opt(&query)
+	if params != nil {
+		for _, opt := range params.Options {
+			opt(&query)
+		}
 	}
+
 	return c.applicationClient.List(ctx, &query)
 }
 

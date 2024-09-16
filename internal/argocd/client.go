@@ -50,11 +50,11 @@ func GetConnection() (Connection, error) {
 
 func NewClient(c Connection) (*Client, error) {
 	apiClient, err := apiclient.NewClient(&apiclient.ClientOptions{
-		ServerAddr:           fmt.Sprintf(c.Address),
-		Insecure:             true,
-		AuthToken:            c.Token,
-		PortForward:          true,
-		PortForwardNamespace: "argocd",
+		ServerAddr: fmt.Sprintf(c.Address),
+		Insecure:   true,
+		AuthToken:  c.Token,
+		//PortForward:          true,
+		//PortForwardNamespace: "argocd",
 	})
 
 	if err != nil {
@@ -72,10 +72,19 @@ func NewClient(c Connection) (*Client, error) {
 	}
 
 	_, applicationClient, err := apiClient.NewApplicationClient()
+	if err != nil {
+		return nil, err
+	}
 
 	_, accountClient, err := apiClient.NewAccountClient()
+	if err != nil {
+		return nil, err
+	}
 
 	_, credsClient, err := apiClient.NewRepoCredsClient()
+	if err != nil {
+		return nil, err
+	}
 
 	return &Client{projectClient, clusterClient, applicationClient, accountClient, credsClient}, nil
 }

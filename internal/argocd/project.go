@@ -2,6 +2,7 @@ package argocd
 
 import (
 	"context"
+	"fmt"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -17,14 +18,25 @@ func (c *Client) CreateProject(ctx context.Context, name string) (*v1alpha1.AppP
 	})
 }
 
-func (c *Client) createProject(ctx context.Context, proj *v1alpha1.AppProject) error {
-	_, err := c.projectClient.Create(ctx, &project.ProjectCreateRequest{
-		Project: proj,
-	}, nil)
-	if err != nil {
-		return err
+func (c *Client) createProject(ctx context.Context, proj *v1alpha1.AppProject) (*v1alpha1.AppProject, error) {
+	if proj == nil {
+		return nil, fmt.Errorf("project is nil")
 	}
-	return nil
+
+	if c.projectClient == nil {
+		fmt.Println("Project client is nil?")
+	}
+
+	output, err := c.projectClient.Create(ctx, &project.ProjectCreateRequest{
+		Project: proj,
+		Upsert:  true,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println(output.Name)
+	return output, nil
 }
 
 type createProjectFunc func(project *v1alpha1.AppProject)
@@ -53,10 +65,10 @@ func projectWithSources(sources []string) createProjectFunc {
 	}
 }
 
-func projectWithDestinations([]v1alpha1.ApplicationDestination) createProjectFunc {
+func projectWithDestinations(destinations []v1alpha1.ApplicationDestination) createProjectFunc {
 	return func(project *v1alpha1.AppProject) {
-		project.Spec.Destinations = make([]v1alpha1.ApplicationDestination, len(project.Spec.Destinations))
-		copy(project.Spec.Destinations, project.Spec.Destinations)
+		project.Spec.Destinations = make([]v1alpha1.ApplicationDestination, len(destinations))
+		copy(project.Spec.Destinations, destinations)
 	}
 }
 

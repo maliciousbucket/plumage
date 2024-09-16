@@ -37,11 +37,14 @@ func (k *k8sClient) addGalahAccount(ctx context.Context, ns string) error {
 			return fmt.Errorf("error getting argocd-cm ConfigMap: %v", getErr)
 		}
 		result.Data = map[string]string{
-			"accounts.galah": "apiKey, login",
+			"accounts.galah":         "apiKey, login",
+			"accounts.galah.enabled": "true",
+			"kustomize.buildOptions": "--enable-helm",
 		}
 		_, updateErr := configMapClient.Update(ctx, result, metav1.UpdateOptions{})
 		return updateErr
 	})
+
 	if retryErr != nil {
 		return fmt.Errorf("error updating argocd-cm ConfigMap: %v", retryErr)
 	}
@@ -62,4 +65,23 @@ func (k *k8sClient) addGalahAccount(ctx context.Context, ns string) error {
 	}
 	return nil
 
+}
+
+func (k *k8sClient) setKustomizeBuildOptions(ctx context.Context, ns string) error {
+	configMapClient := k.kubeClient.CoreV1().ConfigMaps(ns)
+
+	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		result, getErr := configMapClient.Get(ctx, "argocd-cm", metav1.GetOptions{})
+		if getErr != nil {
+			return fmt.Errorf("error getting argocd-cm ConfigMap: %v", getErr)
+		}
+		result.Data["kustomize.buildOptions"] = "--enable-helm"
+
+		_, updateErr := configMapClient.Update(ctx, result, metav1.UpdateOptions{})
+		return updateErr
+	})
+	if retryErr != nil {
+		return fmt.Errorf("error updating argocd-cm ConfigMap: %v", retryErr)
+	}
+	return nil
 }

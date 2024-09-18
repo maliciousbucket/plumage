@@ -1,16 +1,20 @@
 package plumage_template
 
 import (
+	"fmt"
 	"github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
-	types2 "github.com/compose-spec/compose-go/v2/types"
+	composeTypes "github.com/compose-spec/compose-go/v2/types"
 	"github.com/maliciousbucket/plumage/pkg/types"
+	"os"
+	"path"
+	"path/filepath"
 	"strings"
 )
 
-func MatchServices(p *PlumageTemplate, compose map[string]*types2.ServiceConfig) []*ServiceConfig {
+func MatchServices(p *PlumageTemplate, compose map[string]*composeTypes.ServiceConfig) []*ServiceConfig {
 	var services []*ServiceConfig
 	for _, service := range p.Services {
-		var composeService *types2.ServiceConfig
+		var composeService *composeTypes.ServiceConfig
 		if comp, ok := compose[service.Name]; ok {
 			composeService = comp
 		}
@@ -22,15 +26,15 @@ func MatchServices(p *PlumageTemplate, compose map[string]*types2.ServiceConfig)
 	return services
 }
 
-func getComposeServices(p *types2.Project) map[string]*types2.ServiceConfig {
-	services := map[string]*types2.ServiceConfig{}
+func getComposeServices(p *composeTypes.Project) map[string]*composeTypes.ServiceConfig {
+	services := map[string]*composeTypes.ServiceConfig{}
 	for _, service := range p.Services {
-		services[service.Name] = &types2.ServiceConfig{}
+		services[service.Name] = &composeTypes.ServiceConfig{}
 	}
 	return services
 }
 
-func GetCommandProbe(service types2.ServiceConfig) (*types.CommandProbe, error) {
+func GetCommandProbe(service composeTypes.ServiceConfig) (*types.CommandProbe, error) {
 	if service.HealthCheck == nil {
 		return nil, nil
 	}
@@ -41,7 +45,7 @@ func GetCommandProbe(service types2.ServiceConfig) (*types.CommandProbe, error) 
 	return probe, nil
 }
 
-func GetVolumes(service types2.ServiceConfig, projectDir string) ([]*types.ContainerVolume, error) {
+func GetVolumes(service composeTypes.ServiceConfig, projectDir string) ([]*types.ContainerVolume, error) {
 	if len(service.Volumes) == 0 {
 		return nil, nil
 	}
@@ -66,4 +70,110 @@ func GetProtocol(prt string) cdk8splus30.Protocol {
 	default:
 		return cdk8splus30.Protocol_TCP
 	}
+}
+
+type ContainerVolume interface {
+	TargetVolume() string
+}
+
+func parseContainerVolume(projectDir string, svcName string, c composeTypes.ServiceVolumeConfig) (ContainerVolume, error) {
+	if c.Target == "" {
+		return nil, fmt.Errorf("invalid volume target")
+	}
+	var cv ContainerVolume
+	if c.Source == "" {
+		emptyVolume, err := parseEmptyContainerVolume(c)
+		if err != nil {
+			return nil, err
+		}
+		cv = emptyVolume
+		return emptyVolume, nil
+	}
+
+	filePath := c.Source
+	file, err := os.Stat(filePath)
+	if err != nil {
+		return nil, err
+	}
+	switch mode := file.Mode(); {
+	case mode.IsDir():
+		dirVolume, err := parseContainerVolumeFromDir(projectDir, c)
+		if err != nil {
+			return nil, err
+		}
+		cv = dirVolume
+	case mode.IsRegular():
+		fileVolume, err := parseContainerVolumeFromFile(projectDir, c)
+		if err != nil {
+			return nil, err
+		}
+		cv = fileVolume
+	default:
+		return nil, fmt.Errorf("invalid volume mode")
+	}
+	return cv, nil
+
+}
+
+func parseContainerVolumeFromDir(projectDir string, c composeTypes.ServiceVolumeConfig) (*DirVolume, error) {
+	if c.Source == "" {
+		return nil, fmt.Errorf("invalid volume source")
+	}
+	if c.Target == "" {
+		return nil, fmt.Errorf("invalid volume target")
+	}
+	sourcePath := path.Join(projectDir, c.Source)
+	dirPath, err := filepath.Abs(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+	info, err := os.Stat(dirPath)
+	if err != nil {
+		return nil, err
+	}
+
+	volume := &DirVolume{
+		Source: dirPath,
+		Target: c.Target,
+		Name:   info.Name(),
+	}
+
+	return volume, nil
+
+}
+
+func parseContainerVolumeFromFile(projectDir string, c composeTypes.ServiceVolumeConfig) (*FileVolume, error) {
+	if c.Source == "" {
+		return nil, fmt.Errorf("invalid volume source")
+	}
+	if c.Target == "" {
+		return nil, fmt.Errorf("invalid volume target")
+	}
+
+	sourcePath := path.Join(projectDir, c.Source)
+	filePath, err := filepath.Abs(sourcePath)
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := os.Stat(filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	volume := &FileVolume{
+		Source: filePath,
+		Target: c.Target,
+		Name:   info.Name(),
+	}
+	return volume, nil
+}
+
+func parseEmptyContainerVolume(c composeTypes.ServiceVolumeConfig) (*EmptyVolume, error) {
+	if c.Target == "" {
+		return nil, fmt.Errorf("invalid volume target")
+	}
+	return &EmptyVolume{
+		Target: c.Target,
+	}, nil
 }

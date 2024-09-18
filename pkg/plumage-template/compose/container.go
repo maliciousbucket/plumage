@@ -1,4 +1,4 @@
-package k8s
+package compose
 
 import (
 	"github.com/aws/jsii-runtime-go"
@@ -16,7 +16,7 @@ type ContainerProps struct {
 	Args         []string
 	StartupProbe *types.CommandProbe
 	HealthCheck  *plumagetemplate.HttpProbe
-	Ports        []*plumagetemplate.ServicePort
+	Ports        []plumagetemplate.ServicePort
 	Resources    *plumagetemplate.ServiceResources
 	Monitoring   *plumagetemplate.MonitoringConfig
 	Env          map[string]string
@@ -119,7 +119,7 @@ func ContainerResources(resources *plumagetemplate.ServiceResources) *k8s.Resour
 	}
 }
 
-func ContainerPorts(ports []*plumagetemplate.ServicePort, metricsPort int) []*k8s.ContainerPort {
+func ContainerPorts(ports []plumagetemplate.ServicePort, metricsPort int) []*k8s.ContainerPort {
 	var containerPorts []*k8s.ContainerPort
 	i := 0
 	for _, port := range ports {

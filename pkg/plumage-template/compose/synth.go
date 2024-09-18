@@ -1,4 +1,4 @@
-package k8s
+package compose
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ type WebServiceProps struct {
 	Args           []string
 	StartupProbe   *types.CommandProbe
 	HealthCheck    *plumagetemplate.HttpProbe
-	Ports          []*plumagetemplate.ServicePort
+	Ports          []plumagetemplate.ServicePort
 	Resources      *plumagetemplate.ServiceResources
 	Monitoring     *plumagetemplate.MonitoringConfig
 	InitContainers []*plumagetemplate.InitContainer
@@ -40,6 +40,8 @@ type WebServiceProps struct {
 	Resilience     *resilience.ResTemplate
 	Paths          []ingress.ServicePaths
 	Env            map[string]string
+	FileMounts     []map[string]string
+	DirMounts      []map[string]string
 	Middlewares    []string
 	Ingress        *ingress.RouteConfig
 }
@@ -70,7 +72,7 @@ func WithService() SynthFunc {
 	}
 }
 
-func WithAutoScaling() SynthFunc {
+func WithHorizontalAutoScaling() SynthFunc {
 	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.autoScalingProps()
 		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
@@ -78,10 +80,17 @@ func WithAutoScaling() SynthFunc {
 	}
 }
 
-func WithDefaultAutoScaling() SynthFunc {
+func WithDefaultHorizontalAutoScaling() SynthFunc {
 	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
 		return autoscaling.DefaultHorizontalAutoScaler(scope, id, p.Namespace, p.Name)
+	}
+}
+
+// WithVerticalScaling TODO: Vertical scaling props and exclusion with horizontal
+func WithVerticalScaling() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
+		return nil
 	}
 }
 

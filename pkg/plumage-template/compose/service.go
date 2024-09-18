@@ -1,4 +1,4 @@
-package k8s
+package compose
 
 import (
 	"github.com/aws/constructs-go/constructs/v10"
@@ -15,7 +15,7 @@ const (
 type ServiceProps struct {
 	Name       string
 	Namespace  string
-	Ports      []*plumagetemplate.ServicePort
+	Ports      []plumagetemplate.ServicePort
 	Monitoring *plumagetemplate.MonitoringConfig
 }
 

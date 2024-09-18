@@ -14,7 +14,9 @@ import (
 )
 
 type Template struct {
-	Host string
+	Host      string             `yaml:"host"`
+	Namespace string             `yaml:"namespace"`
+	Services  []*ServiceTemplate `yaml:"services"`
 }
 
 type ServiceTemplate struct {

@@ -1,4 +1,4 @@
-package k8s
+package compose
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ type DeploymentProps struct {
 	Args           []string
 	StartupProbe   *types.CommandProbe
 	HealthCheck    *plumagetemplate.HttpProbe
-	Ports          []*plumagetemplate.ServicePort
+	Ports          []plumagetemplate.ServicePort
 	Resources      *plumagetemplate.ServiceResources
 	Monitoring     *plumagetemplate.MonitoringConfig
 	InitContainers []*plumagetemplate.InitContainer
@@ -73,7 +73,45 @@ func NewDeployment(scope constructs.Construct, id string, ns string, appLabel st
 					PriorityClassName:            nil,
 					ReadinessGates:               nil,
 					RestartPolicy:                jsii.String("Always"),
-					Volumes:                      nil,
+					Volumes: &[]*k8s.Volume{
+						{
+							Name:                 nil,
+							AwsElasticBlockStore: nil,
+							AzureDisk:            nil,
+							AzureFile:            nil,
+							Cephfs:               nil,
+							Cinder:               nil,
+							ConfigMap: &k8s.ConfigMapVolumeSource{
+								DefaultMode: nil,
+								Items:       nil,
+								Name:        nil,
+								Optional:    nil,
+							},
+							Csi:                   nil,
+							DownwardApi:           nil,
+							EmptyDir:              nil,
+							Ephemeral:             nil,
+							Fc:                    nil,
+							FlexVolume:            nil,
+							Flocker:               nil,
+							GcePersistentDisk:     nil,
+							GitRepo:               nil,
+							Glusterfs:             nil,
+							HostPath:              nil,
+							Iscsi:                 nil,
+							Nfs:                   nil,
+							PersistentVolumeClaim: nil,
+							PhotonPersistentDisk:  nil,
+							PortworxVolume:        nil,
+							Projected:             nil,
+							Quobyte:               nil,
+							Rbd:                   nil,
+							ScaleIo:               nil,
+							Secret:                nil,
+							Storageos:             nil,
+							VsphereVolume:         nil,
+						},
+					},
 				},
 			},
 			MinReadySeconds:         nil,

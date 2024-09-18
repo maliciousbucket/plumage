@@ -3,11 +3,12 @@ package plumage_template
 import types2 "github.com/compose-spec/compose-go/v2/types"
 
 type PlumageTemplate struct {
-	Services            []*Service
-	InitContainers      []*InitContainer
-	UnmatchedContainers []string
-	UnmatchedServices   []string
-	Compose             []types2.ServiceConfig
+	ProjectDir          string                 `yaml:"projectDir"`
+	Services            []*Service             `yaml:"services"`
+	InitContainers      []*InitContainer       `yaml:"initContainers"`
+	UnmatchedContainers []string               `yaml:"unmatchedContainers"`
+	UnmatchedServices   []string               `yaml:"unmatchedServices"`
+	Compose             []types2.ServiceConfig `yaml:"compose"`
 }
 
 func (p *PlumageTemplate) GetService(serviceName string) *Service {
@@ -65,23 +66,23 @@ type ServiceConfig struct {
 }
 
 type Service struct {
-	Name            string            `yaml:"name"`
-	Image           string            `yaml:"image"`
-	Host            string            `yaml:"host"`
-	Ports           []*ServicePort    `yaml:"ports"`
-	Commands        []string          `yaml:"commands"`
-	Args            []string          `yaml:"args"`
-	HttpHealthCheck string            `yaml:"httpHealthCheck"`
-	Env             map[string]string `yaml:"env"`
-
-	Resources          *ServiceResources `yaml:"resources"`
-	Scaling            *ScalingConfig    `yaml:"scaling"`
-	Monitoring         *MonitoringConfig `yaml:"monitoring"`
-	InitContainerNames []string          `yaml:"initContainers"`
-	Middleware         []string          `yaml:"middleware"`
-	Paths              []*ServicePaths   `yaml:"paths"`
-	LoadBalancer       bool              `yaml:"loadBalancer"`
-	SynthOptions       *SynthOptions     `yaml:"synthOptions"`
+	Name               string              `yaml:"name"`
+	Image              string              `yaml:"image"`
+	Host               string              `yaml:"host"`
+	Ports              []ServicePort       `yaml:"ports"`
+	Commands           []string            `yaml:"commands"`
+	Args               []string            `yaml:"args"`
+	HttpHealthCheck    string              `yaml:"httpHealthCheck"`
+	Env                map[string]string   `yaml:"env"`
+	Mounts             []map[string]string `yaml:"mounts"`
+	Resources          *ServiceResources   `yaml:"resources"`
+	Scaling            *ScalingConfig      `yaml:"scaling"`
+	Monitoring         *MonitoringConfig   `yaml:"monitoring"`
+	InitContainerNames []string            `yaml:"initContainers"`
+	Middleware         []string            `yaml:"middleware"`
+	Paths              []ServicePaths      `yaml:"paths"`
+	LoadBalancer       bool                `yaml:"loadBalancer"`
+	SynthOptions       *SynthOptions       `yaml:"synthOptions"`
 }
 
 type SynthOptions struct {
@@ -162,7 +163,29 @@ type HttpProbe struct {
 
 type EmptyVolume struct {
 	Target string `yaml:"target"`
+	Name   string `yaml:"name"`
+}
+
+func (v *EmptyVolume) TargetVolume() string {
+	return v.Target
 }
 
 type FileVolume struct {
+	Source string `yaml:"source"`
+	Target string `yaml:"target"`
+	Name   string `yaml:"name"`
+}
+
+func (v *FileVolume) TargetVolume() string {
+	return v.Target
+}
+
+type DirVolume struct {
+	Source string `yaml:"source"`
+	Target string `yaml:"target"`
+	Name   string `yaml:"name"`
+}
+
+func (v *DirVolume) TargetVolume() string {
+	return v.Target
 }

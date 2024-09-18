@@ -1,4 +1,4 @@
-package k8s
+package compose
 
 import (
 	"fmt"
@@ -100,6 +100,13 @@ func loadBaseProps(template *plumagetemplate.PlumageTemplate, config *plumagetem
 type ServiceConfigFunc func(p *WebServiceProps) error
 
 func WithComposeVolumes(config *plumagetemplate.ServiceConfig, p *WebServiceProps) ServiceConfigFunc {
+
+	return func(p *WebServiceProps) error {
+		return nil
+	}
+}
+
+func WithVolumes(config *plumagetemplate.ServiceConfig, p *WebServiceProps) ServiceConfigFunc {
 	return func(p *WebServiceProps) error {
 		return nil
 	}
@@ -127,9 +134,13 @@ func WithInitContainers(template *plumagetemplate.PlumageTemplate, config *pluma
 }
 
 func WithServiceIngressRoute(config *plumagetemplate.ServiceConfig) ServiceConfigFunc {
+	paths := []*plumagetemplate.ServicePaths{}
+	for _, path := range config.Service.Paths {
+		paths = append(paths, &path)
+	}
 	return func(p *WebServiceProps) error {
 		ingressCfg := &ingress.RouteConfig{}
-		loadIngressConfig(config.Service.Host, config.Service.Paths, config.Service.LoadBalancer, ingressCfg)
+		loadIngressConfig(config.Service.Host, paths, config.Service.LoadBalancer, ingressCfg)
 		if ingressCfg == nil {
 			return fmt.Errorf("no ingress configuration found")
 		}
@@ -142,9 +153,9 @@ func WithDeploymentAutoScaler(config *plumagetemplate.ServiceConfig, opts *Synth
 	return func(p *WebServiceProps) error {
 		if config.Service.Scaling != nil {
 			p.Scaling = config.Service.Scaling
-			opts.Options = append(opts.Options, WithAutoScaling())
+			opts.Options = append(opts.Options, WithHorizontalAutoScaling())
 		} else {
-			opts.Options = append(opts.Options, WithDefaultAutoScaling())
+			opts.Options = append(opts.Options, WithDefaultHorizontalAutoScaling())
 		}
 		return nil
 	}
@@ -207,7 +218,7 @@ func WithComposePorts(config *plumagetemplate.ServiceConfig) ServiceConfigFunc {
 		if len(composePorts) == 0 {
 			return fmt.Errorf("no compose ports specified")
 		}
-		var ports []*plumagetemplate.ServicePort
+		var ports []plumagetemplate.ServicePort
 		for _, port := range composePorts {
 			targetPort, err := strconv.ParseInt(port.Published, 10, 16)
 
@@ -220,7 +231,7 @@ func WithComposePorts(config *plumagetemplate.ServiceConfig) ServiceConfigFunc {
 				grpc = true
 			}
 
-			ports = append(ports, &plumagetemplate.ServicePort{
+			ports = append(ports, plumagetemplate.ServicePort{
 				ContainerPort: int(port.Target),
 				HostPort:      portInt,
 				Protocol:      port.Protocol,
@@ -265,5 +276,6 @@ func loadIngressConfig(host string, paths []*plumagetemplate.ServicePaths, loadB
 }
 
 func getConfigMonitoringEnv(cfg *config.MonitoringConfig) map[string]string {
+
 	return nil
 }

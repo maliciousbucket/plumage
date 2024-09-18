@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	MiddlewareKind = "Middleware"
+	MiddlewareKind   = "Middleware"
+	TestbedNamespace = ""
 
 	MiddlewareNameRetry          = MiddlewareName("retry")
 	MiddlewareNameCircuitBreaker = MiddlewareName("circuitBreaker")

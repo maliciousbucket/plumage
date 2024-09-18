@@ -297,6 +297,23 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 
 	db.SelectLabel(jsii.String("app"), jsii.String("traefik"))
 
+	ig := kplus.NewIngress(chart, jsii.String("traefik-ingress"), &kplus.IngressProps{
+		Metadata:  nil,
+		ClassName: jsii.String("traefik"),
+		Rules:     nil,
+		Tls:       nil,
+	})
+
+	web.ExposeViaIngress(jsii.String("/testbed"), &kplus.ExposeServiceViaIngressOptions{
+		Ingress:  ig,
+		PathType: "",
+	})
+
+	db.ExposeViaIngress(jsii.String("/dashboard"), &kplus.ExposeServiceViaIngressOptions{
+		Ingress:  ig,
+		PathType: "",
+	})
+
 	return chart
 
 }

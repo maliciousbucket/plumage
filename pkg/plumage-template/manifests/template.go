@@ -26,7 +26,7 @@ type ServiceTemplate struct {
 	Paths          []*ServicePath `yaml:"paths"`
 	LoadBalancer   bool           `yaml:"loadBalancer,omitempty"`
 	Middlewares    []string       `yaml:"middlewares,omitempty"`
-	middlewareRefs []*string
+	middlewareRefs []string
 	Retry          *resilience.RetryConfig          `yaml:"retry,omitempty"`
 	CircuitBreaker *resilience.CircuitBreakerConfig `yaml:"circuitBreaker,omitempty"`
 	RateLimit      *resilience.RateLimitConfig      `yaml:"rateLimit,omitempty"`
@@ -141,7 +141,7 @@ func (s *ServiceTemplate) autoscalingProps() *autoscaling.HorizontalAutoScalerPr
 	}
 }
 
-func WithIngressRoute(s *ServiceTemplate, middlewareRefs []*string) SynthFunc {
+func WithIngressRoute(s *ServiceTemplate, middlewareRefs []string) SynthFunc {
 	return func(scope constructs.Construct) constructs.Construct {
 		props := s.IngressRouteProps()
 		id := fmt.Sprintf("%s-ingressroute", s.Name)
@@ -157,7 +157,7 @@ func WithRetry(s *ServiceTemplate) SynthFunc {
 			return nil
 		}
 		retry := middleware.NewRetryMiddleware(scope, id, s.Namespace, s.Name, props)
-		s.middlewareRefs = append(s.middlewareRefs, retry.Name())
+		s.middlewareRefs = append(s.middlewareRefs, *retry.Name())
 		return retry
 	}
 }
@@ -170,7 +170,7 @@ func WithCircuitBreaker(s *ServiceTemplate) SynthFunc {
 		}
 		id := fmt.Sprintf("%s-%s", s.Name, "circuitbreaker")
 		circuitBreaker := middleware.NewCircuitBreakerMiddleware(scope, id, s.Namespace, s.Name, props)
-		s.middlewareRefs = append(s.middlewareRefs, circuitBreaker.Name())
+		s.middlewareRefs = append(s.middlewareRefs, *circuitBreaker.Name())
 		return circuitBreaker
 	}
 }
@@ -183,7 +183,7 @@ func WithRateLimit(s *ServiceTemplate) SynthFunc {
 		}
 		id := fmt.Sprintf("%s-ratelimit", s.Name)
 		rateLimit := middleware.NewRateLimitMiddleware(scope, id, s.Namespace, s.Name, props)
-		s.middlewareRefs = append(s.middlewareRefs, rateLimit.Name())
+		s.middlewareRefs = append(s.middlewareRefs, *rateLimit.Name())
 		return rateLimit
 	}
 }

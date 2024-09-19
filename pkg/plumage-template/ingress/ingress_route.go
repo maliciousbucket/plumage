@@ -20,6 +20,7 @@ type RouteProps struct {
 	Namespace   string
 	Config      *RouteConfig
 	Middlewares []string
+	//TODO: refactor probes
 	HealthCheck *plumagetemplate.HttpProbe
 }
 

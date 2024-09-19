@@ -5,7 +5,13 @@ import (
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	"github.com/maliciousbucket/plumage/pkg/resilience"
+	"gopkg.in/yaml.v3"
 )
+
+type Template struct {
+	Namespace string            `yaml:"namespace"`
+	Services  []ServiceTemplate `yaml:"services"`
+}
 
 type ServiceTemplate struct {
 	Namespace        string                           `yaml:"namespace"`
@@ -32,6 +38,29 @@ type ServiceTemplate struct {
 	RateLimit        *resilience.RateLimitConfig      `yaml:"rateLimit,omitempty"`
 }
 
+//func (t *ServiceTemplate) UnmarshalYAML(unmarshal func(interface{}) error) error {
+//	type Alias ServiceTemplate
+//
+//	aux := &struct {
+//		LivenessProbe    map[string]interface{} `yaml:"liveness_probe"`
+//		ReadinessProbe   map[string]interface{} `yaml:"readiness_probe"`
+//		HealthCheckProbe map[string]interface{} `yaml:"health_check_probe,omitempty"`
+//		*Alias
+//	}{
+//		Alias: (*Alias)(t),
+//	}
+//	if err := unmarshal(aux); err != nil {
+//		return err
+//	}
+//
+//	t.LivenessProbe = unmarshalServiceProbe(aux.LivenessProbe)
+//	t.ReadinessProbe = unmarshalServiceProbe(aux.ReadinessProbe)
+//	if aux.HealthCheckProbe != nil {
+//		t.HealthCheckProbe = unmarshalServiceProbe(aux.HealthCheckProbe)
+//	}
+//	return nil
+//}
+
 type ServicePath struct {
 	Path string `yaml:"path"`
 	Port int    `yaml:"port"`
@@ -52,6 +81,42 @@ type MonitoringTemplate struct {
 
 type ServiceProbe interface {
 	toKplusProbe() kplus.Probe
+}
+
+func unmarshalServiceProbe(data map[string]interface{}) ServiceProbe {
+	if data == nil {
+		return nil
+	}
+
+	if _, ok := data["path"]; ok {
+		var httpProbe HttpProbe
+		if err := decodeProbe(data, &httpProbe); err == nil {
+			return &httpProbe
+		}
+	}
+
+	if _, ok := data["port"]; ok {
+		var tcpProbe TCPProbe
+		if err := decodeProbe(data, &tcpProbe); err == nil {
+			return &tcpProbe
+		}
+	}
+	if _, ok := data["commands"]; ok {
+		var commandProbe CommandProbe
+		if err := decodeProbe(data, &commandProbe); err == nil {
+			return &commandProbe
+		}
+	}
+
+	return nil
+}
+
+func decodeProbe(data map[string]interface{}, probe interface{}) error {
+	yamlData, err := yaml.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return yaml.Unmarshal(yamlData, probe)
 }
 
 func ToKplusProbe(p ServiceProbe) kplus.Probe {

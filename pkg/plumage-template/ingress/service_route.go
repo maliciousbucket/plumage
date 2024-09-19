@@ -7,7 +7,7 @@ import (
 	"github.com/maliciousbucket/plumage/imports/traefikio"
 )
 
-func NewServiceIngressRoute(scope constructs.Construct, id string, props *RouteProps, middlewareRefs []*string) traefikio.IngressRoute {
+func NewServiceIngressRoute(scope constructs.Construct, id string, props *RouteProps, middlewareRefs []string) traefikio.IngressRoute {
 	if props.Config == nil {
 		return nil
 	}
@@ -40,12 +40,12 @@ func NewServiceIngressRoute(scope constructs.Construct, id string, props *RouteP
 
 type ingressRouteRoutesFunc func(r *traefikio.IngressRouteSpecRoutes)
 
-func withMiddlewares(ns string, middlewareRefs []*string) ingressRouteRoutesFunc {
+func withMiddlewares(ns string, middlewareRefs []string) ingressRouteRoutesFunc {
 	return func(r *traefikio.IngressRouteSpecRoutes) {
 		var references []*traefikio.IngressRouteSpecRoutesMiddlewares
 		for _, m := range middlewareRefs {
 			references = append(references, &traefikio.IngressRouteSpecRoutesMiddlewares{
-				Name:      m,
+				Name:      jsii.String(m),
 				Namespace: &ns,
 			})
 		}

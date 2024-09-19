@@ -156,7 +156,7 @@ type EmptyVolume struct {
 
 func ParseEmptyVolume(svcName string, config compose.ServiceVolumeConfig) (*EmptyVolume, error) {
 	if config.Target == "" {
-		return nil, errors.New("volume source must be specified")
+		return nil, errors.New("volume target must be specified")
 	}
 	volume := &EmptyVolume{
 		VolumeName: svcName,

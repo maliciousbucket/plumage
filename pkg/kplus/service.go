@@ -74,6 +74,8 @@ func newServiceDeployment(scope constructs.Construct, id string, service *Servic
 
 	containerProps := newContainerProps(scope, service)
 	container := deployment.AddContainer(containerProps)
+	//empty := kplus.Volume_FromEmptyDir(scope, jsii.String("hmm"), jsii.String("hmm"), nil)
+	//container.Mount(jsii.String("/ok"), empty, nil)
 
 	addEmptyDirs(scope, container, service.Name, service.EmptyDirs)
 	addFileMounts(scope, container, service)
@@ -131,6 +133,7 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate) *kp
 
 	if len(service.Env) != 0 || service.EnvFile != "" {
 		env := containerEnv(scope, service.Name, service.Env, service.EnvFile)
+		fmt.Println("Adding env..")
 		source := kplus.Env_FromConfigMap(env, nil)
 		props.EnvFrom = &[]kplus.EnvFrom{
 			source,
@@ -188,6 +191,14 @@ func containerEnv(scope constructs.Construct, name string, env map[string]string
 	}
 
 	for key, value := range env {
+
+		//if !strings.HasPrefix(value, "\"") {
+		//	value = fmt.Sprintf("\"%s", value)
+		//}
+		//
+		//if !strings.HasSuffix(value, "\"") {
+		//	value = fmt.Sprintf("%s\"", value)
+		//}
 		configmap.AddData(jsii.String(key), jsii.String(value))
 	}
 	return configmap
@@ -236,11 +247,15 @@ func addDirectoryMounts(scope constructs.Construct, container kplus.Container, s
 }
 
 func addEmptyDirs(scope constructs.Construct, container kplus.Container, name string, emptyDirs []string) kplus.Container {
+	fmt.Println("Adding dirs")
+	var emptyVolumes []*kplus.Volume
 	if len(emptyDirs) > 0 {
 		i := 0
 		for _, emptyDir := range emptyDirs {
-			name := fmt.Sprintf("%s-empty-dir-%d", name, i)
-			mount := kplus.Volume_FromEmptyDir(scope, jsii.String(name), jsii.String(name), nil)
+			dirName := fmt.Sprintf("%s-empty-dir-%d", name, i)
+			mount := kplus.Volume_FromEmptyDir(scope, jsii.String(dirName), jsii.String(dirName), nil)
+			emptyVolumes = append(emptyVolumes, &mount)
+
 			container.Mount(jsii.String(emptyDir), mount, nil)
 		}
 	}

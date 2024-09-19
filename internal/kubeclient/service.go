@@ -94,3 +94,25 @@ func (k *k8sClient) getRelatedPods(ctx context.Context, ns string, name string) 
 	}
 	return res, nil
 }
+
+func (k *k8sClient) GetServiceAddress(ctx context.Context, ns string, name string) (string, error) {
+	service, err := k.getService(ctx, ns, name)
+	if err != nil {
+		return "", err
+	}
+	if service == nil {
+		return "", fmt.Errorf("service %s/%s not found", ns, name)
+	}
+
+	if service.Status.LoadBalancer.Ingress != nil {
+		if len(service.Status.LoadBalancer.Ingress[0].Hostname) != 0 {
+			return service.Status.LoadBalancer.Ingress[0].Hostname, nil
+		}
+	}
+
+	if len(service.Spec.ClusterIPs) != 0 {
+		return service.Spec.ClusterIPs[0], nil
+	}
+	return "", fmt.Errorf("no LoadBalancer or ClusterIP found for service %s/%s", ns, name)
+
+}

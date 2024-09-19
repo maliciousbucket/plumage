@@ -1,15 +1,12 @@
-package orchestration
+package commands
 
 import (
 	"context"
 	"fmt"
-	"github.com/joho/godotenv"
-	"github.com/maliciousbucket/plumage/internal/kubeclient"
+	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
-	"io"
 	"log"
-	"os/exec"
 )
 
 var (
@@ -37,7 +34,7 @@ func CommitPushCmd(configDir, fileName string) *cobra.Command {
 			}
 			message, _ = cmd.Flags().GetString("message")
 			ctx := context.Background()
-			response, err := CommitAndPush(ctx, cfg, cfg.TargetDir, message)
+			response, err := orchestration.CommitAndPush(ctx, cfg, cfg.TargetDir, message)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -56,59 +53,5 @@ func CommitPushCmd(configDir, fileName string) *cobra.Command {
 		fmt.Printf("Commit Message must be set")
 	}
 
-	return cmd
-}
-
-func SetArgoTokenCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "set-argo-token",
-		Short: "set argo token",
-		Run: func(cmd *cobra.Command, args []string) {
-			k8sClient, err := kubeclient.NewClient()
-			if err != nil {
-				log.Fatal(err)
-			}
-			ctx := context.Background()
-			err = k8sClient.Client.PatchArgoToLB(ctx, "argocd")
-			if err != nil {
-				log.Fatal(err)
-			}
-			err = k8sClient.Client.CreateGalahArgoAccount(ctx, "argocd")
-			if err != nil {
-				log.Fatal(err)
-			}
-			secret, err := k8sClient.Client.GetArgoPassword(ctx, "argocd")
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			pss := fmt.Sprintf("--password %s", secret)
-			loginCommand := exec.Command("argocd", "login", "localhost:8081", "--insecure", "--username", "galah", pss)
-			err = loginCommand.Start()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			tokenCmd := exec.Command("argocd", "account", "generate-token", "--account", "galah")
-			stdout, err := tokenCmd.StdoutPipe()
-
-			if err = tokenCmd.Start(); err != nil {
-				log.Fatal(err)
-			}
-			data, err := io.ReadAll(stdout)
-			if err != nil {
-				log.Fatal(err)
-			}
-			fmt.Printf("Token: %s\n", string(data))
-
-			myEnv, err := godotenv.Read(".env")
-			if err != nil {
-				log.Fatal(err)
-			}
-			myEnv["ARGOCD_TOKEN"] = string(data)
-			godotenv.Write(myEnv, ".env")
-
-		},
-	}
 	return cmd
 }

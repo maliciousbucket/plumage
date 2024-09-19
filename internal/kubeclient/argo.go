@@ -24,6 +24,7 @@ type ServiceInfo struct {
 
 func (k *k8sClient) CheckArgoExists(ctx context.Context, ns string) (*ServiceInfo, error) {
 	res, err := k.getService(ctx, ns, argoCDServerName)
+
 	if err != nil {
 		return nil, err
 	}
@@ -42,6 +43,7 @@ func (k *k8sClient) CheckArgoExists(ctx context.Context, ns string) (*ServiceInf
 
 func (k *k8sClient) WaitAllArgoPods(ctx context.Context, ns string) error {
 	pods, err := k.getRelatedPods(ctx, ns, "argocd")
+
 	if err != nil {
 		return err
 	}

@@ -86,7 +86,6 @@ func newCommit(ctx context.Context, client *github.Client, ref *github.Reference
 
 	newGitCommit, _, err := client.Git.CreateCommit(ctx, cfg.SourceOwner, cfg.SourceRepo, commit, &opts)
 	if err != nil {
-		fmt.Println("After call")
 		return nil, err
 	}
 

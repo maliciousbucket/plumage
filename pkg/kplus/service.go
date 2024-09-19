@@ -11,11 +11,11 @@ import (
 	"strings"
 )
 
-func NewServiceManifests(scope constructs.Construct, id string, template *ServiceTemplate) constructs.Construct {
+func NewServiceManifests(scope constructs.Construct, id string, template *ServiceTemplate, monitoring map[string]string) constructs.Construct {
 	ct := constructs.NewConstruct(scope, jsii.String(id))
 
 	deploymentName := fmt.Sprintf("%s-deployment", template.Name)
-	deployment := newServiceDeployment(ct, deploymentName, template)
+	deployment := newServiceDeployment(ct, deploymentName, template, monitoring)
 
 	labelSelector := kplus.LabelSelector_Of(&kplus.LabelSelectorOptions{Labels: &map[string]*string{"app": jsii.String(template.Name)}})
 
@@ -69,13 +69,11 @@ func NewServiceManifests(scope constructs.Construct, id string, template *Servic
 	return ct
 }
 
-func newServiceDeployment(scope constructs.Construct, id string, service *ServiceTemplate) kplus.Deployment {
+func newServiceDeployment(scope constructs.Construct, id string, service *ServiceTemplate, m map[string]string) kplus.Deployment {
 	deployment := kplus.NewDeployment(scope, jsii.String(id), nil)
 
-	containerProps := newContainerProps(scope, service)
+	containerProps := newContainerProps(scope, service, m)
 	container := deployment.AddContainer(containerProps)
-	//empty := kplus.Volume_FromEmptyDir(scope, jsii.String("hmm"), jsii.String("hmm"), nil)
-	//container.Mount(jsii.String("/ok"), empty, nil)
 
 	addEmptyDirs(scope, container, service.Name, service.EmptyDirs)
 	addFileMounts(scope, container, service)
@@ -99,7 +97,7 @@ func newServiceDeployment(scope constructs.Construct, id string, service *Servic
 	return deployment
 }
 
-func newContainerProps(scope constructs.Construct, service *ServiceTemplate) *kplus.ContainerProps {
+func newContainerProps(scope constructs.Construct, service *ServiceTemplate, monitoring map[string]string) *kplus.ContainerProps {
 	metricsPort := 0
 	if service.Monitoring != nil {
 		metricsPort = service.Monitoring.ScrapePort
@@ -142,6 +140,13 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate) *kp
 
 	if service.WorkingDir != "" {
 		props.WorkingDir = jsii.String(service.WorkingDir)
+	}
+	props.EnvFrom = &[]kplus.EnvFrom{}
+
+	if service.Env != nil {
+		envFrom := AddServiceEnvironmentVariables(scope, service, monitoring)
+		containerEnvFrom := append(*props.EnvFrom, envFrom)
+		props.EnvFrom = &containerEnvFrom
 	}
 
 	return props

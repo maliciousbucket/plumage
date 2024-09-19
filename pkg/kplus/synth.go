@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-func SynthTemplate(filePath, outputDir string) error {
+func SynthTemplate(filePath, outputDir string, monitoring map[string]string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func SynthTemplate(filePath, outputDir string) error {
 			Namespace:                 jsii.String(template.Namespace),
 		})
 
-		NewServiceManifests(chart, service.Name, &service)
+		NewServiceManifests(chart, service.Name, &service, monitoring)
 	}
 
 	app.Synth()

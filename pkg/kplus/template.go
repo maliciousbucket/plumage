@@ -4,27 +4,32 @@ import (
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
+	"github.com/maliciousbucket/plumage/pkg/resilience"
 )
 
 type ServiceTemplate struct {
-	Name             string              `yaml:"name"`
-	Image            string              `yaml:"image"`
-	Args             []string            `yaml:"args"`
-	Commands         []string            `yaml:"commands"`
-	Paths            []ServicePath       `yaml:"paths"`
-	Ports            []Port              `yaml:"ports"`
-	LivenessProbe    ServiceProbe        `yaml:"liveness_probe"`
-	ReadinessProbe   ServiceProbe        `yaml:"readiness_probe"`
-	HealthCheckProbe ServiceProbe        `yaml:"health_check_probe,omitempty"`
-	VolumeMounts     map[string]string   `yaml:"volumeMounts,omitempty"`
-	FileMounts       []map[string]string `yaml:"fileMounts,omitempty"`
-	EmptyDirs        []string            `yaml:"emptyDirs,omitempty"`
-	WorkingDir       string              `yaml:"workingDir"`
-	Env              map[string]string   `yaml:"env,omitempty"`
-	EnvFile          string              `yaml:"envFile"`
-	Monitoring       *MonitoringTemplate `yaml:"monitoring,omitempty"`
-	Replicas         int                 `yaml:"replicas"`
-	Scaling          ScalingTemplate     `yaml:"scaling"`
+	Namespace        string                           `yaml:"namespace"`
+	Name             string                           `yaml:"name"`
+	Image            string                           `yaml:"image"`
+	Args             []string                         `yaml:"args"`
+	Commands         []string                         `yaml:"commands"`
+	Paths            []ServicePath                    `yaml:"paths"`
+	Ports            []Port                           `yaml:"ports"`
+	LivenessProbe    ServiceProbe                     `yaml:"liveness_probe"`
+	ReadinessProbe   ServiceProbe                     `yaml:"readiness_probe"`
+	HealthCheckProbe ServiceProbe                     `yaml:"health_check_probe,omitempty"`
+	VolumeMounts     map[string]string                `yaml:"volumeMounts,omitempty"`
+	FileMounts       []map[string]string              `yaml:"fileMounts,omitempty"`
+	EmptyDirs        []string                         `yaml:"emptyDirs,omitempty"`
+	WorkingDir       string                           `yaml:"workingDir"`
+	Env              map[string]string                `yaml:"env,omitempty"`
+	EnvFile          string                           `yaml:"envFile"`
+	Monitoring       *MonitoringTemplate              `yaml:"monitoring,omitempty"`
+	Replicas         int                              `yaml:"replicas"`
+	Scaling          ScalingTemplate                  `yaml:"scaling"`
+	CircuitBreaker   *resilience.CircuitBreakerConfig `yaml:"circuitBreaker,omitempty"`
+	Retry            *resilience.RetryConfig          `yaml:"retry,omitempty"`
+	RateLimit        *resilience.RateLimitConfig      `yaml:"rateLimit,omitempty"`
 }
 
 type ServicePath struct {

@@ -11,10 +11,6 @@ import (
 	"strings"
 )
 
-type TestApp struct {
-	constructs.Construct
-}
-
 func NewServiceManifests(scope constructs.Construct, id string, template *ServiceTemplate) constructs.Construct {
 	ct := constructs.NewConstruct(scope, jsii.String(id))
 
@@ -38,9 +34,37 @@ func NewServiceManifests(scope constructs.Construct, id string, template *Servic
 		},
 	})
 
+	var mioddlewareRefs []string
+
+	if template.CircuitBreaker != nil {
+		cbName := fmt.Sprintf("%s-circuitbreaker", template.Name)
+		circuitBreaker := NewCircuitBreaker(ct, cbName, template)
+		if circuitBreaker != nil {
+			mioddlewareRefs = append(mioddlewareRefs, *circuitBreaker.Name())
+		}
+	}
+
+	if template.Retry != nil {
+		retryName := fmt.Sprintf("%s-retry", template.Name)
+		retry := NewRetry(ct, retryName, template)
+		if retry != nil {
+			mioddlewareRefs = append(mioddlewareRefs, *retry.Name())
+		}
+	}
+
+	if template.RateLimit != nil {
+		rlName := fmt.Sprintf("%s-ratelimit", template.Name)
+		rl := NewRateLimit(ct, rlName, template)
+		if rl != nil {
+			mioddlewareRefs = append(mioddlewareRefs, *rl.Name())
+		}
+	}
+
 	if template.Scaling != nil {
 		NewAutoScaler(ct, deployment, template.Scaling, template.Name)
 	}
+	routeName := fmt.Sprintf("%s-ingress-route", template.Name)
+	NewIngressRoute(ct, routeName, template, mioddlewareRefs)
 
 	return ct
 }

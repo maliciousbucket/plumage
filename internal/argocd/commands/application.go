@@ -7,7 +7,6 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/spf13/cobra"
-	"log"
 )
 
 var (
@@ -22,28 +21,36 @@ type ArgoAppClient interface {
 	GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error)
 }
 
-func ArgoApplicationCmd(client ArgoAppClient) *cobra.Command {
+func ArgoApplicationCmd() *cobra.Command {
 	appCmd := &cobra.Command{
 		Use:   "app",
 		Short: "Manage applications",
-		Run: func(cmd *cobra.Command, args []string) {
-			get, _ := cmd.Flags().GetBool("get")
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			_, err := newClient()
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			getApp, _ := cmd.Flags().GetBool("get")
 			list, _ := cmd.Flags().GetBool("list")
-			if get {
+			if getApp {
 				if len(args) == 0 {
-					log.Fatalln(errors.New("no application name specified"))
+					return errors.New("please specify application name")
 				}
-				err := getAppByName(client, args[0])
+				err := getAppByName(argoClient, args[0])
 				if err != nil {
-					log.Fatalln(err)
+					return err
 				}
 			}
 			if list {
-				err := listApps(client)
+				err := listApps(argoClient)
 				if err != nil {
-					log.Fatalln(err)
+					return err
 				}
 			}
+			return nil
 		},
 	}
 	appCmd.Flags().BoolP("get", "g", false, "Get application")
@@ -97,6 +104,7 @@ func createAppCmd(client ArgoAppClient) *cobra.Command {
 			if err := cmd.ValidateRequiredFlags(); err != nil {
 				return err
 			}
+			return nil
 
 		},
 	}

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/spf13/cobra"
 )
 
@@ -15,13 +16,29 @@ var (
 	syncApp     bool
 )
 
-func SyncCommand(client ArgoSyncClient) *cobra.Command {
+func SyncCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync ArgoCD resources",
 		Args:  cobra.MinimumNArgs(1),
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			_, err := newClient()
+			if err != nil {
+				return err
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
+			}
+
+			conn, err := argocd.GetConnection()
+			if err != nil {
+				return err
+			}
+			client, err := argocd.NewClient(conn)
+			if err != nil {
 				return err
 			}
 
@@ -39,6 +56,7 @@ func SyncCommand(client ArgoSyncClient) *cobra.Command {
 	cmd.Flags().BoolVarP(&syncProject, "project", "p", false, "project name")
 	cmd.Flags().BoolVarP(&syncApp, "app", "a", false, "application name")
 	cmd.MarkFlagsMutuallyExclusive("project", "app")
+	cmd.MarkFlagsOneRequired("project", "app")
 
 	return cmd
 

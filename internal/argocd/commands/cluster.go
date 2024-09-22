@@ -11,10 +11,15 @@ func ClusterCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "cluster",
 		Short: "manage argo's clusters",
-		Run: func(cmd *cobra.Command, args []string) {
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			_, err := newClient()
+			return err
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
 			if get {
 
 			}
+			return nil
 		},
 	}
 	cmd.Flags().BoolVarP(&get, "get", "g", false, "get cluster")

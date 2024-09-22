@@ -19,10 +19,17 @@ var (
 	projectName = ""
 )
 
-func ArgoProjectCmd(client ArgoProjectClient) *cobra.Command {
+func ArgoProjectCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "project",
 		Short: "Manage ArgoCD projects",
+		PersistentPreRunE: func(c *cobra.Command, args []string) error {
+			_, err := newClient()
+			if err != nil {
+				return err
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			getProj, _ := cmd.Flags().GetBool("get")
 			del, _ := cmd.Flags().GetBool("delete")
@@ -31,6 +38,7 @@ func ArgoProjectCmd(client ArgoProjectClient) *cobra.Command {
 			if projectName == "" {
 				return fmt.Errorf("project name is required")
 			}
+
 			if getProj {
 				err := getProject(projectName)
 				if err != nil {
@@ -44,7 +52,7 @@ func ArgoProjectCmd(client ArgoProjectClient) *cobra.Command {
 				}
 			}
 			if createProj {
-				if err := createProject(client, projectName); err != nil {
+				if err := createProject(argoClient, projectName); err != nil {
 					return err
 				}
 			}
@@ -59,7 +67,7 @@ func ArgoProjectCmd(client ArgoProjectClient) *cobra.Command {
 	cmd.Flags().StringVarP(&projectName, "name", "n", "", "create a project by name")
 	cmd.MarkFlagsMutuallyExclusive("get", "delete", "name")
 
-	cmd.AddCommand(addAppToProjectCmd(client))
+	cmd.AddCommand(addAppToProjectCmd(argoClient))
 	return cmd
 }
 

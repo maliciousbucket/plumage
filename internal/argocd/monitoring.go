@@ -327,7 +327,7 @@ func (c *Client) createMinioTenantApp(ctx context.Context, project string) error
 }
 
 func (c *Client) createTempoApp(ctx context.Context, project string) error {
-	return c.addMonitoringInfrastructureApp(ctx, "tempo=app", tempoPath, project)
+	return c.addMonitoringInfrastructureApp(ctx, "tempo-app", tempoPath, project)
 }
 
 func (c *Client) addMonitoringInfrastructureApp(ctx context.Context, name, path, project string) error {

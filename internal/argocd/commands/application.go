@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/spf13/cobra"
 	"log"
@@ -16,7 +17,12 @@ var (
 	repo      = ""
 )
 
-func ArgoApplicationCmd() *cobra.Command {
+type ArgoAppClient interface {
+	ListApplications(ctx context.Context, params *argocd.AppQueryParams) (*v1alpha1.ApplicationList, error)
+	GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error)
+}
+
+func ArgoApplicationCmd(client ArgoAppClient) *cobra.Command {
 	appCmd := &cobra.Command{
 		Use:   "app",
 		Short: "Manage applications",
@@ -27,13 +33,13 @@ func ArgoApplicationCmd() *cobra.Command {
 				if len(args) == 0 {
 					log.Fatalln(errors.New("no application name specified"))
 				}
-				err := getAppByName(args[0])
+				err := getAppByName(client, args[0])
 				if err != nil {
 					log.Fatalln(err)
 				}
 			}
 			if list {
-				err := listApps()
+				err := listApps(client)
 				if err != nil {
 					log.Fatalln(err)
 				}
@@ -52,15 +58,7 @@ func ArgoApplicationCmd() *cobra.Command {
 	return appCmd
 }
 
-func getAppByName(name string) error {
-	conn, err := argocd.GetConnection()
-	if err != nil {
-		return err
-	}
-	client, err := argocd.NewClient(conn)
-	if err != nil {
-		return err
-	}
+func getAppByName(client ArgoAppClient, name string) error {
 	ctx := context.Background()
 	app, err := client.GetApplication(ctx, name)
 	if err != nil {
@@ -71,15 +69,7 @@ func getAppByName(name string) error {
 
 }
 
-func listApps() error {
-	conn, err := argocd.GetConnection()
-	if err != nil {
-		return err
-	}
-	client, err := argocd.NewClient(conn)
-	if err != nil {
-		return err
-	}
+func listApps(client ArgoAppClient) error {
 	params := argocd.AppQueryParams{
 		Options: []argocd.AppQueryFunc{},
 	}
@@ -92,6 +82,29 @@ func listApps() error {
 	}
 	fmt.Println(apps)
 	return nil
+}
+
+var (
+	createAppNamespace = ""
+	createAppName      = ""
+)
+
+func createAppCmd(client ArgoAppClient) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create a new ArgoCD application",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateRequiredFlags(); err != nil {
+				return err
+			}
+
+		},
+	}
+	cmd.Flags().StringVarP(&createAppNamespace, "namespace", "n", "", "Namespace for application")
+	cmd.Flags().StringVarP(&createAppName, "name", "a", "", "Name for application")
+	cmd.MarkFlagRequired("namespace")
+	cmd.MarkFlagRequired("name")
+	return cmd
 }
 
 func buildAppQueryParams(params *argocd.AppQueryParams) {

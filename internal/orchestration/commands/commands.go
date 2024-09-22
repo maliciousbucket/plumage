@@ -7,6 +7,7 @@ import (
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
 	"log"
+	"time"
 )
 
 var (
@@ -72,7 +73,7 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 
 			ctx := context.Background()
 			if chart {
-				chartCmt, commitErr := orchestration.CommitAndPush(ctx, ghCfg, cfg.OutputDir, "")
+				chartCmt, commitErr := orchestration.CommitAndPush(ctx, ghCfg, "dist/kplus", "")
 				if commitErr != nil {
 					log.Fatal(commitErr)
 				}
@@ -84,7 +85,8 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 			}
 
 			if service != "" && resource != "" {
-				resourceCmt, commitErr := orchestration.CommitAndPushResource(ctx, ghCfg, cfg.OutputDir, service, resource, "")
+				cmtMsg := fmt.Sprintf("plumage manifests - %s", time.Now().String())
+				resourceCmt, commitErr := orchestration.CommitAndPushResource(ctx, ghCfg, cfg.OutputDir, service, resource, cmtMsg)
 				if commitErr != nil {
 					log.Fatal(err)
 				}

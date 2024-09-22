@@ -37,8 +37,8 @@ func (k *k8sClient) addGalahAccount(ctx context.Context, ns string) error {
 			return fmt.Errorf("error getting argocd-cm ConfigMap: %v", getErr)
 		}
 		result.Data = map[string]string{
-			"accounts.galah":         "apiKey, login",
-			"accounts.galah.enabled": "true",
+			"accounts.galah": "apiKey, login",
+			//"accounts.galah.enabled": "true",
 			"kustomize.buildOptions": "--enable-helm",
 		}
 		_, updateErr := configMapClient.Update(ctx, result, metav1.UpdateOptions{})

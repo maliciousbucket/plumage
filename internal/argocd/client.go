@@ -50,11 +50,11 @@ func GetConnection() (Connection, error) {
 
 func NewClient(c Connection) (*Client, error) {
 	apiClient, err := apiclient.NewClient(&apiclient.ClientOptions{
-		ServerAddr: fmt.Sprintf(c.Address),
-		Insecure:   true,
-		AuthToken:  c.Token,
-		//PortForward:          true,
-		//PortForwardNamespace: "argocd",
+		ServerAddr:           fmt.Sprintf(c.Address),
+		Insecure:             true,
+		AuthToken:            c.Token,
+		PortForward:          true,
+		PortForwardNamespace: "argocd",
 	})
 
 	if err != nil {

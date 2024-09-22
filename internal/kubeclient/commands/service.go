@@ -22,7 +22,7 @@ func ServiceCmd() *cobra.Command {
 				return err
 			}
 			ctx := context.Background()
-			err = client.Client.WaitServicePods(ctx, "argocd", service)
+			err = client.WaitServicePods(ctx, "argocd", service)
 			if err != nil {
 				return err
 			}
@@ -54,7 +54,7 @@ func WaitRelatedPodsCmd() *cobra.Command {
 				log.Fatal(err)
 			}
 			ctx := context.Background()
-			err = client.Client.WaitAllArgoPods(ctx, namespace)
+			err = client.WaitAllArgoPods(ctx, namespace)
 			if err != nil {
 				log.Fatal(err)
 			}

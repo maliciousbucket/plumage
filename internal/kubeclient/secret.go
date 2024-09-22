@@ -19,6 +19,7 @@ func (k *k8sClient) getArgoCDInitialPassword(ctx context.Context, ns string) (st
 		return "", fmt.Errorf("error getting ArgoCD initial admin secret: %w", err)
 	}
 	result := pass.Data["password"]
+	fmt.Println(pass.Data)
 	if len(result) == 0 {
 		return "", fmt.Errorf("error getting ArgoCD initial admin secret: password not found in secret")
 	}

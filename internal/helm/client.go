@@ -127,7 +127,6 @@ func getKubeConfig(configPath string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Config")
-	fmt.Println(string(config))
+
 	return config, err
 }

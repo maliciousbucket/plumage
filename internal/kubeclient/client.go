@@ -1,6 +1,7 @@
 package kubeclient
 
 import (
+	"context"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -9,15 +10,25 @@ import (
 )
 
 // Client TODO: Change to interface
-type Client struct {
-	Client k8sClient
+type Client interface {
+	WatchDeployment(ns string, name string) error
+	WaitPodInstanceRunning(ctx context.Context, ns string, name string) error
+	WaitPodNameRunning(ctx context.Context, ns string, name string) error
+	CreateNamespace(ctx context.Context, ns string) (*NameSpaceInfo, error)
+	CheckArgoExists(ctx context.Context, ns string) (*ServiceInfo, error)
+	WaitAllArgoPods(ctx context.Context, ns string) error
+	PatchArgoToLB(ctx context.Context, ns string) error
+	WaitServicePods(ctx context.Context, ns string, name string) error
+	GetServiceAddress(ctx context.Context, ns string, name string) (string, error)
+	CreateGalahArgoAccount(ctx context.Context, ns string) error
+	GetArgoPassword(ctx context.Context, ns string) (string, error)
 }
 
 type k8sClient struct {
 	kubeClient *kubernetes.Clientset
 }
 
-func NewClient() (*Client, error) {
+func NewClient() (Client, error) {
 	kubeClient, err := newClientset()
 	if err != nil {
 		return nil, err
@@ -25,7 +36,7 @@ func NewClient() (*Client, error) {
 	client := k8sClient{
 		kubeClient: kubeClient,
 	}
-	return &Client{Client: client}, nil
+	return &client, nil
 }
 
 func newClientset() (*kubernetes.Clientset, error) {

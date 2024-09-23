@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	argoHelmRepo = "https://github.com/argoproj/argo-helm/releases/download/argo-cd-7.5.2/argo-cd-7.5.2.tgz"
-	argoVersion  = "argo-cd-7.5.2"
+	argoHelmRepo = "https://github.com/argoproj/argo-helm/releases/download/argo-cd-7.6.1/argo-cd-7.6.1.tgz"
+	argoVersion  = "argo-cd-7.6.1"
 )
 
 type ArgoConfig struct {

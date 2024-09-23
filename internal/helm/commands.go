@@ -15,13 +15,13 @@ func InstallArgoCmd() *cobra.Command {
 				return err
 			}
 			file := cmd.Flag("file").Value.String()
-			namespace := cmd.Flag("namespace").Value.String()
+			//namespace := cmd.Flag("namespace").Value.String()
 
 			chart := cmd.Flag("chart").Value.String()
 			version := cmd.Flag("version").Value.String()
 			repo := cmd.Flag("remote").Value.String()
 
-			err = installArgo(namespace, file, version, chart, repo)
+			err = installArgo("argocd", file, version, chart, repo)
 			if err != nil {
 				return err
 			}

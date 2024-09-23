@@ -275,6 +275,13 @@ func (c *Client) createGalahProject(ctx context.Context, name, description strin
 	proj := v1alpha1.AppProject{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
+		}, Spec: v1alpha1.AppProjectSpec{
+			ClusterResourceWhitelist: []metav1.GroupKind{
+				{
+					Group: "*",
+					Kind:  "*",
+				},
+			},
 		},
 	}
 
@@ -353,6 +360,11 @@ func (c *Client) addMonitoringInfrastructureApp(ctx context.Context, name, path,
 				Destination: v1alpha1.ApplicationDestination{
 					Server:    defaultServer,
 					Namespace: "galah-monitoring",
+				},
+				SyncPolicy: &v1alpha1.SyncPolicy{
+					Automated: &v1alpha1.SyncPolicyAutomated{
+						SelfHeal: false,
+					},
 				},
 			},
 		},

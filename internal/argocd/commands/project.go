@@ -65,7 +65,7 @@ func ArgoProjectCmd() *cobra.Command {
 	cmd.Flags().BoolP("delete", "d", false, "delete a project")
 	cmd.Flags().BoolP("create", "c", false, "create a project")
 	cmd.Flags().StringVarP(&projectName, "name", "n", "", "create a project by name")
-	cmd.MarkFlagsMutuallyExclusive("get", "delete", "name")
+	cmd.MarkFlagsMutuallyExclusive("get", "delete")
 
 	cmd.AddCommand(addAppToProjectCmd(argoClient))
 	return cmd

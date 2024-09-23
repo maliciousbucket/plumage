@@ -11,8 +11,8 @@ import (
 	"log"
 )
 
-func (k *k8sClient) WatchDeployment(ns, name string) error {
-	return nil
+func (k *k8sClient) WatchDeployment(ctx context.Context, ns, name string) error {
+	return k.waitDeploymentReady(ctx, ns, name)
 }
 
 func (k *k8sClient) createDeploymentWatcher(ctx context.Context, ns, name string) (watch.Interface, error) {

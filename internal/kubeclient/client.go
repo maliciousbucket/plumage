@@ -11,7 +11,7 @@ import (
 
 // Client TODO: Change to interface
 type Client interface {
-	WatchDeployment(ns string, name string) error
+	WatchDeployment(ctx context.Context, ns string, name string) error
 	WaitPodInstanceRunning(ctx context.Context, ns string, name string) error
 	WaitPodNameRunning(ctx context.Context, ns string, name string) error
 	CreateNamespace(ctx context.Context, ns string) (*NameSpaceInfo, error)

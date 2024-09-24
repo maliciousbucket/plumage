@@ -80,7 +80,13 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 }
 
 func newServiceDeployment(scope constructs.Construct, id string, service *ServiceTemplate, m map[string]string) kplus.Deployment {
+	replicas := 2
+	if service.Replicas != 0 {
+		replicas = service.Replicas
+	}
+
 	deployment := kplus.NewDeployment(scope, jsii.String(id), &kplus.DeploymentProps{
+		Replicas: jsii.Number(replicas),
 		SecurityContext: &kplus.PodSecurityContextProps{
 			EnsureNonRoot: jsii.Bool(false),
 		},
@@ -107,8 +113,6 @@ func newServiceDeployment(scope constructs.Construct, id string, service *Servic
 	}
 
 	deployment.Metadata().AddLabel(jsii.String("app"), jsii.String(service.Name))
-
-	//deployment.PodMetadata().
 
 	return deployment
 }

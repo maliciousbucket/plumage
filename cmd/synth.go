@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/maliciousbucket/plumage/pkg/config"
@@ -23,8 +24,8 @@ func synthCommand() *cobra.Command {
 
 		},
 	}
-	cmd.AddCommand(synthGatewayCmd(appCfg.ConfigDir, appCfg.Namespace))
-	cmd.AddCommand(synthTemplateCommand("", appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
+	cmd.AddCommand(synthGatewayCmd(appCfg.OutputDir, appCfg.Namespace))
+	cmd.AddCommand(synthTemplateCommand("testdata/chirp/template.yaml", appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
 	return cmd
 
 }
@@ -41,14 +42,17 @@ func synthGatewayCmd(outputDir string, namespace string) *cobra.Command {
 		Use:   "gateway",
 		Short: "synth gateway manifests",
 		Run: func(cmd *cobra.Command, args []string) {
+			out := fmt.Sprintf("%s/ingress/traefik", outputDir)
 
 			app := cdk8s.NewApp(&cdk8s.AppProps{
-				Outdir:                  jsii.String(outputDir),
+				Outdir:                  jsii.String(out),
 				OutputFileExtension:     nil,
-				RecordConstructMetadata: jsii.Bool(true),
+				RecordConstructMetadata: jsii.Bool(false),
 				Resolvers:               nil,
-				YamlOutputType:          cdk8s.YamlOutputType_FOLDER_PER_CHART_FILE_PER_RESOURCE,
+				YamlOutputType:          cdk8s.YamlOutputType_FILE_PER_CHART,
 			})
+			fmt.Println(namespace)
+
 			kubernetes.NewTraefikIngress(app, "traefik-chart", namespace)
 
 			app.Synth()

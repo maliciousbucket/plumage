@@ -7,6 +7,10 @@ import (
 	"github.com/maliciousbucket/plumage/imports/traefikio"
 )
 
+const (
+	rulePrefix = "/testbed"
+)
+
 func NewServiceIngressRoute(scope constructs.Construct, id string, props *RouteProps, middlewareRefs []string) traefikio.IngressRoute {
 	if props.Config == nil {
 		return nil
@@ -49,6 +53,10 @@ func withMiddlewares(ns string, middlewareRefs []string) ingressRouteRoutesFunc 
 				Namespace: &ns,
 			})
 		}
+		references = append(references, &traefikio.IngressRouteSpecRoutesMiddlewares{
+			Name:      jsii.String("strip-testbed"),
+			Namespace: &ns,
+		})
 		r.Middlewares = &references
 	}
 }
@@ -62,8 +70,7 @@ type RouteServiceProps struct {
 
 func withRule(host string, prefix string) ingressRouteRoutesFunc {
 	return func(r *traefikio.IngressRouteSpecRoutes) {
-		fmt.Printf("\nHost: %s Path: %s\n", host, prefix)
-		rule := fmt.Sprintf("PathPrefix(`%s`)", prefix)
+		rule := fmt.Sprintf("PathPrefix(`/testbed%s`)", prefix)
 		if host != "" {
 			rule = fmt.Sprintf("Host(`%s`) && %s", host, rule)
 		}

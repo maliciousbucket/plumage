@@ -108,7 +108,7 @@ func ToRoutePort(port int) *RoutePort {
 }
 
 func newRoute(r *RouteProps) *traefikio.IngressRouteSpecRoutes {
-	rule := fmt.Sprintf("Host('%s') && PathPrefix('%s')", r.HostAddress, r.PathPrefix)
+	rule := fmt.Sprintf("Host(`%s`) && PathPrefix(`%s`)", r.HostAddress, r.PathPrefix)
 	middlewares := ingressRouteMiddlewareReferences(r.ServiceName, r.Namespace)
 	service := ingressRouteRouteService(r)
 	services := []*traefikio.IngressRouteSpecRoutesServices{

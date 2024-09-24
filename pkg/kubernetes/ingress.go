@@ -321,6 +321,7 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 		PathType: "",
 	})
 	traefikRemovePrefixMiddleware(chart, "strip-dashboard")
+	stripTestBedMiddleware(chart, "strip-testbed")
 	newDashbaordRoute(chart, "dashboard-route", db)
 
 	//adminIg := db.ExposeViaIngress(jsii.String("/dashboard"), &kplus.ExposeServiceViaIngressOptions{
@@ -391,6 +392,14 @@ func newDashbaordRoute(scope constructs.Construct, id string, service kplus.Serv
 	})
 }
 
+func alloyRoute(scope constructs.Construct, id string) traefikio.IngressRoute {
+	return nil
+}
+
+func grafanaRoute(scope constructs.Construct, id string) traefikio.IngressRoute {
+	return nil
+}
+
 func traefikRemovePrefixMiddleware(scope constructs.Construct, id string) traefikio.Middleware {
 	middleware := traefikio.NewMiddleware(scope, jsii.String(id), &traefikio.MiddlewareProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
@@ -405,12 +414,16 @@ func traefikRemovePrefixMiddleware(scope constructs.Construct, id string) traefi
 	return middleware
 }
 
-func test(scope constructs.Construct, id string) {
-	traefikio.NewTraefikService(scope, jsii.String(id), &traefikio.TraefikServiceProps{
-		Metadata: nil,
-		Spec: &traefikio.TraefikServiceSpec{
-			Mirroring: nil,
-			Weighted:  nil,
+func stripTestBedMiddleware(scope constructs.Construct, id string) traefikio.Middleware {
+	middleware := traefikio.NewMiddleware(scope, jsii.String(id), &traefikio.MiddlewareProps{
+		Metadata: &cdk8s.ApiObjectMetadata{
+			Name: jsii.String("strip-testbed"),
+		},
+		Spec: &traefikio.MiddlewareSpec{
+			StripPrefix: &traefikio.MiddlewareSpecStripPrefix{
+				Prefixes: &[]*string{jsii.String("/testbed")},
+			},
 		},
 	})
+	return middleware
 }

@@ -116,17 +116,17 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate, mon
 		ImagePullPolicy: kplus.ImagePullPolicy_IF_NOT_PRESENT,
 	}
 
-	if service.LivenessProbe != nil {
+	if service.LivenessProbe.Probe != nil {
 
-		props.Liveness = ToKplusProbe(service.LivenessProbe)
+		props.Liveness = ToKplusProbe(service.LivenessProbe.Probe)
 	}
 
-	if service.ReadinessProbe != nil {
-		props.Readiness = ToKplusProbe(service.ReadinessProbe)
+	if service.ReadinessProbe.Probe != nil {
+		props.Readiness = ToKplusProbe(service.ReadinessProbe.Probe)
 	}
 
-	if service.ReadinessProbe != nil {
-		props.Readiness = ToKplusProbe(service.ReadinessProbe)
+	if service.ReadinessProbe.Probe != nil {
+		props.Readiness = ToKplusProbe(service.ReadinessProbe.Probe)
 	}
 
 	if len(service.Env) != 0 || service.EnvFile != "" {

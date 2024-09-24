@@ -1,6 +1,7 @@
 package kplus
 
 import (
+	"errors"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
@@ -21,9 +22,9 @@ type ServiceTemplate struct {
 	Commands         []string                         `yaml:"commands"`
 	Paths            []ServicePath                    `yaml:"paths"`
 	Ports            []Port                           `yaml:"ports"`
-	LivenessProbe    ServiceProbe                     `yaml:"liveness_probe"`
-	ReadinessProbe   ServiceProbe                     `yaml:"readiness_probe"`
-	HealthCheckProbe ServiceProbe                     `yaml:"health_check_probe,omitempty"`
+	LivenessProbe    Probe                            `yaml:"liveness_probe,omitempty"`
+	ReadinessProbe   Probe                            `yaml:"readiness_probe,omitempty"`
+	HealthCheckProbe Probe                            `yaml:"health_check_probe,omitempty"`
 	VolumeMounts     map[string]string                `yaml:"volumeMounts,omitempty"`
 	FileMounts       []map[string]string              `yaml:"fileMounts,omitempty"`
 	EmptyDirs        []string                         `yaml:"emptyDirs,omitempty"`
@@ -79,36 +80,51 @@ type MonitoringTemplate struct {
 	ScrapePath    string            `yaml:"scrapePath"`
 }
 
-type ServiceProbe interface {
-	toKplusProbe() kplus.Probe
+type Probe struct {
+	Type  string       `yaml:"type"`
+	Probe ServiceProbe `yaml:"probe"`
 }
 
-func unmarshalServiceProbe(data map[string]interface{}) ServiceProbe {
-	if data == nil {
-		return nil
+func (p *Probe) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var raw map[string]interface{}
+	if err := unmarshal(&raw); err != nil {
+		return err
 	}
 
-	if _, ok := data["path"]; ok {
+	probeType, ok := raw["type"].(string)
+	if !ok {
+		return errors.New("unknown probe type")
+	}
+
+	data, ok := raw["probe"].(map[string]interface{})
+	if !ok {
+		return errors.New("unknown or missing probe")
+	}
+	p.Type = probeType
+	switch probeType {
+	case "http":
 		var httpProbe HttpProbe
-		if err := decodeProbe(data, &httpProbe); err == nil {
-			return &httpProbe
+		if err := decodeProbe(data, &httpProbe); err != nil {
+			return err
 		}
-	}
-
-	if _, ok := data["port"]; ok {
-		var tcpProbe TCPProbe
-		if err := decodeProbe(data, &tcpProbe); err == nil {
-			return &tcpProbe
+	case "tcp":
+		var probe TCPProbe
+		if err := decodeProbe(data, &probe); err != nil {
+			return err
 		}
-	}
-	if _, ok := data["commands"]; ok {
+	case "command":
 		var commandProbe CommandProbe
-		if err := decodeProbe(data, &commandProbe); err == nil {
-			return &commandProbe
+		if err := decodeProbe(data, &commandProbe); err != nil {
+			return err
 		}
+	default:
+		return errors.New("unknown probe type")
 	}
-
 	return nil
+}
+
+type ServiceProbe interface {
+	toKplusProbe() kplus.Probe
 }
 
 func decodeProbe(data map[string]interface{}, probe interface{}) error {

@@ -6,7 +6,7 @@ import (
 	"github.com/maliciousbucket/plumage/imports/traefikio"
 )
 
-var (
+const (
 	defaultCircuitBreakerExpression = "ResponseCodeRatio(500, 600, 0, 600) > 0.30 || NetworkErrorRatio() > 0.10 || LatencyAtQuantileMS(50.0) > 100"
 )
 

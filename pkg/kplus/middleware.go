@@ -1,9 +1,11 @@
 package kplus
 
 import (
+	"fmt"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/maliciousbucket/plumage/imports/traefikio"
 	"github.com/maliciousbucket/plumage/pkg/plumage-template/middleware"
+	"strings"
 )
 
 func NewCircuitBreaker(scope constructs.Construct, id string, service *ServiceTemplate) traefikio.Middleware {
@@ -49,4 +51,30 @@ func NewRateLimit(scope constructs.Construct, id string, service *ServiceTemplat
 	}
 	rateLimit := middleware.NewRateLimitMiddleware(scope, id, service.Namespace, service.Name, props)
 	return rateLimit
+}
+
+func NewDefaultMiddlewares(scope constructs.Construct, ns, appLabel string, defaults []string) []string {
+	if len(defaults) == 0 {
+		return nil
+	}
+
+	result := []string{}
+	for _, mw := range defaults {
+		mwType := strings.ToLower(mw)
+		switch mwType {
+		case "retry":
+			name := fmt.Sprintf("%s-retry", appLabel)
+			middleware.NewDefaultRetryMiddleware(scope, name, ns, appLabel)
+			result = append(result, name)
+		case "ratelimit":
+			name := fmt.Sprintf("%s-ratelimit", appLabel)
+			middleware.NewDefaultRateLimitMiddleware(scope, name, ns, appLabel)
+			result = append(result, name)
+		case "circuitbreaker":
+			name := fmt.Sprintf("%s-circuitbreaker", appLabel)
+			middleware.NewDefaultCircuitBreakerMiddleware(scope, name, ns, appLabel)
+			result = append(result, name)
+		}
+	}
+	return result
 }

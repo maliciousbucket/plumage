@@ -15,28 +15,29 @@ type Template struct {
 }
 
 type ServiceTemplate struct {
-	Namespace        string                           `yaml:"namespace"`
-	Name             string                           `yaml:"name"`
-	Image            string                           `yaml:"image"`
-	Args             []string                         `yaml:"args"`
-	Commands         []string                         `yaml:"commands"`
-	Paths            []ServicePath                    `yaml:"paths"`
-	Ports            []Port                           `yaml:"ports"`
-	LivenessProbe    Probe                            `yaml:"liveness_probe,omitempty"`
-	ReadinessProbe   Probe                            `yaml:"readiness_probe,omitempty"`
-	HealthCheckProbe Probe                            `yaml:"health_check_probe,omitempty"`
-	VolumeMounts     map[string]string                `yaml:"volumeMounts,omitempty"`
-	FileMounts       []map[string]string              `yaml:"fileMounts,omitempty"`
-	EmptyDirs        []string                         `yaml:"emptyDirs,omitempty"`
-	WorkingDir       string                           `yaml:"workingDir"`
-	Env              map[string]string                `yaml:"env,omitempty"`
-	EnvFile          string                           `yaml:"envFile"`
-	Monitoring       *MonitoringTemplate              `yaml:"monitoring,omitempty"`
-	Replicas         int                              `yaml:"replicas"`
-	Scaling          ScalingTemplate                  `yaml:"scaling"`
-	CircuitBreaker   *resilience.CircuitBreakerConfig `yaml:"circuitBreaker,omitempty"`
-	Retry            *resilience.RetryConfig          `yaml:"retry,omitempty"`
-	RateLimit        *resilience.RateLimitConfig      `yaml:"rateLimit,omitempty"`
+	Namespace         string                           `yaml:"namespace"`
+	Name              string                           `yaml:"name"`
+	Image             string                           `yaml:"image"`
+	Args              []string                         `yaml:"args"`
+	Commands          []string                         `yaml:"commands"`
+	Paths             []ServicePath                    `yaml:"paths"`
+	Ports             []Port                           `yaml:"ports"`
+	LivenessProbe     Probe                            `yaml:"liveness_probe,omitempty"`
+	ReadinessProbe    Probe                            `yaml:"readiness_probe,omitempty"`
+	HealthCheckProbe  Probe                            `yaml:"health_check_probe,omitempty"`
+	VolumeMounts      map[string]string                `yaml:"volumeMounts,omitempty"`
+	FileMounts        []map[string]string              `yaml:"fileMounts,omitempty"`
+	EmptyDirs         []string                         `yaml:"emptyDirs,omitempty"`
+	WorkingDir        string                           `yaml:"workingDir"`
+	Env               map[string]string                `yaml:"env,omitempty"`
+	EnvFile           string                           `yaml:"envFile"`
+	Monitoring        *MonitoringTemplate              `yaml:"monitoring,omitempty"`
+	Replicas          int                              `yaml:"replicas"`
+	Scaling           ScalingTemplate                  `yaml:"scaling"`
+	DefaultMiddleware []string                         `yaml:"defaultMiddleware,omitempty"`
+	CircuitBreaker    *resilience.CircuitBreakerConfig `yaml:"circuitBreaker,omitempty"`
+	Retry             *resilience.RetryConfig          `yaml:"retry,omitempty"`
+	RateLimit         *resilience.RateLimitConfig      `yaml:"rateLimit,omitempty"`
 }
 
 type ServicePath struct {

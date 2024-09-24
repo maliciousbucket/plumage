@@ -7,6 +7,7 @@ import (
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	"github.com/joho/godotenv"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -35,13 +36,13 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 		},
 	})
 
-	var mioddlewareRefs []string
+	var middlewareRefs []string
 
 	if template.CircuitBreaker != nil {
 		cbName := fmt.Sprintf("%s-circuitbreaker", template.Name)
 		circuitBreaker := NewCircuitBreaker(ct, cbName, template)
 		if circuitBreaker != nil {
-			mioddlewareRefs = append(mioddlewareRefs, *circuitBreaker.Name())
+			middlewareRefs = append(middlewareRefs, cbName)
 		}
 	}
 
@@ -49,7 +50,7 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 		retryName := fmt.Sprintf("%s-retry", template.Name)
 		retry := NewRetry(ct, retryName, template)
 		if retry != nil {
-			mioddlewareRefs = append(mioddlewareRefs, *retry.Name())
+			middlewareRefs = append(middlewareRefs, retryName)
 		}
 	}
 
@@ -57,15 +58,23 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 		rlName := fmt.Sprintf("%s-ratelimit", template.Name)
 		rl := NewRateLimit(ct, rlName, template)
 		if rl != nil {
-			mioddlewareRefs = append(mioddlewareRefs, *rl.Name())
+			middlewareRefs = append(middlewareRefs, rlName)
 		}
 	}
 
 	if template.Scaling != nil {
 		NewAutoScaler(ct, deployment, template.Scaling, template.Name)
 	}
+	log.Printf("Default Middleware Found: %d", len(template.DefaultMiddleware))
+	if len(template.DefaultMiddleware) > 0 {
+		log.Println("Adding default middleware")
+		defaults := NewDefaultMiddlewares(ct, ns, template.Name, template.DefaultMiddleware)
+		if len(defaults) > 0 {
+			middlewareRefs = append(middlewareRefs, defaults...)
+		}
+	}
 	routeName := fmt.Sprintf("%s-ingress-route", template.Name)
-	NewIngressRoute(ct, routeName, ns, template, mioddlewareRefs)
+	NewIngressRoute(ct, routeName, ns, template, middlewareRefs)
 
 	return ct
 }
@@ -122,14 +131,7 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate, mon
 		Ports:           &ports,
 		ImagePullPolicy: kplus.ImagePullPolicy_IF_NOT_PRESENT,
 		SecurityContext: &kplus.ContainerSecurityContextProps{
-			AllowPrivilegeEscalation: nil,
-			Capabilities:             nil,
-			EnsureNonRoot:            jsii.Bool(false),
-			Group:                    nil,
-			Privileged:               nil,
-			ReadOnlyRootFilesystem:   nil,
-			SeccompProfile:           nil,
-			User:                     nil,
+			EnsureNonRoot: jsii.Bool(false),
 		},
 	}
 
@@ -206,14 +208,6 @@ func containerEnv(scope constructs.Construct, name string, env map[string]string
 	}
 
 	for key, value := range env {
-
-		//if !strings.HasPrefix(value, "\"") {
-		//	value = fmt.Sprintf("\"%s", value)
-		//}
-		//
-		//if !strings.HasSuffix(value, "\"") {
-		//	value = fmt.Sprintf("%s\"", value)
-		//}
 		configmap.AddData(jsii.String(key), jsii.String(value))
 	}
 	return configmap

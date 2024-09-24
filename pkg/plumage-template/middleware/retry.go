@@ -48,7 +48,7 @@ func NewDefaultRetryMiddleware(scope constructs.Construct, id string, ns string,
 		Spec: &traefikio.MiddlewareSpec{
 			Retry: &traefikio.MiddlewareSpecRetry{
 				Attempts:        jsii.Number(defaultRetryAttempts),
-				InitialInterval: traefikio.MiddlewareSpecRateLimitPeriod_FromString(jsii.String(defaultRetryDelay)),
+				InitialInterval: traefikio.MiddlewareSpecRetryInitialInterval_FromString(jsii.String(defaultRetryDelay)),
 			},
 		},
 	})

@@ -7,6 +7,13 @@ import (
 	"github.com/maliciousbucket/plumage/pkg/resilience"
 )
 
+const (
+	defaultRateLimitAverage = 50
+	defaultRateLimitBurst   = 80
+	defaultRateLimitPeriod  = "1m"
+	defaultRateLimitIpDepth = 2
+)
+
 type RateLimitProps struct {
 	AverageRequests int
 	BurstRequests   int
@@ -56,6 +63,25 @@ func NewRateLimitMiddleware(scope constructs.Construct, id string, ns string, ap
 		Metadata: metadata,
 		Spec: &traefikio.MiddlewareSpec{
 			RateLimit: spec,
+		},
+	})
+}
+
+func NewDefaultRateLimitMiddleware(scope constructs.Construct, id string, ns string, appLabel string) traefikio.Middleware {
+	metadata := middlewareMetadata(ns, appLabel, MiddlewareTypeRateLimit)
+	return traefikio.NewMiddleware(scope, jsii.String(id), &traefikio.MiddlewareProps{
+		Metadata: metadata,
+		Spec: &traefikio.MiddlewareSpec{
+			RateLimit: &traefikio.MiddlewareSpecRateLimit{
+				Average: jsii.Number(defaultRateLimitAverage),
+				Burst:   jsii.Number(defaultRateLimitBurst),
+				Period:  traefikio.MiddlewareSpecRateLimitPeriod_FromString(jsii.String(defaultRateLimitPeriod)),
+				SourceCriterion: &traefikio.MiddlewareSpecRateLimitSourceCriterion{
+					IpStrategy: &traefikio.MiddlewareSpecRateLimitSourceCriterionIpStrategy{
+						Depth: jsii.Number(defaultRateLimitIpDepth),
+					},
+				},
+			},
 		},
 	})
 }

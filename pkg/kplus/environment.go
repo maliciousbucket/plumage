@@ -5,45 +5,52 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
+	"slices"
 )
 
-func AddServiceEnvironmentVariables(scope constructs.Construct, s *ServiceTemplate, monitoring map[string]string) []kplus.EnvFrom {
+func AddEnvironmentVariables(scope constructs.Construct, s *ServiceTemplate, monitoring map[string]string) kplus.ConfigMap {
+	monitoringEnvConfig := loadMonitoringEnvWithAliases(monitoring, s.Monitoring.Aliases, s.Monitoring.MonitoringEnv)
 
-	monitoringEnvConfig, envConfig := loadMonitoringEnvWithAliases(monitoring, s.Env, s.Env)
+	env := loadEnv(monitoringEnvConfig, s.Env)
 
-	mName := fmt.Sprintf("%s-monitoring-env-values", s.Name)
+	name := fmt.Sprintf("%s-env", s.Name)
+	configMap := kplus.NewConfigMap(scope, jsii.String(name), nil)
 
-	configMap := kplus.NewConfigMap(scope, jsii.String(mName), nil)
+	for k, v := range env {
 
-	for k, v := range monitoringEnvConfig {
-		configMap.AddData(jsii.String(k), jsii.String(v))
+		configMap.AddBinaryData(jsii.String(k), jsii.String(v))
 	}
-
-	envConfigMap := kplus.NewConfigMap(scope, jsii.String(mName), nil)
-	for k, v := range envConfig {
-		envConfigMap.AddData(jsii.String(k), jsii.String(v))
-	}
-
-	monitoringEnvFrom := kplus.Env_FromConfigMap(configMap, nil)
-	envFrom := kplus.Env_FromConfigMap(envConfigMap, nil)
-
-	result := []kplus.EnvFrom{monitoringEnvFrom, envFrom}
-
-	return result
+	return configMap
 }
 
-func loadMonitoringEnvWithAliases(values, aliases map[string]string, env map[string]string) (map[string]string, map[string]string) {
-	result := make(map[string]string)
-	envMap := make(map[string]string)
-	for k, v := range values {
-		if _, ok := env[k]; ok {
-			result[k] = v
-		} else if configValue, found := aliases[k]; found {
-			result[configValue] = v
+func loadEnv(monitoring, env map[string]string) map[string]string {
+	if env == nil {
+		env = make(map[string]string)
+	}
+	for key, value := range monitoring {
+		if _, ok := env[key]; ok {
+			env[key] = monitoring[key]
 		} else {
-			envMap[k] = v
+			//If the key was only defined in the monitoring env
+			env[key] = value
 		}
 	}
-	return result, envMap
+	return env
+}
 
+func loadMonitoringEnvWithAliases(values, aliases map[string]string, monitoringEnv []string) map[string]string {
+	result := make(map[string]string)
+	for k, v := range values {
+		//If the monitoring slice from the template has a standard key,
+		//the key is set to the cfg value in the result
+		if slices.Contains(monitoringEnv, k) {
+			result[k] = v
+			//if there is an alias, the alias key's value is set
+			//to the matching value from the cfg
+		} else if configValue, ok := aliases[k]; ok {
+			result[configValue] = v
+		}
+
+	}
+	return result
 }

@@ -32,6 +32,11 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 		YamlOutputType:          cdk8s.YamlOutputType_FOLDER_PER_CHART_FILE_PER_RESOURCE,
 	})
 
+	namespace := "galah-testbed"
+	if template.Namespace != "" {
+		namespace = template.Namespace
+	}
+
 	for _, service := range template.Services {
 		fmt.Println(service.Name)
 		fmt.Println(service)
@@ -39,7 +44,7 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 		chart := cdk8s.NewChart(app, jsii.String(name), &cdk8s.ChartProps{
 			DisableResourceNameHashes: jsii.Bool(true),
 			Labels:                    nil,
-			Namespace:                 jsii.String(template.Namespace),
+			Namespace:                 jsii.String(namespace),
 		})
 
 		NewServiceManifests(chart, service.Name, &service, monitoring)

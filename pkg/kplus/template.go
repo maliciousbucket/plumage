@@ -39,29 +39,6 @@ type ServiceTemplate struct {
 	RateLimit        *resilience.RateLimitConfig      `yaml:"rateLimit,omitempty"`
 }
 
-//func (t *ServiceTemplate) UnmarshalYAML(unmarshal func(interface{}) error) error {
-//	type Alias ServiceTemplate
-//
-//	aux := &struct {
-//		LivenessProbe    map[string]interface{} `yaml:"liveness_probe"`
-//		ReadinessProbe   map[string]interface{} `yaml:"readiness_probe"`
-//		HealthCheckProbe map[string]interface{} `yaml:"health_check_probe,omitempty"`
-//		*Alias
-//	}{
-//		Alias: (*Alias)(t),
-//	}
-//	if err := unmarshal(aux); err != nil {
-//		return err
-//	}
-//
-//	t.LivenessProbe = unmarshalServiceProbe(aux.LivenessProbe)
-//	t.ReadinessProbe = unmarshalServiceProbe(aux.ReadinessProbe)
-//	if aux.HealthCheckProbe != nil {
-//		t.HealthCheckProbe = unmarshalServiceProbe(aux.HealthCheckProbe)
-//	}
-//	return nil
-//}
-
 type ServicePath struct {
 	Path string `yaml:"path"`
 	Port int    `yaml:"port"`
@@ -75,7 +52,8 @@ type Port struct {
 }
 
 type MonitoringTemplate struct {
-	MonitoringEnv map[string]string `yaml:"env"`
+	MonitoringEnv []string          `yaml:"env"`
+	Aliases       map[string]string `yaml:"aliases"`
 	ScrapePort    int               `yaml:"scrapePort"`
 	ScrapePath    string            `yaml:"scrapePath"`
 }

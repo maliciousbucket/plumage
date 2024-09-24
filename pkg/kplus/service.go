@@ -129,22 +129,24 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate, mon
 		props.Readiness = ToKplusProbe(service.ReadinessProbe.Probe)
 	}
 
-	if len(service.Env) != 0 || service.EnvFile != "" {
-		env := containerEnv(scope, service.Name, service.Env, service.EnvFile)
-		fmt.Println("Adding env..")
-		source := kplus.Env_FromConfigMap(env, nil)
-		props.EnvFrom = &[]kplus.EnvFrom{
-			source,
-		}
-	}
+	//if len(service.Env) != 0 || service.EnvFile != "" {
+	//	env := containerEnv(scope, service.Name, service.Env, service.EnvFile)
+	//	fmt.Println("Adding env..")
+	//	source := kplus.Env_FromConfigMap(env, nil)
+	//	props.EnvFrom = &[]kplus.EnvFrom{
+	//		source,
+	//	}
+	//}
 
 	if service.WorkingDir != "" {
 		props.WorkingDir = jsii.String(service.WorkingDir)
 	}
 	props.EnvFrom = &[]kplus.EnvFrom{}
 
-	if service.Env != nil {
-		envFrom := AddServiceEnvironmentVariables(scope, service, monitoring)
+	if service.Env != nil && len(service.Env) > 0 || service.Monitoring != nil {
+		configMap := AddEnvironmentVariables(scope, service, monitoring)
+		envFrom := kplus.NewEnvFrom(configMap, nil, nil)
+
 		containerEnvFrom := append(*props.EnvFrom, envFrom)
 		props.EnvFrom = &containerEnvFrom
 	}
@@ -276,7 +278,7 @@ func portName(port Port, num int) string {
 }
 
 func StringMapToK8s(m map[string]string) *map[string]*string {
-	var k8sMap map[string]*string
+	k8sMap := make(map[string]*string)
 	for k, v := range m {
 		k8sMap[k] = &v
 	}

@@ -66,7 +66,7 @@ func routes(props *RouteProps) *[]*traefikio.IngressRouteSpecRoutes {
 
 func routeSpec(services []*traefikio.IngressRouteSpecRoutesServices, path string,
 	middlewares []*traefikio.IngressRouteSpecRoutesMiddlewares, host string) traefikio.IngressRouteSpecRoutes {
-	rule := fmt.Sprintf("Host('%s') && PathPrefix('%s')", host, path)
+	rule := fmt.Sprintf("Host(`%s`) && PathPrefix(`%s`)", host, path)
 	return traefikio.IngressRouteSpecRoutes{
 		Kind:        RouteTypeRule,
 		Match:       jsii.String(rule),

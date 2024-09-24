@@ -9,6 +9,7 @@ import (
 )
 
 type AppConfig struct {
+	ProjectName      string            `yaml:"project"`
 	ConfigDir        string            `yaml:"configDir"`
 	ProjectDir       string            `yaml:"projectDir"`
 	OutputDir        string            `yaml:"outputDir"`
@@ -31,13 +32,18 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 		return nil, err
 	}
 
+	outDir := "./dist"
+	if outputDir != "" {
+		outDir = outputDir
+	}
+
 	appConfig := &AppConfig{
 		ConfigDir:        configDir,
 		ProjectDir:       projectDir,
 		Namespace:        namespace,
 		UserConfig:       userConfig,
 		MonitoringConfig: monitoringConfig,
-		OutputDir:        outputDir,
+		OutputDir:        outDir,
 	}
 	return appConfig, nil
 }

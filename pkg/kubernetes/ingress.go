@@ -148,11 +148,19 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 		Namespace:                 jsii.String(ns),
 	})
 
+	//kplus.NewNamespace(chart, jsii.String("traefik-namespace"), &kplus.NamespaceProps{
+	//	Metadata: &cdk8s.ApiObjectMetadata{
+	//		Name: jsii.String("galah-testbed"),
+	//	},
+	//})
+
 	roleImp := cdk8s.NewInclude(chart, jsii.String("traefik-import-role"), &cdk8s.IncludeProps{
 		Url: jsii.String("dist/include/traefik-cluster-role.yaml"),
 	})
 
 	roleObj := *roleImp.ApiObjects()
+	patch := cdk8s.JsonPatch_Add(jsii.String("/metadata/namespace"), jsii.String("galah-test-bed"))
+	roleObj[0].AddJsonPatch(patch)
 
 	acc := kplus.NewServiceAccount(chart, jsii.String("yo,"), &kplus.ServiceAccountProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
@@ -175,6 +183,7 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 	})
 
 	binding.AddSubjects(acc)
+	binding.AddSubjects()
 
 	args := traefikIngressArgs()
 	labels := traefikIngressLabels()
@@ -304,15 +313,21 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 		Tls:       nil,
 	})
 
+	ig.Metadata().AddLabel(jsii.String("name"), jsii.String("traefik-web-ingress"))
+	ig.Metadata().AddAnnotation(jsii.String("traefik.ingress.kubernetes.io/router.entrypoints"), jsii.String("web"))
+
 	web.ExposeViaIngress(jsii.String("/testbed"), &kplus.ExposeServiceViaIngressOptions{
 		Ingress:  ig,
 		PathType: "",
 	})
+	traefikRemovePrefixMiddleware(chart, "strip-dashboard")
+	newDashbaordRoute(chart, "dashboard-route", db)
 
-	db.ExposeViaIngress(jsii.String("/dashboard"), &kplus.ExposeServiceViaIngressOptions{
-		Ingress:  ig,
-		PathType: "",
-	})
+	//adminIg := db.ExposeViaIngress(jsii.String("/dashboard"), &kplus.ExposeServiceViaIngressOptions{
+	//	PathType: kplus.HttpIngressPathType_PREFIX,
+	//})
+	//
+	//adminIg.Metadata().AddAnnotation(jsii.String("traefik.ingress.kubernetes.io/router.entrypoints"), jsii.String("admin"))
 
 	return chart
 
@@ -338,11 +353,56 @@ func traefikIngressArgs() []*string {
 		jsii.String("--accesslog"),
 		jsii.String("--entryPoints.web.Address=:80"),
 		jsii.String("--providers.kubernetescrd"),
+
 		jsii.String("--entryPoints.websecure.Address=:4443"),
 		jsii.String("--entryPoints.traefik.Address=:8080"),
 		//jsii.String("allowEmptyServices: true"),
 	}
 	return args
+}
+
+func newDashbaordRoute(scope constructs.Construct, id string, service kplus.Service) traefikio.IngressRoute {
+	return traefikio.NewIngressRoute(scope, jsii.String(id), &traefikio.IngressRouteProps{
+		Metadata: &cdk8s.ApiObjectMetadata{
+			Name: jsii.String("dashboard-route"),
+		},
+		Spec: &traefikio.IngressRouteSpec{
+			EntryPoints: &[]*string{
+				jsii.String("traefik"),
+			},
+			Routes: &[]*traefikio.IngressRouteSpecRoutes{
+				{
+					Kind:  traefikio.IngressRouteSpecRoutesKind_RULE,
+					Match: jsii.String("PathPrefix(`/dashboard`)"),
+					Middlewares: &[]*traefikio.IngressRouteSpecRoutesMiddlewares{
+						{
+							Name: jsii.String("strip-dashboard"),
+						},
+					},
+					Services: &[]*traefikio.IngressRouteSpecRoutesServices{
+						{
+							Name: service.Name(),
+							Port: traefikio.IngressRouteSpecRoutesServicesPort_FromNumber(jsii.Number(8080)),
+						},
+					},
+				},
+			},
+		},
+	})
+}
+
+func traefikRemovePrefixMiddleware(scope constructs.Construct, id string) traefikio.Middleware {
+	middleware := traefikio.NewMiddleware(scope, jsii.String(id), &traefikio.MiddlewareProps{
+		Metadata: &cdk8s.ApiObjectMetadata{
+			Name: jsii.String("strip-dashboard"),
+		},
+		Spec: &traefikio.MiddlewareSpec{
+			StripPrefix: &traefikio.MiddlewareSpecStripPrefix{
+				Prefixes: &[]*string{jsii.String("/dashboard")},
+			},
+		},
+	})
+	return middleware
 }
 
 func test(scope constructs.Construct, id string) {

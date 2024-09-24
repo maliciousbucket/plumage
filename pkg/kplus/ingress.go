@@ -6,7 +6,7 @@ import (
 	"github.com/maliciousbucket/plumage/pkg/plumage-template/ingress"
 )
 
-func NewIngressRoute(scope constructs.Construct, id string, service *ServiceTemplate, middleware []string) traefikio.IngressRoute {
+func NewIngressRoute(scope constructs.Construct, id string, ns string, service *ServiceTemplate, middleware []string) traefikio.IngressRoute {
 	var paths []*ingress.ServicePaths
 	for _, path := range service.Paths {
 		paths = append(paths, &ingress.ServicePaths{
@@ -17,7 +17,7 @@ func NewIngressRoute(scope constructs.Construct, id string, service *ServiceTemp
 
 	props := &ingress.RouteProps{
 		Name:      service.Name,
-		Namespace: service.Namespace,
+		Namespace: ns,
 		Config: &ingress.RouteConfig{
 			Host:               "",
 			Paths:              paths,

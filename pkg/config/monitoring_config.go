@@ -26,6 +26,7 @@ type MonitoringConfig struct {
 }
 
 type CollectorConfig struct {
+	AlloyAddress            string `yaml:"alloyAddress"`
 	DefaultProtocol         string `yaml:"defaultProtocol"`
 	LokiWriteEndpoint       string `json:"loki_write_endpoint" yaml:"lokiWriteEndpoint"`
 	LokiWritePort           int    `json:"loki_write_port" yaml:"lokiWritePort"`
@@ -81,9 +82,9 @@ func (c CollectorConfig) ToStringMap() map[string]string {
 	}
 
 	return map[string]string{
-		"LOKI_ENDPOINT":       fmt.Sprintf("%s:%d", c.LokiWriteEndpoint, c.LokiWritePort),
-		"PROMETHEUS_ENDPOINT": fmt.Sprintf("%s:%d", c.PrometheusWriteEndpoint, c.PrometheusWritePort),
-		"ZIPKIN_ENDPOINT":     fmt.Sprintf("%s:%d", c.ZipkinEndpoint, c.ZipkinPort),
+		"LOKI_ENDPOINT":       fmt.Sprintf("%s/%s:%d", c.AlloyAddress, c.LokiWriteEndpoint, c.LokiWritePort),
+		"PROMETHEUS_ENDPOINT": fmt.Sprintf("%s/%s:%d", c.AlloyAddress, c.PrometheusWriteEndpoint, c.PrometheusWritePort),
+		"ZIPKIN_ENDPOINT":     fmt.Sprintf("%s/%s:%d", c.AlloyAddress, c.ZipkinEndpoint, c.ZipkinPort),
 
 		"OTEL_EXPORTER_OTLP_PROTOCOL":         otlpExporterProtocol,
 		"OTEL_EXPORTER_OTLP_METRICS_PROTOCOL": c.OtlpMetricsExportProtocol,
@@ -244,10 +245,11 @@ func loadMonitoringConfigFromEnv(envFile string, base *MonitoringConfig) error {
 }
 
 func loadDefaultMonitoringConfig() MonitoringConfig {
-	alloyAddress := "alloy.svc.cluster.local"
+	alloyAddress := "alloy.galah-monitoring.svc.cluster.local"
 	return MonitoringConfig{
 		AlloyAddress: alloyAddress,
 		Collectors: &CollectorConfig{
+			AlloyAddress:              alloyAddress,
 			DefaultProtocol:           "grpc",
 			LokiWriteEndpoint:         "/loki/api/push",
 			LokiWritePort:             8090,
@@ -259,9 +261,9 @@ func loadDefaultMonitoringConfig() MonitoringConfig {
 			OtlpMetricsExportProtocol: string(GRPCProtocol),
 			OtlpLogsExportProtocol:    string(GRPCProtocol),
 			OtlpTracesExportProtocol:  string(GRPCProtocol),
-			OtlpHTTPEndpoint:          "",
+			OtlpHTTPEndpoint:          alloyAddress,
 			OtlpHTTPPort:              4318,
-			OtlpGRPCEndpoint:          "",
+			OtlpGRPCEndpoint:          alloyAddress,
 			OtlpGRPCPort:              4317,
 			OtlpMetricsEndpoint:       fmt.Sprintf("%s:%s", alloyAddress, "4317"),
 			OtlpLogsEndpoint:          fmt.Sprintf("%s:%s", alloyAddress, "4317"),

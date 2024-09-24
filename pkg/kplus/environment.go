@@ -13,12 +13,13 @@ func AddEnvironmentVariables(scope constructs.Construct, s *ServiceTemplate, mon
 
 	env := loadEnv(monitoringEnvConfig, s.Env)
 
-	name := fmt.Sprintf("%s-env", s.Name)
-	configMap := kplus.NewConfigMap(scope, jsii.String(name), nil)
+	//name := fmt.Sprintf("%s-env", s.Name)
+	configMap := kplus.NewConfigMap(scope, jsii.String("env"), nil)
 
 	for k, v := range env {
-
-		configMap.AddBinaryData(jsii.String(k), jsii.String(v))
+		value := fmt.Sprintf("%s", v)
+		//configMap.AddBinaryData(jsii.String(k), jsii.String(value))
+		configMap.AddData(jsii.String(k), jsii.String(value))
 	}
 	return configMap
 }

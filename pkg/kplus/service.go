@@ -11,17 +11,18 @@ import (
 	"strings"
 )
 
-func NewServiceManifests(scope constructs.Construct, id string, template *ServiceTemplate, monitoring map[string]string) constructs.Construct {
+func NewServiceManifests(scope constructs.Construct, id string, ns string, template *ServiceTemplate, monitoring map[string]string) constructs.Construct {
 	ct := constructs.NewConstruct(scope, jsii.String(id))
 
-	deploymentName := fmt.Sprintf("%s-deployment", template.Name)
+	//deploymentName := fmt.Sprintf("%s-deployment", template.Name)
+	deploymentName := "deployment"
 	deployment := newServiceDeployment(ct, deploymentName, template, monitoring)
 
 	labelSelector := kplus.LabelSelector_Of(&kplus.LabelSelectorOptions{Labels: &map[string]*string{"app": jsii.String(template.Name)}})
 
 	deployment.Select(labelSelector)
 
-	serviceName := fmt.Sprintf("%s-service", template.Name)
+	serviceName := fmt.Sprintf("%s", template.Name)
 	service := deployment.ExposeViaService(&kplus.DeploymentExposeViaServiceOptions{
 		ServiceType: kplus.ServiceType_CLUSTER_IP,
 		Name:        jsii.String(serviceName),
@@ -64,14 +65,18 @@ func NewServiceManifests(scope constructs.Construct, id string, template *Servic
 		NewAutoScaler(ct, deployment, template.Scaling, template.Name)
 	}
 	routeName := fmt.Sprintf("%s-ingress-route", template.Name)
-	NewIngressRoute(ct, routeName, template, mioddlewareRefs)
+	NewIngressRoute(ct, routeName, ns, template, mioddlewareRefs)
 
 	return ct
 }
 
 func newServiceDeployment(scope constructs.Construct, id string, service *ServiceTemplate, m map[string]string) kplus.Deployment {
-	deployment := kplus.NewDeployment(scope, jsii.String(id), nil)
-
+	deployment := kplus.NewDeployment(scope, jsii.String(id), &kplus.DeploymentProps{
+		SecurityContext: &kplus.PodSecurityContextProps{
+			EnsureNonRoot: jsii.Bool(false),
+		},
+	})
+	deployment.PodMetadata().AddLabel(jsii.String("app"), jsii.String(service.Name))
 	containerProps := newContainerProps(scope, service, m)
 	container := deployment.AddContainer(containerProps)
 
@@ -94,6 +99,8 @@ func newServiceDeployment(scope constructs.Construct, id string, service *Servic
 
 	deployment.Metadata().AddLabel(jsii.String("app"), jsii.String(service.Name))
 
+	//deployment.PodMetadata().
+
 	return deployment
 }
 
@@ -114,6 +121,16 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate, mon
 		Command:         commands,
 		Ports:           &ports,
 		ImagePullPolicy: kplus.ImagePullPolicy_IF_NOT_PRESENT,
+		SecurityContext: &kplus.ContainerSecurityContextProps{
+			AllowPrivilegeEscalation: nil,
+			Capabilities:             nil,
+			EnsureNonRoot:            jsii.Bool(false),
+			Group:                    nil,
+			Privileged:               nil,
+			ReadOnlyRootFilesystem:   nil,
+			SeccompProfile:           nil,
+			User:                     nil,
+		},
 	}
 
 	if service.LivenessProbe.Probe != nil {
@@ -128,15 +145,6 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate, mon
 	if service.ReadinessProbe.Probe != nil {
 		props.Readiness = ToKplusProbe(service.ReadinessProbe.Probe)
 	}
-
-	//if len(service.Env) != 0 || service.EnvFile != "" {
-	//	env := containerEnv(scope, service.Name, service.Env, service.EnvFile)
-	//	fmt.Println("Adding env..")
-	//	source := kplus.Env_FromConfigMap(env, nil)
-	//	props.EnvFrom = &[]kplus.EnvFrom{
-	//		source,
-	//	}
-	//}
 
 	if service.WorkingDir != "" {
 		props.WorkingDir = jsii.String(service.WorkingDir)

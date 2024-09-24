@@ -40,14 +40,14 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 	for _, service := range template.Services {
 		fmt.Println(service.Name)
 		fmt.Println(service)
-		name := fmt.Sprintf("%s-chart", service.Name)
+		name := fmt.Sprintf("%s", service.Name)
 		chart := cdk8s.NewChart(app, jsii.String(name), &cdk8s.ChartProps{
 			DisableResourceNameHashes: jsii.Bool(true),
 			Labels:                    nil,
 			Namespace:                 jsii.String(namespace),
 		})
 
-		NewServiceManifests(chart, service.Name, &service, monitoring)
+		NewServiceManifests(chart, service.Name, namespace, &service, monitoring)
 	}
 
 	app.Synth()

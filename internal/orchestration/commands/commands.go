@@ -52,6 +52,7 @@ func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Com
 	cmd.Flags().StringVarP(&message, "message", "m", "", "commit message")
 
 	cmd.AddCommand(commitManifestsCmd(configDir, fileName, cfg))
+	cmd.AddCommand(commitGatewayCommand(configDir, fileName, cfg))
 
 	err := cmd.MarkFlagRequired("message")
 	if err != nil {
@@ -85,7 +86,7 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 			}
 
 			if service != "" && resource != "" {
-				cmtMsg := fmt.Sprintf("plumage manifests - %s", time.Now().String())
+				cmtMsg := fmt.Sprintf("plumage manifests - resource: %s - %s", resource, time.Now().String())
 				resourceCmt, commitErr := orchestration.CommitAndPushResource(ctx, ghCfg, cfg.OutputDir, service, resource, cmtMsg)
 				if commitErr != nil {
 					log.Fatal(err)
@@ -95,7 +96,8 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 			}
 
 			if service != "" {
-				serviceCmt, commitErr := orchestration.CommitAndPushService(ctx, ghCfg, cfg.OutputDir, service, "")
+				cmtMsg := fmt.Sprintf("plumage manifests - service: %s - %s", service, time.Now().String())
+				serviceCmt, commitErr := orchestration.CommitAndPushService(ctx, ghCfg, cfg.OutputDir, service, cmtMsg)
 				if commitErr != nil {
 					log.Fatal(err)
 				}
@@ -109,8 +111,41 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 	cmd.Flags().StringVarP(&service, "service", "s", "", "commit synthesised service")
 	cmd.Flags().StringVarP(&resource, "resource", "r", "", "commit synthesised resource")
 	cmd.Flags().StringVarP(&envFiles, "env-files", "e", "", "comma seperated environment files")
+	cmd.Flags().StringVarP(&message, "message", "m", "", "commit message")
 
 	cmd.MarkFlagsMutuallyExclusive("chart", "service")
 	cmd.MarkFlagsMutuallyExclusive("chart", "resource")
+	return cmd
+}
+
+func commitGatewayCommand(configDir, fileName string, cfg *config.AppConfig) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "gateway",
+		Short: "Commit traefik gateway manifests",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			dashboards, _ := cmd.Flags().GetBool("dashboards")
+
+			ghCfg, err := config.NewGithubConfig(configDir, fileName)
+			if err != nil {
+				return err
+			}
+			ctx := context.Background()
+			if dashboards {
+				cmt, cmtErr := orchestration.CommitDashboardRoutes(ctx, ghCfg, cfg.OutputDir)
+				if cmtErr != nil {
+					return cmtErr
+				}
+				log.Printf("Commit Created: %+v", cmt)
+				return nil
+			}
+			cmt, cmtErr := orchestration.CommitAndPushGateway(ctx, ghCfg, cfg.OutputDir)
+			if cmtErr != nil {
+				return cmtErr
+			}
+			log.Printf("Commit Created: %+v", cmt)
+			return nil
+		},
+	}
+	cmd.Flags().BoolP("dashboards", "d", false, "commit monitoring dashboard routes")
 	return cmd
 }

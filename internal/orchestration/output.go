@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type AppOutput struct {
@@ -65,9 +66,9 @@ func getServiceChartTree(ctx context.Context, ref *github.Reference, client *git
 	//	return nil, err
 	//}
 	chartPath := filepath.Join(dir, chart)
-	if !strings.HasSuffix(chartPath, "-chart") {
-		chartPath += "-chart"
-	}
+	//if !strings.HasSuffix(chartPath, "-chart") {
+	//	chartPath += "-chart"
+	//}
 
 	files, err := getDirectoryFiles(chartPath, nil)
 	if len(files) == 0 {
@@ -126,9 +127,9 @@ func getResourceTree(ctx context.Context, ref *github.Reference, client *github.
 	dir, chart, resource string) (*github.Tree, error) {
 
 	chartPath := filepath.Join(dir, chart)
-	if !strings.HasSuffix(chartPath, "-chart") {
-		chartPath += "-chart"
-	}
+	//if !strings.HasSuffix(chartPath, "-chart") {
+	//	chartPath += "-chart"
+	//}
 
 	files, err := getDirectoryFiles(chartPath, nil)
 	if len(files) == 0 {
@@ -224,4 +225,19 @@ func getResourceName(fileName string) string {
 	}
 
 	return fileName
+}
+
+func CommitAndPushGateway(ctx context.Context, cfg *config.GitHubConfig, dir string) (*GitHubCommitResponse, error) {
+	ingressDir := filepath.Join(dir, "ingress")
+	msg := fmt.Sprintf("plumage manifests - gateway - %s", time.Now().String())
+
+	return CommitAndPushService(ctx, cfg, ingressDir, "traefik", msg)
+}
+
+func CommitDashboardRoutes(ctx context.Context, cfg *config.GitHubConfig, dir string) (*GitHubCommitResponse, error) {
+	ingressDir := filepath.Join(dir, "ingress")
+	msg := fmt.Sprintf("plumage manifests - dashboard routes - %s", time.Now().String())
+
+	return CommitAndPushService(ctx, cfg, ingressDir, "dashboards", msg)
+
 }

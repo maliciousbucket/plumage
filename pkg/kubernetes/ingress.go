@@ -392,14 +392,6 @@ func newDashbaordRoute(scope constructs.Construct, id string, service kplus.Serv
 	})
 }
 
-func alloyRoute(scope constructs.Construct, id string) traefikio.IngressRoute {
-	return nil
-}
-
-func grafanaRoute(scope constructs.Construct, id string) traefikio.IngressRoute {
-	return nil
-}
-
 func traefikRemovePrefixMiddleware(scope constructs.Construct, id string) traefikio.Middleware {
 	middleware := traefikio.NewMiddleware(scope, jsii.String(id), &traefikio.MiddlewareProps{
 		Metadata: &cdk8s.ApiObjectMetadata{

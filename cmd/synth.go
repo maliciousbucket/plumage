@@ -26,6 +26,7 @@ func synthCommand() *cobra.Command {
 	}
 	cmd.AddCommand(synthGatewayCmd(appCfg.OutputDir, appCfg.Namespace))
 	cmd.AddCommand(synthTemplateCommand("testdata/chirp/template.yaml", appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
+	cmd.AddCommand(synthInfraRoutesCmd(appCfg.OutputDir, appCfg.Namespace))
 	return cmd
 
 }
@@ -73,6 +74,24 @@ func synthTemplateCommand(file string, outputDir string, c *config.CollectorConf
 				log.Fatal(err)
 
 			}
+		},
+	}
+	return cmd
+}
+
+func synthInfraRoutesCmd(outputDir string, namespace string) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "infra-routes",
+		Short: "synth infrastructure ingress route manifests",
+		Run: func(cmd *cobra.Command, args []string) {
+			out := fmt.Sprintf("%s/ingress/dashboards", outputDir)
+			app := cdk8s.NewApp(&cdk8s.AppProps{
+				Outdir:         jsii.String(out),
+				YamlOutputType: cdk8s.YamlOutputType_FILE_PER_CHART,
+			})
+
+			kubernetes.NewInfraDashboardRoutes(app, "dashboards-chart", namespace)
+			app.Synth()
 		},
 	}
 	return cmd

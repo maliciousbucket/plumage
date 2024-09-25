@@ -85,6 +85,7 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 
 	createAlloy := true
 	createGateway := true
+	createGrafana := true
 	createLoki := true
 	createMimir := true
 	createMinioOperator := true
@@ -99,6 +100,11 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 		if slices.Contains(appNames, "gateway-app") {
 			createGateway = false
 		}
+
+		if slices.Contains(appNames, "grafana-app") {
+			createGrafana = false
+		}
+
 		if slices.Contains(appNames, "loki-app") {
 			createLoki = false
 		}
@@ -114,6 +120,7 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 		if slices.Contains(appNames, "tempo-app") {
 			createTempo = false
 		}
+
 	}
 
 	if createAlloy {
@@ -128,6 +135,12 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 			return fmt.Errorf("error creating gateway application: %w", err)
 		}
 
+	}
+
+	if createGrafana {
+		if err = c.createGrafanaApp(ctx, project); err != nil {
+			return fmt.Errorf("error creating grafana application: %w", err)
+		}
 	}
 
 	if createLoki {

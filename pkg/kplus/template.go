@@ -10,6 +10,7 @@ import (
 )
 
 type Template struct {
+	Name      string            `yaml:"name"`
 	Namespace string            `yaml:"namespace"`
 	Services  []ServiceTemplate `yaml:"services"`
 }

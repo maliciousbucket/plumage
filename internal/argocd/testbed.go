@@ -12,8 +12,8 @@ import (
 
 const (
 	traefikPath         = "dist/ingress/traefik"
-	infraDashboardsPath = "/dist/ingress/dashboards"
-	appPath             = "/dist"
+	infraDashboardsPath = "dist/ingress/dashboards"
+	appPath             = "dist"
 )
 
 func (c *Client) CreateIngressProject(ctx context.Context) error {
@@ -154,7 +154,7 @@ func (c *Client) CreateServiceApplications(ctx context.Context, app string, serv
 	}
 
 	for _, service := range services {
-		path := fmt.Sprintf("%s/%s/%s", appPath, app, service)
+		path := fmt.Sprintf("%s/%s/%s/", appPath, app, service)
 		appErr := c.addTestBedApp(ctx, service, path, project.Name)
 		if appErr != nil {
 			return fmt.Errorf("add test bed app %s failed: %v", service, appErr)

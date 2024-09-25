@@ -55,6 +55,7 @@ func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Com
 
 	cmd.AddCommand(commitManifestsCmd(configDir, fileName, cfg))
 	cmd.AddCommand(commitGatewayCommand(configDir, fileName, cfg))
+	cmd.AddCommand(commitDashboardsCommand(configDir, fileName, cfg))
 
 	err := cmd.MarkFlagRequired("message")
 	if err != nil {
@@ -87,7 +88,7 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 
 			ctx := context.Background()
 			if chart {
-				path := fmt.Sprintf("%s/%s", cfg.OutputDir, app)
+				path := fmt.Sprintf("dist/%s", app)
 				cmtMsg := fmt.Sprintf("plumage manifests - chart: %s - %s", app, time.Now().String())
 				chartCmt, commitErr := orchestration.CommitAndPush(ctx, ghCfg, path, cmtMsg)
 				if commitErr != nil {
@@ -144,21 +145,12 @@ func commitGatewayCommand(configDir, fileName string, cfg *config.AppConfig) *co
 		Use:   "gateway",
 		Short: "Commit traefik gateway manifests",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dashboards, _ := cmd.Flags().GetBool("dashboards")
 
 			ghCfg, err := config.NewGithubConfig(configDir, fileName)
 			if err != nil {
 				return err
 			}
 			ctx := context.Background()
-			if dashboards {
-				cmt, cmtErr := orchestration.CommitDashboardRoutes(ctx, ghCfg, cfg.OutputDir)
-				if cmtErr != nil {
-					return cmtErr
-				}
-				log.Printf("Commit Created: %+v", cmt)
-				return nil
-			}
 			cmt, cmtErr := orchestration.CommitAndPushGateway(ctx, ghCfg, cfg.OutputDir)
 			if cmtErr != nil {
 				return cmtErr
@@ -167,6 +159,26 @@ func commitGatewayCommand(configDir, fileName string, cfg *config.AppConfig) *co
 			return nil
 		},
 	}
-	cmd.Flags().BoolP("dashboards", "d", false, "commit monitoring dashboard routes")
+	return cmd
+}
+
+func commitDashboardsCommand(configDir, fileName string, cfg *config.AppConfig) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "dashboards",
+		Short: "Commit dashboard ingress route manifests",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ghCfg, err := config.NewGithubConfig(configDir, fileName)
+			if err != nil {
+				return err
+			}
+			ctx := context.Background()
+			cmt, cmtErr := orchestration.CommitDashboardRoutes(ctx, ghCfg, cfg.OutputDir)
+			if cmtErr != nil {
+				return cmtErr
+			}
+			log.Printf("Commit Created: %+v", cmt)
+			return nil
+		},
+	}
 	return cmd
 }

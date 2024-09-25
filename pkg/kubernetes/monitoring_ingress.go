@@ -8,7 +8,7 @@ import (
 	"github.com/maliciousbucket/plumage/imports/traefikio"
 )
 
-func NewInfraDashboardRoutes(scope constructs.Construct, id string, ns string) constructs.Construct {
+func NewInfraDashboardRoutes(scope constructs.Construct, id, ns string) constructs.Construct {
 	chart := cdk8s.NewChart(scope, jsii.String(id), &cdk8s.ChartProps{
 		DisableResourceNameHashes: jsii.Bool(true),
 		Namespace:                 jsii.String(ns),
@@ -41,6 +41,7 @@ func newInfraRoute(scope constructs.Construct, id string, name, service, ns stri
 	return traefikio.NewIngressRoute(scope, jsii.String(id), &traefikio.IngressRouteProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
 			Name: jsii.String(id),
+			//Namespace: jsii.String(ns),
 		},
 		Spec: &traefikio.IngressRouteSpec{
 			EntryPoints: &[]*string{

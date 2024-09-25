@@ -11,6 +11,7 @@ import (
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
+	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"github.com/spf13/cobra"
 	"io"
 	"log"
@@ -296,6 +297,10 @@ func ProjectCmd() *cobra.Command {
 		},
 	}
 	cmd.AddCommand(createProjectCmd())
+	cmd.AddCommand(createAppsCmd())
+	cmd.AddCommand(getProjectCmd())
+	cmd.AddCommand(addAppToProjectCmd())
+	cmd.AddCommand(deleteProjectCmd())
 	return cmd
 }
 
@@ -312,7 +317,7 @@ func createProjectCmd() *cobra.Command {
 			crd, _ := cmd.Flags().GetBool("crd")
 			gateway, _ := cmd.Flags().GetBool("gateway")
 			infrastructure, _ := cmd.Flags().GetBool("infrastructure")
-			app, _ := cmd.Flags().GetBool("app")
+			appName, _ := cmd.Flags().GetBool("app")
 			name, _ := cmd.Flags().GetString("name")
 			ctx := context.Background()
 			if monitoring {
@@ -342,7 +347,7 @@ func createProjectCmd() *cobra.Command {
 				return argoClient.CreateInfrastructureDashboardRoutesApp(ctx)
 			}
 
-			if app {
+			if appName {
 				if name == "" {
 					return fmt.Errorf("app name is required")
 				}
@@ -356,15 +361,35 @@ func createProjectCmd() *cobra.Command {
 	cmd.Flags().BoolP("crd", "c", false, "create CRD project")
 	cmd.Flags().BoolP("gateway", "g", false, "Create gateway project")
 	cmd.Flags().BoolP("infrastructure", "i", false, "Create infrastructure project")
-	cmd.Flags().BoolP("app", "a", false, "Create app project")
-	cmd.Flags().StringP("name", "n", "", "App name")
+	cmd.Flags().BoolP("app", "p", false, "Create app project")
+	cmd.Flags().StringP("name", "a", "", "App name")
 	cmd.MarkFlagsMutuallyExclusive("monitoring", "networking", "crd", "gateway", "infrastructure", "app")
 	cmd.MarkFlagsRequiredTogether("name", "app")
 	return cmd
 }
 
 func deleteProjectCmd() *cobra.Command {
-	cmd := &cobra.Command{}
+	cmd := &cobra.Command{
+		Use:   "delete",
+		Short: "Delete ArgoCD projects",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
+			}
+			project, _ := cmd.Flags().GetString("project")
+			if project == "" {
+				return fmt.Errorf("project is required")
+			}
+			ctx := context.Background()
+			if err := argoClient.DeleteProject(ctx, project); err != nil {
+				return err
+			}
+			log.Printf("\nProject %s deleted", project)
+			return nil
+		},
+	}
+	cmd.Flags().StringP("project", "p", "", "Project name")
+	_ = cmd.MarkFlagRequired("project")
 	return cmd
 }
 
@@ -406,7 +431,70 @@ func getProjectCmd() *cobra.Command {
 	}
 	cmd.Flags().BoolP("list", "l", false, "List ArgoCD projects")
 	cmd.Flags().StringP("name", "n", "", "Project name to search for")
-	cmd.MarkFlagsMutuallyExclusive("name", "project")
+	cmd.MarkFlagsMutuallyExclusive("name", "list")
+	return cmd
+}
+
+func DeployAppCmd(filePath string) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "app",
+		Short: "Deploy synthesised applications",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return newArgoClient()
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+			if err := argoClient.AddRepoCredentials(ctx); err != nil {
+				return fmt.Errorf("error adding GitHub repo credentials: %w", err)
+			}
+
+			services, appName, err := kplus.GetServices(filePath)
+			if err != nil {
+				return err
+			}
+			if len(services) == 0 {
+				return errors.New("no services found in template")
+			}
+
+			if err = argoClient.CreateServiceApplications(ctx, appName, services); err != nil {
+				return err
+			}
+			log.Printf("\nApplication %s deployed successfully", appName)
+			return nil
+		},
+	}
+	return cmd
+}
+
+func addAppToProjectCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "add",
+		Short: "Add an ArgoCD application to a Project",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
+			}
+			if err := cmd.ValidateRequiredFlags(); err != nil {
+				return err
+			}
+			application := cmd.Flag("app").Value.String()
+			project := cmd.Flag("project").Value.String()
+			if application == "" || project == "" {
+				return errors.New("both application and project names are required")
+			}
+			ctx := context.Background()
+			_, err := argoClient.AddApplicationToProject(ctx, application, project, true)
+			if err != nil {
+				return err
+			}
+			log.Printf("Added %s to Project %s", application, project)
+			return nil
+		},
+	}
+	cmd.Flags().StringP("app", "a", "", "App name")
+	cmd.Flags().StringP("project", "p", "", "Project name")
+	_ = cmd.MarkFlagRequired("app")
+	cmd.MarkFlagsRequiredTogether("app", "project")
 	return cmd
 }
 
@@ -419,7 +507,6 @@ func SyncCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sync",
 		Short: "Sync ArgoCD resources",
-		Args:  cobra.MinimumNArgs(1),
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return newArgoClient()
 		},
@@ -428,21 +515,56 @@ func SyncCommand() *cobra.Command {
 				return err
 			}
 
+			monitoring, _ := cmd.Flags().GetBool("monitoring")
+			gateway, _ := cmd.Flags().GetBool("gateway")
+			dashboards, _ := cmd.Flags().GetBool("dashboards")
+			deployedService, _ := cmd.Flags().GetBool("deployedService")
+
+			if monitoring {
+				return syncArgoProject(argoClient, "galah-monitoring")
+			}
+
+			if gateway {
+				return syncArgoProject(argoClient, "ingress")
+			}
+
+			if dashboards {
+				return syncApplication(argoClient, "infra-routes")
+			}
+
+			if deployedService {
+				if args[0] == "" {
+					return errors.New("deployed service name is required")
+				}
+				return syncArgoProject(argoClient, args[0])
+			}
+
 			if syncProject {
+				if args[0] == "" {
+					return errors.New("project name is required")
+				}
 				return syncArgoProject(argoClient, args[0])
 			}
 
 			if syncApp {
+				if args[0] == "" {
+					return errors.New("app name is required")
+				}
 				return syncApplication(argoClient, args[0])
 			}
 
 			return nil
 		},
 	}
-	cmd.Flags().BoolVarP(&syncProject, "project", "p", false, "project name")
-	cmd.Flags().BoolVarP(&syncApp, "app", "a", false, "application name")
-	cmd.MarkFlagsMutuallyExclusive("project", "app")
-	cmd.MarkFlagsOneRequired("project", "app")
+	cmd.Flags().BoolVarP(&syncProject, "project", "p", false, "Project name")
+	cmd.Flags().BoolVarP(&syncApp, "app", "a", false, "Application name")
+	cmd.Flags().BoolP("monitoring", "m", false, "Sync monitoring project")
+	cmd.Flags().BoolP("gateway", "g", false, "Sync gateway project")
+	cmd.Flags().BoolP("dashboards", "d", false, "Sync dashboards project")
+	//E.g. chirp
+	cmd.Flags().BoolP("deployedService", "s", false, "Service name")
+	cmd.MarkFlagsMutuallyExclusive("project", "app", "monitoring", "dashboards", "deployedService", "gateway")
+	cmd.MarkFlagsOneRequired("project", "app", "monitoring", "dashboards", "deployedService", "gateway")
 
 	return cmd
 

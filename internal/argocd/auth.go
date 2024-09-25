@@ -11,8 +11,19 @@ import (
 
 func (c *Client) AddRepoCredentials(ctx context.Context) error {
 	username := os.Getenv("GITHUB_USERNAME")
-	password := os.Getenv("GITHUB_PASSWORD")
+	password := os.Getenv("GITHUB_TOKEN")
 	repository := os.Getenv("ARGOCD_REPOSITORY")
+
+	if username == "" {
+		return fmt.Errorf("username not set")
+	}
+
+	if password == "" {
+		return fmt.Errorf("password not set")
+	}
+	if repository == "" {
+		return fmt.Errorf("repository not set")
+	}
 
 	_, err := c.credsClient.CreateRepositoryCredentials(ctx, &repocreds.RepoCredsCreateRequest{
 		Creds: &v1alpha1.RepoCreds{

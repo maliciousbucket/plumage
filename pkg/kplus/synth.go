@@ -23,9 +23,12 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 	if len(template.Services) == 0 {
 		return fmt.Errorf("no services found in %s", filePath)
 	}
-
+	if template.Name == "" {
+		return fmt.Errorf("no name found in %s", filePath)
+	}
+	out := fmt.Sprintf("%s/%s", outputDir, template.Name)
 	app := cdk8s.NewApp(&cdk8s.AppProps{
-		Outdir:                  jsii.String(outputDir),
+		Outdir:                  jsii.String(out),
 		OutputFileExtension:     nil,
 		RecordConstructMetadata: jsii.Bool(true),
 		Resolvers:               nil,
@@ -53,6 +56,31 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 	app.Synth()
 
 	return nil
+}
+
+func GetServices(filePath string) ([]string, string, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, "", err
+	}
+
+	data, err := io.ReadAll(file)
+
+	var template Template
+	err = yaml.Unmarshal(data, &template)
+	if len(template.Services) == 0 {
+		return nil, "", fmt.Errorf("no services found in %s", filePath)
+	}
+
+	if template.Name == "" {
+		return nil, "", fmt.Errorf("no name found in %s", filePath)
+	}
+
+	var services []string
+	for _, service := range template.Services {
+		services = append(services, service.Name)
+	}
+	return services, template.Name, nil
 }
 
 func loadTemplate(filePath string) (*Template, error) {

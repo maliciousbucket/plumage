@@ -156,3 +156,26 @@ func addAppToProjectCmd(client ArgoProjectClient) *cobra.Command {
 
 	return cmd
 }
+
+func infraProjectCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "infra",
+		Short: "Manage ArgoCD infra projects",
+		PersistentPreRunE: func(c *cobra.Command, args []string) error {
+			_, err := newClient()
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			return nil
+		},
+	}
+	cmd.Flags().BoolP("monitoring", "m", false, "create monitoring project")
+	cmd.Flags().BoolP("networking", "n", false, "create networking project")
+	cmd.Flags().BoolP("crd", "c", false, "create CRD project")
+	cmd.Flags().BoolP("gateway", "g", false, "create gateway project")
+	return cmd
+}

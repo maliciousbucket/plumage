@@ -88,3 +88,15 @@ func (c *Client) DeleteProject(ctx context.Context, name string) error {
 func (c *Client) GetProject(ctx context.Context, name string) (*v1alpha1.AppProject, error) {
 	return c.projectClient.Get(ctx, &project.ProjectQuery{Name: name})
 }
+
+func (c *Client) ListProjects(ctx context.Context) (*v1alpha1.AppProjectList, error) {
+	projects, err := c.listProjects(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return projects, nil
+}
+
+func (c *Client) listProjects(ctx context.Context) (*v1alpha1.AppProjectList, error) {
+	return c.projectClient.List(ctx, &project.ProjectQuery{})
+}

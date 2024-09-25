@@ -6,6 +6,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"log"
 	"slices"
 )
 
@@ -53,15 +54,17 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 		fmt.Println(cluster.Name)
 	}
 
-	//existing, err := c.GetProject(ctx, "galah-monitoring")
-	//if err != nil {
-	//	fmt.Println("Get project error")
-	//	return err
-	//}
-	//
-	//if existing != nil {
-	//	//return fmt.Errorf("galah-monitoring project already exists")
-	//}
+	existing, err := c.GetProject(ctx, "galah-monitoring")
+	if err == nil {
+		if existing != nil {
+			log.Println("Galah monitoring project already exists")
+			return nil
+		}
+
+		return fmt.Errorf("galah monitoring project doesn't exist, unknown error")
+	}
+
+	fmt.Printf("Create Erorr: %v", err)
 
 	apps, err := c.ListApplications(ctx, nil)
 	if err != nil {
@@ -186,12 +189,15 @@ func (c *Client) createMonitoringProject(ctx context.Context) (string, error) {
 		},
 		{
 			Namespace: "galah-tracing",
+			Server:    defaultServer,
 		},
 		{
 			Namespace: "galah-logging",
+			Server:    defaultServer,
 		},
 		{
 			Namespace: "minio-store",
+			Server:    defaultServer,
 		},
 	}
 
@@ -205,11 +211,54 @@ func (c *Client) createMonitoringProject(ctx context.Context) (string, error) {
 
 }
 
+func (c *Client) CreateNetworkingProject(ctx context.Context) error {
+	existing, err := c.GetProject(ctx, "galah-monitoring")
+	if err == nil {
+		if existing != nil {
+			log.Println("Galah networking project already exists")
+			return nil
+		}
+		return fmt.Errorf("galah monitoring project doesn't exist, unknown error")
+	}
+
+	apps, err := c.ListApplications(ctx, nil)
+	if err != nil {
+		fmt.Println("List applications error")
+		return err
+	}
+
+	appNames := []string{}
+	if apps != nil {
+		for _, app := range apps.Items {
+			appNames = append(appNames, app.Name)
+		}
+	}
+
+	project, err := c.createNetworkingProject(ctx)
+	if err != nil {
+		return err
+	}
+
+	createGateway := true
+
+	if slices.Contains(appNames, "gateway-app") {
+		createGateway = false
+	}
+
+	if createGateway {
+		if err = c.createGatewayApp(ctx, project); err != nil {
+			return err
+		}
+	}
+	log.Println("Create Networking Project")
+	return nil
+
+}
+
 func (c *Client) createNetworkingProject(ctx context.Context) (string, error) {
 	sources := []string{galahMonitoringRepo, argoCDRepo}
 	namespaces := []string{
 		"gateway",
-		"nginx-ingress",
 		"galah-monitoring",
 	}
 
@@ -217,6 +266,18 @@ func (c *Client) createNetworkingProject(ctx context.Context) (string, error) {
 		{
 			Server:    defaultServer,
 			Namespace: "argocd",
+		},
+		{
+			Namespace: "galah-monitoring",
+			Server:    defaultServer,
+		},
+		{
+			Namespace: "gateway",
+			Server:    defaultServer,
+		},
+		{
+			Namespace: "galah-testbed",
+			Server:    defaultServer,
 		},
 	}
 
@@ -248,6 +309,30 @@ func (c *Client) createDashboardProject(ctx context.Context) (string, error) {
 	)
 }
 
+//func (c *Client) CreateCRDProject(ctx context.Context) error {
+//	existing, _ := c.GetProject(ctx, "galah-crds")
+//	if existing != nil {
+//		return fmt.Errorf("galah-crd project already exists")
+//	}
+//
+//	appList := []string{}
+//	apps, err := c.ListApplications(ctx, nil)
+//	if err != nil {
+//		return fmt.Errorf("error listing applications: %w", err)
+//	}
+//
+//	certManager := true
+//	promCRds := true
+//
+//
+//	project, err := c.createCRDProject(ctx)
+//	if err != nil {
+//		return err
+//	}
+//	log.Printf("Successfully created CRD Project: %s", project)
+//	return nil
+//}
+
 func (c *Client) createCRDProject(ctx context.Context) (string, error) {
 	sources := []string{galahMonitoringRepo}
 	namespaces := []string{
@@ -258,6 +343,14 @@ func (c *Client) createCRDProject(ctx context.Context) (string, error) {
 		{
 			Server:    defaultServer,
 			Namespace: "argocd",
+		},
+		{
+			Namespace: "default",
+			Server:    defaultServer,
+		},
+		{
+			Namespace: "cert-manager",
+			Server:    defaultServer,
 		},
 	}
 
@@ -363,7 +456,7 @@ func (c *Client) addMonitoringInfrastructureApp(ctx context.Context, name, path,
 				},
 				SyncPolicy: &v1alpha1.SyncPolicy{
 					Automated: &v1alpha1.SyncPolicyAutomated{
-						SelfHeal: false,
+						SelfHeal: true,
 					},
 				},
 			},

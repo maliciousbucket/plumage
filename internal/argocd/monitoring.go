@@ -47,21 +47,25 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 		fmt.Println(cluster.Info.ServerVersion)
 	}
 	if createCluster {
-		cluster, err := c.CreateCluster(ctx, "galah-monitoring")
-		if err != nil {
-			return fmt.Errorf("failed to create galah-monitoring cluster: %v", err)
+		cluster, clusterErr := c.CreateCluster(ctx, "galah-monitoring")
+		if clusterErr != nil {
+			return fmt.Errorf("failed to create galah-monitoring cluster: %v", clusterErr)
 		}
 		fmt.Println(cluster.Name)
 	}
+	var project string
+	existing, _ := c.GetProject(ctx, "galah-monitoring")
 
-	existing, err := c.GetProject(ctx, "galah-monitoring")
-	if err == nil {
-		if existing != nil {
-			log.Println("Galah monitoring project already exists")
-			return nil
+	if existing != nil {
+		log.Println("Galah monitoring project already exists")
+		project = existing.Name
+	} else {
+		newProject, projErr := c.createMonitoringProject(ctx)
+		if projErr != nil {
+			log.Println("Create project error")
+			return projErr
 		}
-
-		return fmt.Errorf("galah monitoring project doesn't exist, unknown error")
+		project = newProject
 	}
 
 	fmt.Printf("Create Erorr: %v", err)
@@ -77,12 +81,6 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 		for _, app := range apps.Items {
 			appNames = append(appNames, app.Name)
 		}
-	}
-
-	project, err := c.createMonitoringProject(ctx)
-	if err != nil {
-		fmt.Println("Create project error")
-		return err
 	}
 
 	createAlloy := true
@@ -212,13 +210,19 @@ func (c *Client) createMonitoringProject(ctx context.Context) (string, error) {
 }
 
 func (c *Client) CreateNetworkingProject(ctx context.Context) error {
-	existing, err := c.GetProject(ctx, "galah-monitoring")
-	if err == nil {
-		if existing != nil {
-			log.Println("Galah networking project already exists")
-			return nil
+
+	var project string
+	existing, _ := c.GetProject(ctx, "galah-monitoring")
+
+	if existing != nil {
+		log.Println("Galah networking project already exists")
+		project = existing.Name
+	} else {
+		newProject, err := c.createNetworkingProject(ctx)
+		if err != nil {
+			return err
 		}
-		return fmt.Errorf("galah monitoring project doesn't exist, unknown error")
+		project = newProject
 	}
 
 	apps, err := c.ListApplications(ctx, nil)
@@ -232,11 +236,6 @@ func (c *Client) CreateNetworkingProject(ctx context.Context) error {
 		for _, app := range apps.Items {
 			appNames = append(appNames, app.Name)
 		}
-	}
-
-	project, err := c.createNetworkingProject(ctx)
-	if err != nil {
-		return err
 	}
 
 	createGateway := true

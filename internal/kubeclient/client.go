@@ -22,6 +22,7 @@ type Client interface {
 	GetServiceAddress(ctx context.Context, ns string, name string) (string, error)
 	CreateGalahArgoAccount(ctx context.Context, ns string) error
 	GetArgoPassword(ctx context.Context, ns string) (string, error)
+	CheckServiceExists(ctx context.Context, ns string, name string) (bool, error)
 }
 
 type k8sClient struct {

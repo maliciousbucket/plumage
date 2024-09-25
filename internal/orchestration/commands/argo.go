@@ -10,6 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
+	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/spf13/cobra"
 	"io"
 	"log"
@@ -32,6 +33,7 @@ type ArgoClient interface {
 	CreateProject(ctx context.Context, name string) (*v1alpha1.AppProject, error)
 	DeleteProject(ctx context.Context, name string) error
 	GetProject(ctx context.Context, name string) (*v1alpha1.AppProject, error)
+	ListProjects(ctx context.Context) (*v1alpha1.AppProjectList, error)
 	GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error)
 	ListApplications(ctx context.Context, params *argocd.AppQueryParams) (*v1alpha1.ApplicationList, error)
 	CreateApplication(ctx context.Context) (*v1alpha1.Application, error)
@@ -40,6 +42,12 @@ type ArgoClient interface {
 	AddRepoCredentials(ctx context.Context) error
 	SyncApplicationResources(ctx context.Context, name string) error
 	SyncProject(ctx context.Context, name string) error
+
+	CreateMonitoringProject(ctx context.Context) error
+	CreateNetworkingProject(ctx context.Context) error
+	CreateIngressProject(ctx context.Context) error
+	CreateInfrastructureDashboardRoutesApp(ctx context.Context) error
+	CreateApplicationProject(ctx context.Context, app string) error
 }
 
 func SetArgoTokenCmd() *cobra.Command {
@@ -262,13 +270,6 @@ func getAccountAPIKey(client *http.Client, token, url string) (string, error) {
 	return key, nil
 }
 
-func syncCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use: "sync",
-	}
-	return cmd
-}
-
 func actionsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "actions",
@@ -280,6 +281,132 @@ func createAppsCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "create-apps",
 	}
+	return cmd
+}
+
+func ProjectCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "project",
+		Short: "Manage ArgoCD projects",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return newArgoClient()
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return nil
+		},
+	}
+	cmd.AddCommand(createProjectCmd())
+	return cmd
+}
+
+func createProjectCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create",
+		Short: "Create ArgoCD projects",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
+			}
+			monitoring, _ := cmd.Flags().GetBool("monitoring")
+			networking, _ := cmd.Flags().GetBool("networking")
+			crd, _ := cmd.Flags().GetBool("crd")
+			gateway, _ := cmd.Flags().GetBool("gateway")
+			infrastructure, _ := cmd.Flags().GetBool("infrastructure")
+			app, _ := cmd.Flags().GetBool("app")
+			name, _ := cmd.Flags().GetString("name")
+			ctx := context.Background()
+			if monitoring {
+				return argoClient.CreateMonitoringProject(ctx)
+			}
+
+			if networking {
+				return argoClient.CreateNetworkingProject(ctx)
+			}
+
+			if crd {
+
+			}
+
+			if gateway {
+				return argoClient.CreateIngressProject(ctx)
+			}
+
+			if infrastructure {
+				if err := newKubeClient(); err != nil {
+					return err
+				}
+				if err := orchestration.CheckMonitoringInfraExists(ctx, kubernetesClient); err != nil {
+					return err
+				}
+
+				return argoClient.CreateInfrastructureDashboardRoutesApp(ctx)
+			}
+
+			if app {
+				if name == "" {
+					return fmt.Errorf("app name is required")
+				}
+				return argoClient.CreateApplicationProject(ctx, name)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().BoolP("monitoring", "m", false, "Create monitoring project")
+	cmd.Flags().BoolP("networking", "n", false, "create networking project")
+	cmd.Flags().BoolP("crd", "c", false, "create CRD project")
+	cmd.Flags().BoolP("gateway", "g", false, "Create gateway project")
+	cmd.Flags().BoolP("infrastructure", "i", false, "Create infrastructure project")
+	cmd.Flags().BoolP("app", "a", false, "Create app project")
+	cmd.Flags().StringP("name", "n", "", "App name")
+	cmd.MarkFlagsMutuallyExclusive("monitoring", "networking", "crd", "gateway", "infrastructure", "app")
+	cmd.MarkFlagsRequiredTogether("name", "app")
+	return cmd
+}
+
+func deleteProjectCmd() *cobra.Command {
+	cmd := &cobra.Command{}
+	return cmd
+}
+
+func getProjectCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "get",
+		Short: "Get ArgoCD projects",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return newArgoClient()
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
+			}
+			list, _ := cmd.Flags().GetBool("list")
+			ctx := context.Background()
+			if list {
+				projects, err := argoClient.ListProjects(ctx)
+				if err != nil {
+					return err
+				}
+				for _, proj := range projects.Items {
+					fmt.Printf("%s\n%s\n%+v\n", proj.Name, proj.Spec.Description, proj.Spec.SourceRepos)
+				}
+				return nil
+			}
+			name := cmd.Flag("name").Value.String()
+			if name == "" {
+				return errors.New("project name is required")
+			}
+			project, err := argoClient.GetProject(ctx, name)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%s\n%s\n%+v\n", project.Name, project.Spec.Description, project.Spec.SourceRepos)
+
+			return nil
+		},
+	}
+	cmd.Flags().BoolP("list", "l", false, "List ArgoCD projects")
+	cmd.Flags().StringP("name", "n", "", "Project name to search for")
+	cmd.MarkFlagsMutuallyExclusive("name", "project")
 	return cmd
 }
 

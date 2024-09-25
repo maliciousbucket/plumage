@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/config"
@@ -18,6 +19,7 @@ var (
 	chart       = false
 	service     = ""
 	resource    = ""
+	app         = ""
 )
 
 func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Command {
@@ -25,20 +27,20 @@ func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Com
 		Use:   "commit",
 		Short: "commit push",
 		Run: func(cmd *cobra.Command, args []string) {
-			cfg, err := config.NewGithubConfig(configDir, fileName)
+			ghCfg, err := config.NewGithubConfig(configDir, fileName)
 			if err != nil {
 				log.Fatal(err)
 			}
 			extraEnv, _ := cmd.Flags().GetString("extra-env")
 			if extraEnv != "" {
-				err = cfg.LoadExtraEnv(extraEnv)
+				err = ghCfg.LoadExtraEnv(extraEnv)
 				if err != nil {
 					log.Fatal(err)
 				}
 			}
 			message, _ = cmd.Flags().GetString("message")
 			ctx := context.Background()
-			response, err := orchestration.CommitAndPush(ctx, cfg, cfg.TargetDir, message)
+			response, err := orchestration.CommitAndPush(ctx, ghCfg, ghCfg.TargetDir, message)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -66,7 +68,18 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 	cmd := &cobra.Command{
 		Use:   "manifests",
 		Short: "commit manifests",
-		Run: func(cmd *cobra.Command, args []string) {
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
+			}
+			if err := cmd.ValidateRequiredFlags(); err != nil {
+				return err
+			}
+
+			if app == "" {
+				return errors.New("must specify app with -a")
+			}
+
 			ghCfg, err := config.NewGithubConfig(configDir, fileName)
 			if err != nil {
 				log.Fatal(err)
@@ -74,12 +87,14 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 
 			ctx := context.Background()
 			if chart {
-				chartCmt, commitErr := orchestration.CommitAndPush(ctx, ghCfg, "dist/kplus", "")
+				path := fmt.Sprintf("%s/%s", cfg.OutputDir, app)
+				cmtMsg := fmt.Sprintf("plumage manifests - chart: %s - %s", app, time.Now().String())
+				chartCmt, commitErr := orchestration.CommitAndPush(ctx, ghCfg, path, cmtMsg)
 				if commitErr != nil {
-					log.Fatal(commitErr)
+					return commitErr
 				}
 				fmt.Printf("Commit Created: %+v", chartCmt)
-				return
+				return nil
 			}
 			if resource != "" && service == "" {
 				log.Fatal("You need to specify a service for the resource")
@@ -87,27 +102,31 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 
 			if service != "" && resource != "" {
 				cmtMsg := fmt.Sprintf("plumage manifests - resource: %s - %s", resource, time.Now().String())
-				resourceCmt, commitErr := orchestration.CommitAndPushResource(ctx, ghCfg, cfg.OutputDir, service, resource, cmtMsg)
+				path := fmt.Sprintf("%s/%s", cfg.OutputDir, resource)
+				resourceCmt, commitErr := orchestration.CommitAndPushResource(ctx, ghCfg, path, service, resource, cmtMsg)
 				if commitErr != nil {
-					log.Fatal(err)
+					return commitErr
 				}
 				fmt.Printf("Commit Created: %+v", resourceCmt)
-				return
+				return nil
 			}
 
 			if service != "" {
 				cmtMsg := fmt.Sprintf("plumage manifests - service: %s - %s", service, time.Now().String())
-				serviceCmt, commitErr := orchestration.CommitAndPushService(ctx, ghCfg, cfg.OutputDir, service, cmtMsg)
+				path := fmt.Sprintf("%s/%s/%s", cfg.OutputDir, app, service)
+				serviceCmt, commitErr := orchestration.CommitAndPushService(ctx, ghCfg, path, service, cmtMsg)
 				if commitErr != nil {
-					log.Fatal(err)
+					return commitErr
 				}
 				fmt.Printf("Commit Created: %+v", serviceCmt)
 			}
+			return nil
 
 		},
 	}
 
 	cmd.Flags().BoolVarP(&chart, "chart", "c", false, "commit synthesised chart")
+	cmd.Flags().StringVarP(&app, "app", "a", "", "app name")
 	cmd.Flags().StringVarP(&service, "service", "s", "", "commit synthesised service")
 	cmd.Flags().StringVarP(&resource, "resource", "r", "", "commit synthesised resource")
 	cmd.Flags().StringVarP(&envFiles, "env-files", "e", "", "comma seperated environment files")
@@ -115,6 +134,8 @@ func commitManifestsCmd(configDir, fileName string, cfg *config.AppConfig) *cobr
 
 	cmd.MarkFlagsMutuallyExclusive("chart", "service")
 	cmd.MarkFlagsMutuallyExclusive("chart", "resource")
+	cmd.MarkFlagsOneRequired("chart", "service", "resource")
+	_ = cmd.MarkFlagRequired("app")
 	return cmd
 }
 

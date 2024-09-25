@@ -9,6 +9,17 @@ import (
 	"sync"
 )
 
+func (k *k8sClient) CheckServiceExists(ctx context.Context, namespace string, name string) (bool, error) {
+	res, err := k.getService(ctx, namespace, name)
+	if err != nil {
+		return false, err
+	}
+	if res != nil {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (k *k8sClient) getService(ctx context.Context, ns string, name string) (*v1.Service, error) {
 	res, err := k.kubeClient.CoreV1().Services(ns).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {

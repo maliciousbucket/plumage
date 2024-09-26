@@ -26,7 +26,8 @@ func synthCommand() *cobra.Command {
 	}
 	cmd.AddCommand(synthGatewayCmd(appCfg.OutputDir, appCfg.Namespace))
 	cmd.AddCommand(synthTemplateCommand("testdata/chirp/template.yaml", appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
-	cmd.AddCommand(synthInfraRoutesCmd(appCfg.OutputDir, appCfg.Namespace))
+	cmd.AddCommand(synthDashboardRoutes(appCfg.OutputDir))
+	cmd.AddCommand(synthServiceCmd(appCfg.OutputDir, appCfg.Namespace))
 	return cmd
 
 }
@@ -79,9 +80,9 @@ func synthTemplateCommand(file string, outputDir string, c *config.CollectorConf
 	return cmd
 }
 
-func synthInfraRoutesCmd(outputDir string, namespace string) *cobra.Command {
+func synthDashboardRoutes(outputDir string) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "infra-routes",
+		Use:   "dashboards",
 		Short: "synth infrastructure ingress route manifests",
 		Run: func(cmd *cobra.Command, args []string) {
 			out := fmt.Sprintf("%s/ingress/dashboards", outputDir)
@@ -90,8 +91,28 @@ func synthInfraRoutesCmd(outputDir string, namespace string) *cobra.Command {
 				YamlOutputType: cdk8s.YamlOutputType_FILE_PER_CHART,
 			})
 
-			kubernetes.NewInfraDashboardRoutes(app, "dashboards-chart", namespace)
+			kubernetes.NewInfraDashboardRoutes(app, "dashboards-chart", "galah-testbed")
 			app.Synth()
+		},
+	}
+	return cmd
+}
+
+func synthServiceCmd(file string, outputDir string) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "service",
+		Short: "Synth manifests for a service",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
+				return err
+			}
+			m := appCfg.MonitoringConfig.Collectors.ToStringMap()
+
+			if err := kplus.SynthService(file, outputDir, args[0], m); err != nil {
+				return err
+			}
+
+			return nil
 		},
 	}
 	return cmd

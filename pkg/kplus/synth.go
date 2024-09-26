@@ -6,6 +6,7 @@ import (
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"gopkg.in/yaml.v3"
 	"io"
+	"log"
 	"os"
 )
 
@@ -81,6 +82,55 @@ func GetServices(filePath string) ([]string, string, error) {
 		services = append(services, service.Name)
 	}
 	return services, template.Name, nil
+}
+
+func SynthService(filePath, outputDir, service string, monitoring map[string]string) error {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return err
+	}
+
+	data, err := io.ReadAll(file)
+
+	var template Template
+	err = yaml.Unmarshal(data, &template)
+
+	if len(template.Services) == 0 {
+		return fmt.Errorf("no services found in %s", filePath)
+	}
+
+	var serviceTemplate ServiceTemplate
+
+	for _, svc := range template.Services {
+		if svc.Name == service {
+			serviceTemplate = svc
+		}
+	}
+
+	if serviceTemplate.Name == "" {
+		return fmt.Errorf("unable to find service: %s in template", service)
+	}
+
+	namespace := "galah-testbed"
+	if template.Namespace != "" {
+		namespace = template.Namespace
+	}
+
+	out := fmt.Sprintf("%s/%s", outputDir, template.Name)
+	app := cdk8s.NewApp(&cdk8s.AppProps{
+		Outdir:                  jsii.String(out),
+		OutputFileExtension:     nil,
+		RecordConstructMetadata: jsii.Bool(true),
+		Resolvers:               nil,
+		YamlOutputType:          cdk8s.YamlOutputType_FOLDER_PER_CHART_FILE_PER_RESOURCE,
+	})
+
+	NewServiceManifests(app, serviceTemplate.Name, namespace, &serviceTemplate, monitoring)
+	app.Synth()
+
+	log.Printf("\n Manifests for %s have been created at %s/%s", service, out, service)
+
+	return nil
 }
 
 func loadTemplate(filePath string) (*Template, error) {

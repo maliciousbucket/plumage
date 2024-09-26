@@ -65,13 +65,18 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 	if template.Scaling != nil {
 		NewAutoScaler(ct, deployment, template.Scaling, template.Name)
 	}
-	log.Printf("Default Middleware Found: %d", len(template.DefaultMiddleware))
+
 	if len(template.DefaultMiddleware) > 0 {
 		log.Println("Adding default middleware")
 		defaults := NewDefaultMiddlewares(ct, ns, template.Name, template.DefaultMiddleware)
 		if len(defaults) > 0 {
 			middlewareRefs = append(middlewareRefs, defaults...)
 		}
+	}
+
+	if template.DefaultAutoScaling.DefaultScaling != nil && template.Scaling == nil {
+		name := fmt.Sprintf("%s-autoscaler", template.Name)
+		AddDefaultScaling(ct, deployment, name, template.DefaultAutoScaling)
 	}
 	routeName := fmt.Sprintf("%s-ingress-route", template.Name)
 	NewIngressRoute(ct, routeName, ns, template, middlewareRefs)

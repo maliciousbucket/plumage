@@ -33,15 +33,16 @@ type HorizontalResourceScaling struct {
 }
 
 type VerticalScalingTemplate struct {
-	Version       int
-	MinCpuMillis  int32 `yaml:"minCpuMillis"`
-	MaxCpuMillis  int32 `yaml:"maxCpuMillis"`
-	MinMemoryMi   int32 `yaml:"minMemoryMb"`
-	MaxMemoryMi   int32 `yaml:"maxMemoryMb"`
-	ControlMem    bool  `yaml:"controlMemory"`
-	ControlCpu    bool  `yaml:"controlCpu"`
-	ControlLimits bool  `yaml:"controlLimits"`
-	MinReplicas   int32 `yaml:"minReplicas"`
+	Type          string `yaml:"type"`
+	Version       int    `yaml:"version"`
+	MinCpuMillis  int32  `yaml:"minCpuMillis"`
+	MaxCpuMillis  int32  `yaml:"maxCpuMillis"`
+	MinMemoryMi   int32  `yaml:"minMemoryMb"`
+	MaxMemoryMi   int32  `yaml:"maxMemoryMb"`
+	ControlMem    bool   `yaml:"controlMemory"`
+	ControlCpu    bool   `yaml:"controlCpu"`
+	ControlLimits bool   `yaml:"controlLimits"`
+	MinReplicas   int32  `yaml:"minReplicas"`
 }
 
 func (t *VerticalScalingTemplate) ScalingType() ScalingType {
@@ -309,4 +310,79 @@ func verticalScalingPolicies(template *VerticalScalingTemplate) *autoscaling.Ver
 			},
 		},
 	}
+}
+
+func AddDefaultScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling DefaultAutoScaling) constructs.Construct {
+	if scaling.DefaultScaling == nil {
+		return nil
+	}
+	if scaling.DefaultScaling.ScalingType() == ScalingTypeHorizontal {
+
+		if horizontal, ok := scaling.DefaultScaling.(*DefaultHorizontalScaling); ok {
+			return addDefaultHorizontalScaling(scope, deployment, id, horizontal)
+		}
+		return nil
+	}
+
+	if scaling.DefaultScaling.ScalingType() == ScalingTypeVertical {
+		if vertical, ok := scaling.DefaultScaling.(*DefaultVerticalScaling); ok {
+			return addDefaultVerticalScaling(scope, deployment, id, vertical)
+		}
+		return nil
+	}
+
+	return nil
+}
+
+func addDefaultHorizontalScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling *DefaultHorizontalScaling) kplus.HorizontalPodAutoscaler {
+	template := &HorizontalScalingTemplate{
+		Type: "horizontal",
+		CPU: &HorizontalResourceScaling{
+			Utilization: 80,
+		},
+		Memory: &HorizontalResourceScaling{
+			Utilization: 80,
+		},
+		MinReplicas: int32(scaling.MinReplicas),
+		MaxReplicas: int32(scaling.MaxReplicas),
+	}
+
+	return addHorizontalAutoScaler(scope, deployment, id, template)
+}
+
+func addDefaultVerticalScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling *DefaultVerticalScaling) autoscaling.VerticalPodAutoscaler {
+	minCpu := 100
+	maxCpu := 300
+	minMem := 75
+	maxMem := 500
+
+	if scaling.MinCpuMillis != 0 {
+		minCpu = scaling.MinCpuMillis
+	}
+
+	if scaling.MaxCpuMillis != 0 {
+		maxCpu = scaling.MaxCpuMillis
+	}
+
+	if scaling.MinMemoryMi != 0 {
+		minMem = scaling.MinMemoryMi
+	}
+	if scaling.MaxMemoryMi != 0 {
+		maxMem = scaling.MaxMemoryMi
+	}
+
+	template := &VerticalScalingTemplate{
+		Type:          "vertical",
+		Version:       2,
+		MinCpuMillis:  int32(minCpu),
+		MaxCpuMillis:  int32(maxCpu),
+		MinMemoryMi:   int32(minMem),
+		MaxMemoryMi:   int32(maxMem),
+		ControlMem:    true,
+		ControlCpu:    true,
+		ControlLimits: scaling.ControlLimits,
+		MinReplicas:   int32(*deployment.Replicas()),
+	}
+
+	return newVerticalScalerV2(scope, deployment, id, template)
 }

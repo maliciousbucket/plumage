@@ -182,3 +182,22 @@ func commitDashboardsCommand(configDir, fileName string, cfg *config.AppConfig) 
 	}
 	return cmd
 }
+
+func ArgoAuthCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "argo-auth",
+		Short: "Add GitHub credentials to ArgoCD",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return newArgoClient()
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+			if err := argoClient.AddRepoCredentials(ctx); err != nil {
+				return fmt.Errorf("failed to add repo credentials: %w", err)
+			}
+			log.Println("Added repo credentials")
+			return nil
+		},
+	}
+	return cmd
+}

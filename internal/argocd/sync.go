@@ -33,13 +33,13 @@ func (c *Client) syncApplication(ctx context.Context, name, ns, project string) 
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Syncing %s in namespace %s with project %s\nStatus: %+v", sync.Name, sync.Namespace, project, sync.Status)
+	fmt.Printf("Syncing %s in namespace %s with project %s\nStatus: %+v", sync.Name, sync.Namespace, project, sync.Status.Conditions)
 	return nil
 }
 
 func (c *Client) SyncProject(ctx context.Context, name string) error {
 
-	project, err := c.GetProject(context.Background(), name)
+	project, err := c.GetProject(ctx, name)
 	if err != nil {
 		return err
 	}
@@ -60,6 +60,29 @@ func (c *Client) SyncProject(ctx context.Context, name string) error {
 
 	for _, app := range apps.Items {
 		err = c.syncApplication(ctx, app.Name, app.Namespace, project.Name)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (c *Client) SyncAllProjects(ctx context.Context) error {
+	projects, err := c.ListProjects(ctx)
+	if err != nil {
+		return err
+	}
+
+	if len(projects.Items) == 0 {
+		return fmt.Errorf("no projects found in cluster")
+	}
+
+	for _, project := range projects.Items {
+		if project.Name == "default" {
+			//Default ArgoCD project isn't used
+			continue
+		}
+		err = c.SyncProject(ctx, project.Name)
 		if err != nil {
 			return err
 		}

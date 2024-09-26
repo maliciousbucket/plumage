@@ -566,6 +566,8 @@ func SyncCommand() *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("project", "app", "monitoring", "dashboards", "deployedService", "gateway")
 	cmd.MarkFlagsOneRequired("project", "app", "monitoring", "dashboards", "deployedService", "gateway")
 
+	cmd.AddCommand(syncAllCmd())
+
 	return cmd
 
 }
@@ -584,4 +586,19 @@ func syncArgoProject(client ArgoClient, name string) error {
 		return err
 	}
 	return nil
+}
+
+func syncAllCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "all",
+		Short: "Sync all ArgoCD resources",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.Background()
+			if err := argoClient.SyncAllProjects(ctx); err != nil {
+				return err
+			}
+			return nil
+		},
+	}
+	return cmd
 }

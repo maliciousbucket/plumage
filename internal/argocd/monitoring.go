@@ -68,8 +68,6 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 		project = newProject
 	}
 
-	fmt.Printf("Create Erorr: %v", err)
-
 	apps, err := c.ListApplications(ctx, nil)
 	if err != nil {
 		fmt.Println("List applications error")
@@ -208,6 +206,10 @@ func (c *Client) createMonitoringProject(ctx context.Context) (string, error) {
 		},
 		{
 			Namespace: "minio-store",
+			Server:    defaultServer,
+		},
+		{
+			Namespace: "gateway",
 			Server:    defaultServer,
 		},
 	}

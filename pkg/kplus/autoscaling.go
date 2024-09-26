@@ -78,6 +78,7 @@ func NewAutoScaler(scope constructs.Construct, deployment kplus.Deployment, temp
 	return nil
 }
 
+// TODO: Validation
 func addHorizontalAutoScaler(scope constructs.Construct, deployment kplus.Deployment, id string, template *HorizontalScalingTemplate) kplus.HorizontalPodAutoscaler {
 	name := fmt.Sprintf("%s-autoscaler", id)
 	var minReplicas = jsii.Number(1)
@@ -94,16 +95,27 @@ func addHorizontalAutoScaler(scope constructs.Construct, deployment kplus.Deploy
 	metrics := []kplus.Metric{}
 
 	if template.CPU != nil {
-		cpuUtil := cpuUtilizationScalingMetric(template.CPU.Utilization)
-		cpuAmt := cpuAmountScalingMetric(template.CPU.Amount)
-		metrics = append(metrics, cpuUtil, cpuAmt)
+		if template.CPU.Utilization != 0 {
+			cpuUtil := kplus.Metric_ResourceCpu(kplus.MetricTarget_AverageUtilization(jsii.Number(template.CPU.Utilization)))
+			metrics = append(metrics, cpuUtil)
+		}
 
+		if template.Memory.Amount != 0 {
+			cpuAmt := kplus.Metric_ResourceCpu(kplus.MetricTarget_Value(jsii.Number(template.CPU.Amount)))
+			metrics = append(metrics, cpuAmt)
+		}
 	}
 
 	if template.Memory != nil {
-		memUtil := memoryUtilizationScalingMetric(template.Memory.Utilization)
-		memAmt := memoryAmountScalingMetric(template.Memory.Amount)
-		metrics = append(metrics, memUtil, memAmt)
+		if template.Memory.Amount != 0 {
+			memAmt := kplus.Metric_ResourceMemory(kplus.MetricTarget_Value(jsii.Number(template.Memory.Amount)))
+			metrics = append(metrics, memAmt)
+		}
+
+		if template.Memory.Utilization != 0 {
+			memUtil := kplus.Metric_ResourceMemory(kplus.MetricTarget_AverageUtilization(jsii.Number(template.Memory.Utilization)))
+			metrics = append(metrics, memUtil)
+		}
 	}
 
 	scaler := kplus.NewHorizontalPodAutoscaler(scope, jsii.String(name), &kplus.HorizontalPodAutoscalerProps{
@@ -116,43 +128,6 @@ func addHorizontalAutoScaler(scope constructs.Construct, deployment kplus.Deploy
 		ScaleUp:     nil,
 	})
 	return scaler
-}
-
-func cpuAmountScalingMetric(amount int) kplus.Metric {
-	if amount == 0 {
-		return nil
-	}
-
-	return kplus.Metric_ResourceCpu(kplus.MetricTarget_Value(jsii.Number(amount)))
-}
-
-func cpuUtilizationScalingMetric(utilization int) kplus.Metric {
-	if utilization == 0 {
-		return nil
-	}
-
-	if utilization >= 100 {
-		utilization = 90
-	}
-
-	return kplus.Metric_ResourceCpu(kplus.MetricTarget_AverageUtilization(jsii.Number(utilization)))
-}
-
-func memoryAmountScalingMetric(amount int) kplus.Metric {
-	if amount == 0 {
-		return nil
-	}
-	return kplus.Metric_ResourceMemory(kplus.MetricTarget_Value(jsii.Number(amount)))
-}
-
-func memoryUtilizationScalingMetric(utilization int) kplus.Metric {
-	if utilization == 0 {
-		return nil
-	}
-	if utilization >= 100 {
-		utilization = 90
-	}
-	return kplus.Metric_ResourceMemory(kplus.MetricTarget_AverageUtilization(jsii.Number(utilization)))
 }
 
 func newVerticalScalerV2(scope constructs.Construct, deployment kplus.Deployment, id string, template *VerticalScalingTemplate) autoscaling.VerticalPodAutoscalerV1Beta2 {
@@ -316,6 +291,7 @@ func AddDefaultScaling(scope constructs.Construct, deployment kplus.Deployment, 
 	if scaling.DefaultScaling == nil {
 		return nil
 	}
+
 	if scaling.DefaultScaling.ScalingType() == ScalingTypeHorizontal {
 
 		if horizontal, ok := scaling.DefaultScaling.(*DefaultHorizontalScaling); ok {

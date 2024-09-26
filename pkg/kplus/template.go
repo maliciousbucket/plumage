@@ -69,7 +69,6 @@ type Probe struct {
 type DefaultAutoScaling struct {
 	Type           string         `yaml:"type"`
 	DefaultScaling DefaultScaling `yaml:"scaling"` //vertical / horizontal
-
 }
 
 func (s *DefaultAutoScaling) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -81,24 +80,26 @@ func (s *DefaultAutoScaling) UnmarshalYAML(unmarshal func(interface{}) error) er
 	if !ok {
 		return errors.New("unknown scaling type")
 	}
-	//TODO: test
-	//data, ok := raw[scaling].(map[string]interface{})
-	//if !ok {
-	//	return errors.New("unknown or missing scaling type")
-	//}
+
+	data, ok := raw["scaling"].(map[string]interface{})
+	if !ok {
+		return errors.New("unknown or missing scaling type")
+	}
 
 	s.Type = scalingType
 	switch scalingType {
 	case "horizontal":
 		var horizontal DefaultHorizontalScaling
-		if err := unmarshal(&horizontal); err != nil {
+		if err := decodeNode(data, &horizontal); err != nil {
 			return err
 		}
+		s.DefaultScaling = &horizontal
 	case "vertical":
 		var vertical DefaultVerticalScaling
-		if err := unmarshal(&vertical); err != nil {
+		if err := decodeNode(data, &vertical); err != nil {
 			return err
 		}
+		s.DefaultScaling = &vertical
 	default:
 		return errors.New("unknown scaling type")
 	}

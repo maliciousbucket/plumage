@@ -41,8 +41,8 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 		namespace = template.Namespace
 	}
 
-	projectNamespace := ProjectNamespace(app, namespace)
-
+	ProjectNamespace(app, namespace)
+	i := 30100
 	for _, service := range template.Services {
 		log.Println("Generating manifests for " + service.Name)
 		name := fmt.Sprintf("%s", service.Name)
@@ -52,8 +52,8 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 			Namespace:                 jsii.String(namespace),
 		})
 
-		NewServiceManifests(chart, service.Name, namespace, &service, monitoring)
-		addNamespaceDependency(projectNamespace, chart)
+		NewServiceManifests(chart, service.Name, namespace, &service, monitoring, i)
+		i++
 
 	}
 
@@ -128,15 +128,15 @@ func SynthService(filePath, outputDir, service string, monitoring map[string]str
 		YamlOutputType:          cdk8s.YamlOutputType_FOLDER_PER_CHART_FILE_PER_RESOURCE,
 	})
 
-	projectNamespace := ProjectNamespace(app, namespace)
+	ProjectNamespace(app, namespace)
 	chart := cdk8s.NewChart(app, jsii.String(serviceTemplate.Name), &cdk8s.ChartProps{
 		DisableResourceNameHashes: jsii.Bool(true),
 		Labels:                    nil,
 		Namespace:                 jsii.String(namespace),
 	})
 
-	NewServiceManifests(app, serviceTemplate.Name, namespace, &serviceTemplate, monitoring)
-	addNamespaceDependency(projectNamespace, chart)
+	NewServiceManifests(chart, serviceTemplate.Name, namespace, &serviceTemplate, monitoring, 31020)
+
 	app.Synth()
 
 	log.Printf("\n Manifests for %s have been created at %s/%s", service, out, service)

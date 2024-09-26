@@ -10,7 +10,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
-	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"github.com/spf13/cobra"
 	"io"
@@ -47,7 +46,6 @@ type ArgoClient interface {
 	CreateMonitoringProject(ctx context.Context) error
 	CreateNetworkingProject(ctx context.Context) error
 	CreateIngressProject(ctx context.Context) error
-	CreateInfrastructureDashboardRoutesApp(ctx context.Context) error
 	CreateApplicationProject(ctx context.Context, app string) error
 }
 
@@ -316,7 +314,6 @@ func createProjectCmd() *cobra.Command {
 			networking, _ := cmd.Flags().GetBool("networking")
 			crd, _ := cmd.Flags().GetBool("crd")
 			gateway, _ := cmd.Flags().GetBool("gateway")
-			infrastructure, _ := cmd.Flags().GetBool("infrastructure")
 			appName, _ := cmd.Flags().GetBool("app")
 			name, _ := cmd.Flags().GetString("name")
 			ctx := context.Background()
@@ -336,17 +333,6 @@ func createProjectCmd() *cobra.Command {
 				return argoClient.CreateIngressProject(ctx)
 			}
 
-			if infrastructure {
-				if err := newKubeClient(); err != nil {
-					return err
-				}
-				if err := orchestration.CheckMonitoringInfraExists(ctx, kubernetesClient); err != nil {
-					return err
-				}
-
-				return argoClient.CreateInfrastructureDashboardRoutesApp(ctx)
-			}
-
 			if appName {
 				if name == "" {
 					return fmt.Errorf("app name is required")
@@ -360,7 +346,6 @@ func createProjectCmd() *cobra.Command {
 	cmd.Flags().BoolP("networking", "n", false, "create networking project")
 	cmd.Flags().BoolP("crd", "c", false, "create CRD project")
 	cmd.Flags().BoolP("gateway", "g", false, "Create gateway project")
-	cmd.Flags().BoolP("infrastructure", "i", false, "Create infrastructure project")
 	cmd.Flags().BoolP("app", "p", false, "Create app project")
 	cmd.Flags().StringP("name", "a", "", "App name")
 	cmd.MarkFlagsMutuallyExclusive("monitoring", "networking", "crd", "gateway", "infrastructure", "app")

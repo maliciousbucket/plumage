@@ -55,7 +55,6 @@ func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Com
 
 	cmd.AddCommand(commitManifestsCmd(configDir, fileName, cfg))
 	cmd.AddCommand(commitGatewayCommand(configDir, fileName, cfg))
-	cmd.AddCommand(commitDashboardsCommand(configDir, fileName, cfg))
 
 	err := cmd.MarkFlagRequired("message")
 	if err != nil {
@@ -162,27 +161,6 @@ func commitGatewayCommand(configDir, fileName string, cfg *config.AppConfig) *co
 	return cmd
 }
 
-func commitDashboardsCommand(configDir, fileName string, cfg *config.AppConfig) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "dashboards",
-		Short: "Commit dashboard ingress route manifests",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			ghCfg, err := config.NewGithubConfig(configDir, fileName)
-			if err != nil {
-				return err
-			}
-			ctx := context.Background()
-			cmt, cmtErr := orchestration.CommitDashboardRoutes(ctx, ghCfg, cfg.OutputDir)
-			if cmtErr != nil {
-				return cmtErr
-			}
-			log.Printf("Commit Created: %+v", cmt)
-			return nil
-		},
-	}
-	return cmd
-}
-
 func ArgoAuthCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "argo-auth",
@@ -191,13 +169,42 @@ func ArgoAuthCmd() *cobra.Command {
 			return newArgoClient()
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ctx := context.Background()
-			if err := argoClient.AddRepoCredentials(ctx); err != nil {
-				return fmt.Errorf("failed to add repo credentials: %w", err)
+			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
 			}
-			log.Println("Added repo credentials")
+			if err := cmd.ValidateRequiredFlags(); err != nil {
+				return err
+			}
+			repo, _ := cmd.Flags().GetBool("repo")
+			password, _ := cmd.Flags().GetBool("password")
+
+			if repo {
+				ctx := context.Background()
+				if err := argoClient.AddRepoCredentials(ctx); err != nil {
+					return fmt.Errorf("failed to add repo credentials: %w", err)
+				}
+				log.Println("Added repo credentials")
+				return nil
+			}
+			if password {
+				ctx := context.Background()
+				if err := newKubeClient(); err != nil {
+					return err
+				}
+				pass, err := kubernetesClient.GetArgoPassword(ctx, "argocd")
+				if err != nil {
+					return err
+				}
+				fmt.Println("I love security")
+				fmt.Println(pass)
+				return nil
+			}
 			return nil
 		},
 	}
+	cmd.Flags().BoolP("repo", "r", false, "Add GitHub credentials to ArgoCD")
+	cmd.Flags().BoolP("password", "p", false, "Get the ArgoCD Admin Password")
+	cmd.MarkFlagsOneRequired("password", "repo")
+	cmd.MarkFlagsMutuallyExclusive("password", "repo")
 	return cmd
 }

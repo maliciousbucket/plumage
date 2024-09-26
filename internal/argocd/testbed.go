@@ -83,28 +83,6 @@ func (c *Client) createIngressApp(ctx context.Context, project string) error {
 	return c.addTestBedApp(ctx, "traefik", traefikPath, proj.Name)
 }
 
-func (c *Client) CreateInfrastructureDashboardRoutesApp(ctx context.Context) error {
-	return c.createInfraRoutesApp(ctx)
-}
-
-func (c *Client) createInfraRoutesApp(ctx context.Context) error {
-	project, err := c.GetProject(ctx, "ingress")
-	if err != nil {
-		return fmt.Errorf("failed to get ingress project: %w", err)
-	}
-
-	existing, _ := c.GetApplication(ctx, "infra-routes")
-	if existing != nil {
-		log.Println("infra-routes app already exists")
-		return nil
-	}
-	if err = c.addTestBedApp(ctx, "infra-routes", infraDashboardsPath, project.Name); err != nil {
-		return err
-	}
-	log.Println("infra-routes app created")
-	return nil
-}
-
 func (c *Client) CreateApplicationProject(ctx context.Context, app string) error {
 	project, err := c.createApplicationProject(ctx, app)
 	if err != nil {

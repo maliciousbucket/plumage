@@ -109,7 +109,7 @@ func (c *Client) AddApplicationToProject(ctx context.Context, appName string, pr
 		Validate:     &validate,
 		AppNamespace: &app.Namespace,
 		Project:      &project,
-	}, nil)
+	})
 }
 
 func (c *Client) UpdateApplication(ctx context.Context, appName string) (*v1alpha1.Application, error) {

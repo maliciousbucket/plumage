@@ -6,6 +6,9 @@ import (
 	"fmt"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/client-go/util/retry"
+	"log"
 	"sync"
 )
 
@@ -126,4 +129,38 @@ func (k *k8sClient) GetServiceAddress(ctx context.Context, ns string, name strin
 	}
 	return "", fmt.Errorf("no LoadBalancer or ClusterIP found for service %s/%s", ns, name)
 
+}
+
+func (k *k8sClient) ExposeService(ctx context.Context, ns string, name string, port int, nodePort int) error {
+	return k.exposeService(ctx, ns, name, port, nodePort)
+}
+
+func (k *k8sClient) exposeService(ctx context.Context, ns string, name string, port int, nodePort int) error {
+
+	serviceClient := k.kubeClient.CoreV1().Services(ns)
+	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		service, err := serviceClient.Get(ctx, name, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+		if service == nil {
+			return fmt.Errorf("service %s/%s not found", ns, name)
+		}
+
+		service.Spec.Type = v1.ServiceTypeNodePort
+		exposedPort := v1.ServicePort{Port: int32(port), NodePort: int32(nodePort)}
+		disruptorPort := v1.ServicePort{Port: int32(8000), TargetPort: intstr.FromInt32(int32(port)), Name: "disruptor"}
+
+		service.Spec.Ports = append(service.Spec.Ports, exposedPort)
+		service.Spec.Ports = append(service.Spec.Ports, disruptorPort)
+
+		_, updateErr := serviceClient.Update(ctx, service, metav1.UpdateOptions{})
+		return updateErr
+	})
+	if retryErr != nil {
+		return fmt.Errorf("could not expose service %s/%s to node port: %v", ns, name, retryErr)
+	}
+
+	log.Printf("Exposed %s/%s on Port %d - NodePort: %d, Disruptor Port: 8000", ns, name, port, nodePort)
+	return nil
 }

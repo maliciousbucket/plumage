@@ -208,3 +208,47 @@ func ArgoAuthCmd() *cobra.Command {
 	cmd.MarkFlagsMutuallyExclusive("password", "repo")
 	return cmd
 }
+
+func ExposeCmd() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "expose",
+		Short: "Expose as service for testing",
+		Long:  "expose -p <port> -n <node port> <service> <namespace>",
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return newKubeClient()
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateRequiredFlags(); err != nil {
+				return err
+			}
+			if err := cobra.MinimumNArgs(2)(cmd, args); err != nil {
+				return err
+			}
+			nodePort, _ := cmd.Flags().GetInt("nodePort")
+			port, _ := cmd.Flags().GetInt("port")
+			if port == 0 {
+				return fmt.Errorf("port must be specified")
+			}
+			if nodePort < 30000 || nodePort > 32767 {
+				return fmt.Errorf("node port must be between 30000 and 32767")
+			}
+			if args[0] == "" {
+				return fmt.Errorf("service name must be specified")
+			}
+			if args[1] == "" {
+				return fmt.Errorf("namespace must be specified")
+			}
+
+			ctx := context.Background()
+			if err := kubernetesClient.ExposeService(ctx, args[1], args[0], port, nodePort); err != nil {
+				return err
+			}
+			return nil
+		},
+	}
+	cmd.Flags().IntP("port", "p", 0, "Port to expose service on")
+	cmd.Flags().IntP("nodePort", "n", 0, "Node port to expose service on")
+	_ = cmd.MarkFlagRequired("port")
+	_ = cmd.MarkFlagRequired("nodePort")
+	return cmd
+}

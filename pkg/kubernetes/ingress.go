@@ -241,7 +241,7 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 			{
 
 				Name:   jsii.String("web"),
-				Number: jsii.Number(80),
+				Number: jsii.Number(8000),
 				//HostPort: jsii.Number(80),
 			},
 			{
@@ -283,8 +283,8 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 		Ports: &[]*kplus.ServicePort{
 			{
 				Protocol:   kplus.Protocol_TCP,
-				TargetPort: jsii.Number(80),
-				Port:       jsii.Number(80),
+				TargetPort: jsii.Number(8000),
+				Port:       jsii.Number(8000),
 			},
 		},
 		ServiceType: kplus.ServiceType_LOAD_BALANCER,
@@ -299,7 +299,20 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 				Protocol:   kplus.Protocol_TCP,
 				TargetPort: jsii.Number(8080),
 				Port:       jsii.Number(8080),
+				Name:       jsii.String("admin"),
 			},
+			{
+				Protocol:   kplus.Protocol_TCP,
+				TargetPort: jsii.Number(4443),
+				Port:       jsii.Number(4443),
+				Name:       jsii.String("web-secure"),
+			},
+			//{
+			//	Protocol:   kplus.Protocol_TCP,
+			//	TargetPort: jsii.Number(80),
+			//	Port:       jsii.Number(80),
+			//	Name:       jsii.String("web"),
+			//},
 		},
 		ServiceType: kplus.ServiceType_LOAD_BALANCER,
 	})
@@ -316,19 +329,17 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 	ig.Metadata().AddLabel(jsii.String("name"), jsii.String("traefik-web-ingress"))
 	ig.Metadata().AddAnnotation(jsii.String("traefik.ingress.kubernetes.io/router.entrypoints"), jsii.String("web"))
 
+	be := kplus.IngressBackend_FromService(db, &kplus.ServiceIngressBackendOptions{Port: jsii.Number(8080)})
+
+	ig.AddDefaultBackend(be)
 	web.ExposeViaIngress(jsii.String("/testbed"), &kplus.ExposeServiceViaIngressOptions{
 		Ingress:  ig,
-		PathType: "",
+		PathType: kplus.HttpIngressPathType_PREFIX,
 	})
 	traefikRemovePrefixMiddleware(chart, "strip-dashboard")
 	stripTestBedMiddleware(chart, "strip-testbed")
 	newDashbaordRoute(chart, "dashboard-route", db)
-
-	//adminIg := db.ExposeViaIngress(jsii.String("/dashboard"), &kplus.ExposeServiceViaIngressOptions{
-	//	PathType: kplus.HttpIngressPathType_PREFIX,
-	//})
-	//
-	//adminIg.Metadata().AddAnnotation(jsii.String("traefik.ingress.kubernetes.io/router.entrypoints"), jsii.String("admin"))
+	grafanaRoute(chart, ns)
 
 	return chart
 
@@ -352,11 +363,13 @@ func traefikIngressArgs() []*string {
 	args := []*string{
 		jsii.String("--api.insecure"),
 		jsii.String("--accesslog"),
-		jsii.String("--entryPoints.web.Address=:80"),
+		jsii.String("--entryPoints.web.Address=:8000"),
 		jsii.String("--providers.kubernetescrd"),
 
 		jsii.String("--entryPoints.websecure.Address=:4443"),
 		jsii.String("--entryPoints.traefik.Address=:8080"),
+		jsii.String("--providers.kubernetescrd.namespaces=default,galah-testbed,galah-monitoring,argocd"),
+		jsii.String("--providers.kubernetescrd.allowCrossNamespace=true"),
 		//jsii.String("allowEmptyServices: true"),
 	}
 	return args

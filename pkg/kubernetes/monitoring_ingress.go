@@ -8,36 +8,43 @@ import (
 	"github.com/maliciousbucket/plumage/imports/traefikio"
 )
 
-func NewInfraDashboardRoutes(scope constructs.Construct, id, ns string) constructs.Construct {
-	chart := cdk8s.NewChart(scope, jsii.String(id), &cdk8s.ChartProps{
-		DisableResourceNameHashes: jsii.Bool(true),
-		Namespace:                 jsii.String(ns),
+func grafanaRoute(scope constructs.Construct, ns string) traefikio.IngressRoute {
+	rule := fmt.Sprintf("PathPrefix(`/%s`)", "grafana")
+	return traefikio.NewIngressRoute(scope, jsii.String("grafana"), &traefikio.IngressRouteProps{
+		Metadata: &cdk8s.ApiObjectMetadata{
+			Name: jsii.String("grafana-route"),
+		},
+		Spec: &traefikio.IngressRouteSpec{
+			EntryPoints: &[]*string{
+				jsii.String("web"),
+			},
+			Routes: &[]*traefikio.IngressRouteSpecRoutes{
+				{
+					Kind:        traefikio.IngressRouteSpecRoutesKind_RULE,
+					Match:       jsii.String(rule),
+					Middlewares: &[]*traefikio.IngressRouteSpecRoutesMiddlewares{
+						//{
+						//	Name: jsii.String("strip-testbed"),
+						//},
+						//{
+						//	Name: jsii.String("strip-infra-prefix"),
+						//},
+					},
+					Services: &[]*traefikio.IngressRouteSpecRoutesServices{
+						{
+							Name:      jsii.String("grafana"),
+							Port:      traefikio.IngressRouteSpecRoutesServicesPort_FromNumber(jsii.Number(3000)),
+							Namespace: jsii.String(ns),
+						},
+					},
+				},
+			},
+		},
 	})
-
-	stripInfraRoutesMiddleware(chart)
-	alloyRoute(chart)
-	grafanaRoute(chart)
-	argoRoute(chart)
-	return chart
-}
-
-func alloyRoute(scope constructs.Construct) traefikio.IngressRoute {
-	id := fmt.Sprintf("alloy-route")
-	return newInfraRoute(scope, id, "alloy", "alloy", "galah-monitoring", 12345)
-}
-
-func grafanaRoute(scope constructs.Construct) traefikio.IngressRoute {
-	id := fmt.Sprintf("grafana-route")
-	return newInfraRoute(scope, id, "grafana", "grafana", "galah-monitoring", 3000)
-}
-
-func argoRoute(scope constructs.Construct) traefikio.IngressRoute {
-	id := fmt.Sprintf("argo-route")
-	return newInfraRoute(scope, id, "argo", "argocd-helm-server", "argocd", 443)
 }
 
 func newInfraRoute(scope constructs.Construct, id string, name, service, ns string, port int) traefikio.IngressRoute {
-	rule := fmt.Sprintf("PathPrefix(`/testbed/%s`)", name)
+	rule := fmt.Sprintf("PathPrefix(`/%s`)", name)
 	return traefikio.NewIngressRoute(scope, jsii.String(id), &traefikio.IngressRouteProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
 			Name: jsii.String(id),
@@ -52,9 +59,9 @@ func newInfraRoute(scope constructs.Construct, id string, name, service, ns stri
 					Kind:  traefikio.IngressRouteSpecRoutesKind_RULE,
 					Match: jsii.String(rule),
 					Middlewares: &[]*traefikio.IngressRouteSpecRoutesMiddlewares{
-						{
-							Name: jsii.String("strip-testbed"),
-						},
+						//{
+						//	Name: jsii.String("strip-testbed"),
+						//},
 						{
 							Name: jsii.String("strip-infra-prefix"),
 						},
@@ -80,8 +87,9 @@ func stripInfraRoutesMiddleware(scope constructs.Construct) traefikio.Middleware
 		Spec: &traefikio.MiddlewareSpec{
 			StripPrefix: &traefikio.MiddlewareSpecStripPrefix{
 				Prefixes: &[]*string{
+					jsii.String("/testbed"),
 					jsii.String("/argo"),
-					jsii.String("/alloy"),
+					//jsii.String("/alloy"),
 				},
 			},
 		},

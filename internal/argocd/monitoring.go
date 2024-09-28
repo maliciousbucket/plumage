@@ -20,7 +20,7 @@ const (
 	mimirPath           = "kubernetes/mimir"
 	minioOperatorPath   = "kubernetes/minio-operator"
 	minioTenantPath     = "kubernetes/minio-tenant"
-	tempoPath           = "kubernetes/tempo"
+	tempoPath           = "kubernetes/tempo/helm"
 	userPath            = "kubernetes/user"
 
 	gatewayPath = "kubernetes/gateway"

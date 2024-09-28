@@ -9,13 +9,12 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/klog"
 	"log"
 	"sync"
 	"time"
 )
 
-func (k *k8sClient) WatchDeployment(ctx context.Context, ns, name string) error {
+func (k *k8sClient) WatchDeployment(ctx context.Context, ns, name string, meta bool) error {
 	dep, err := k.kubeClient.AppsV1().Deployments(ns).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return err
@@ -31,7 +30,7 @@ func (k *k8sClient) WatchDeployment(ctx context.Context, ns, name string) error 
 		}
 	}
 
-	return k.waitDeploymentReady(ctx, ns, name)
+	return k.waitDeploymentReady(ctx, ns, name, meta)
 }
 
 func (k *k8sClient) WatchAppDeployment(ctx context.Context, ns string, services []string) error {
@@ -112,7 +111,68 @@ func (k *k8sClient) createDeploymentWatcher(ctx context.Context, ns, name string
 	return k.kubeClient.AppsV1().Deployments(ns).Watch(ctx, opts)
 }
 
+func (k *k8sClient) createDeploymentMetaNameWatcher(ctx context.Context, ns, name string) (watch.Interface, error) {
+	fieldSelector := fmt.Sprintf("metadata.name=%s", name)
+	opts := metav1.ListOptions{
+		FieldSelector: fieldSelector,
+	}
+	return k.kubeClient.AppsV1().Deployments(ns).Watch(ctx, opts)
+}
+
+func (k *k8sClient) waitDeploymentReady(ctx context.Context, ns, name string, meta bool) error {
+
+	var watcher watch.Interface
+	if meta {
+		nameWatcher, err := k.createDeploymentMetaNameWatcher(ctx, ns, name)
+		if err != nil {
+			return err
+		}
+		watcher = nameWatcher
+	} else {
+		nameWatcher, err := k.createDeploymentWatcher(ctx, ns, name)
+		if err != nil {
+			return err
+		}
+		watcher = nameWatcher
+	}
+
+	defer watcher.Stop()
+
+	for {
+		select {
+		case event := <-watcher.ResultChan():
+			deployment, ok := event.Object.(*v1.Deployment)
+			if !ok {
+				return fmt.Errorf("unexpected type of object: %v", event.Object)
+			}
+			if deployment.Status.String() == "Ready" {
+
+				log.Printf("deployment %s is ready\n", deployment.Name)
+				return nil
+			}
+
+			for _, cond := range deployment.Status.Conditions {
+				if cond.Type == v1.DeploymentAvailable {
+					log.Printf("deployment %s is available\n", deployment.Name)
+					return nil
+				}
+
+				if cond.Type == v1.DeploymentReplicaFailure {
+					log.Printf("deployment %s is failed\n", deployment.Name)
+					return fmt.Errorf("deployment %s replicas have failed", deployment.Name)
+				}
+
+			}
+
+		case <-ctx.Done():
+			log.Printf("Exiting from wait deployment ready becuase context stopped\n")
+			return ctx.Err()
+		}
+	}
+}
+
 func (k *k8sClient) WaitPodInstanceRunning(ctx context.Context, ns, name string) error {
+	//"app.kubernetes.io/instance"
 	watcher, err := k.createPodInstanceWatcher(ctx, ns, name)
 	if err != nil {
 		return err
@@ -139,6 +199,7 @@ func (k *k8sClient) createPodInstanceWatcher(ctx context.Context, ns, name strin
 }
 
 func (k *k8sClient) WaitPodNameRunning(ctx context.Context, ns, name string) error {
+	//app.kubernetes.io/name
 	watcher, err := k.createPodNameWatcher(ctx, ns, name)
 	if err != nil {
 		return err
@@ -147,7 +208,6 @@ func (k *k8sClient) WaitPodNameRunning(ctx context.Context, ns, name string) err
 }
 
 func (k *k8sClient) createPodNameWatcher(ctx context.Context, ns, name string) (watch.Interface, error) {
-	//fieldSelector := fmt.Sprintf("metadata.name=%s", name)
 	podLabels := map[string]string{
 		"app.kubernetes.io/name": name,
 	}
@@ -159,7 +219,6 @@ func (k *k8sClient) createPodNameWatcher(ctx context.Context, ns, name string) (
 	opts := metav1.ListOptions{
 		TypeMeta:      metav1.TypeMeta{},
 		LabelSelector: labelSelector.String(),
-		//FieldSelector: fieldSelecto,
 	}
 	return k.kubeClient.CoreV1().Pods(ns).Watch(ctx, opts)
 }
@@ -216,47 +275,8 @@ func (k *k8sClient) waitPodRunning(ctx context.Context, watcher watch.Interface)
 			}
 		case <-ctx.Done():
 			log.Printf("Exiting from wait pod runnning becuase context stopped\n")
-			return nil
-		}
-	}
-}
 
-func (k *k8sClient) waitDeploymentReady(ctx context.Context, ns, name string) error {
-	watcher, err := k.createDeploymentWatcher(ctx, ns, name)
-	if err != nil {
-		return err
-	}
-
-	defer watcher.Stop()
-
-	for {
-		select {
-		case event := <-watcher.ResultChan():
-			deployment, ok := event.Object.(*v1.Deployment)
-			if !ok {
-				return fmt.Errorf("unexpected type of object: %v", event.Object)
-			}
-			if deployment.Status.String() == "Ready" {
-
-				klog.Info("deployment %s is ready\n", deployment.Name)
-				return nil
-			}
-
-			for _, cond := range deployment.Status.Conditions {
-				if cond.Type == v1.DeploymentAvailable {
-					klog.Info("deployment %s is available\n", deployment.Name)
-					return nil
-				}
-
-				if cond.Type == v1.DeploymentReplicaFailure {
-					klog.Errorf("deployment %s is failed\n", deployment.Name)
-					return fmt.Errorf("deployment %s replicas have failed", deployment.Name)
-				}
-
-			}
-
-		case <-ctx.Done():
-			log.Printf("Exiting from wait deployment ready becuase context stopped\n")
+			return ctx.Err()
 		}
 	}
 }
@@ -291,6 +311,7 @@ func (k *k8sClient) waitAppPods(ctx context.Context, ns, name string, timeout ti
 	if err != nil {
 		return err
 	}
+	var watchErr error
 	errChan := make(chan error)
 	statusChan := make(chan int)
 	runningPods := make(map[string]bool)
@@ -317,7 +338,11 @@ func (k *k8sClient) waitAppPods(ctx context.Context, ns, name string, timeout ti
 					return
 				}
 
-				if pod.Status.Phase == v2.PodSucceeded {
+				if pod.Status.Phase == v2.PodSucceeded && !runningPods[pod.Name] {
+					runningPods[pod.Name] = true
+					statusChan <- len(runningPods)
+				}
+				if pod.Status.Phase == v2.PodUnknown {
 
 				}
 			}
@@ -338,7 +363,7 @@ func (k *k8sClient) waitAppPods(ctx context.Context, ns, name string, timeout ti
 		statusChan <- len(runningPods)
 	}()
 
-	for {
+	for len(runningPods) < expectedPods {
 		select {
 		case podsRunning := <-statusChan:
 			if podsRunning == expectedPods {
@@ -349,15 +374,17 @@ func (k *k8sClient) waitAppPods(ctx context.Context, ns, name string, timeout ti
 			}
 		case podErr := <-errChan:
 			if podErr != nil {
-				return podErr
+				watchErr = errors.Join(watchErr, podErr)
 			}
 		case <-time.After(timeout):
-			return fmt.Errorf("timed out waiting for pods for %s%s to be running", ns, name)
+			return fmt.Errorf("timed out waiting for pods for %s/%s to be running", ns, name)
 		case <-ctx.Done():
-			klog.Info("Exiting from wait deployment pods because context stopped\n")
+			log.Println("Exiting from wait deployment pods because context stopped")
+			return ctx.Err()
 		}
 
 	}
+	return watchErr
 
 }
 

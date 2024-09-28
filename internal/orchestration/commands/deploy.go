@@ -2,13 +2,16 @@ package commands
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
+	"github.com/maliciousbucket/plumage/internal/argocd"
+	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"github.com/spf13/cobra"
 	"log"
+	"sync"
 	"time"
 )
 
@@ -42,7 +45,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			gateway, _ := cmd.Flags().GetBool("gateway")
 			monitoring, _ := cmd.Flags().GetBool("monitoring")
 			ctx := context.Background()
-			if err := kubernetesClient.WatchDeployment(ctx, "argocd", "argocd-helm-server"); err != nil {
+			if err := kubernetesClient.WatchDeployment(ctx, "argocd", "argocd-helm-server", false); err != nil {
 				log.Fatal(fmt.Errorf("failed to watch argocd deployment: %w", err))
 			}
 
@@ -81,7 +84,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			}
 
 			if gateway {
-				if err = handleGateway(ctx); err != nil {
+				if err = handleGateway(ctx, ns); err != nil {
 					log.Fatal(err)
 				}
 			}
@@ -132,24 +135,49 @@ func commitAndPushAll(ctx context.Context, cfg *config.AppConfig, app string) er
 	if err != nil {
 		return err
 	}
-
+	log.Printf("\nCommits for App %s successful\n", app)
 	gatewayCommit, err := orchestration.CommitAndPushGateway(ctx, ghCfg, cfg.OutputDir)
 	if err != nil {
 		return err
 	}
 
-	templateJson, err := json.MarshalIndent(templateCommit, "", "    ")
-	if err != nil {
+	if err = prettyPrint(gatewayCommit); err != nil {
 		return err
 	}
-	gatewayJson, err := json.MarshalIndent(gatewayCommit, "", "    ")
-	if err != nil {
+
+	if err = prettyPrint(templateCommit); err != nil {
 		return err
 	}
-	log.Printf("\nCommits for App %s successful\n", app)
-	log.Println(string(templateJson))
-	log.Println(string(gatewayJson))
+
 	return nil
+}
+
+func DeployMonitoringCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "monitoring",
+		Short: "Deploy monitoring infrastructure",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if err := newArgoClient(); err != nil {
+				return err
+			}
+			if err := newKubeClient(); err != nil {
+				return err
+			}
+			return nil
+
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			ctx := context.Background()
+
+			if err := argoClient.AddRepoCredentials(ctx); err != nil {
+				log.Fatal(err)
+			}
+			if err := handleMonitoring(ctx); err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+	return cmd
 }
 
 func handleMonitoring(ctx context.Context) error {
@@ -162,21 +190,134 @@ func handleMonitoring(ctx context.Context) error {
 			return err
 		}
 	}
-	return nil
+
+	resources := map[string]string{
+		"alloy":          "galah-monitoring",
+		"nginx":          "gateway",
+		"tempo":          "galah-tracing",
+		"loki":           "galah-logging",
+		"mimir":          "galah-monitoring",
+		"grafana":        "galah-monitoring",
+		"minio-operator": "minio-store",
+		"minio-tenant":   "minio-store",
+	}
+	var watchErr error
+	errChan := make(chan error)
+	var wg sync.WaitGroup
+	for res, namespace := range resources {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer close(errChan)
+			errChan <- watchInfrastructure(ctx, kubernetesClient, namespace, res)
+		}()
+	}
+	wg.Wait()
+
+	i := 0
+	for i < len(resources) {
+		select {
+		case err := <-errChan:
+			if err != nil {
+				watchErr = errors.Join(watchErr, err)
+			}
+		case <-ctx.Done():
+			watchErr = errors.Join(watchErr, ctx.Err())
+			return watchErr
+		}
+	}
+
+	return watchErr
 
 }
 
-func handleGateway(ctx context.Context) error {
+func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "gateway",
+		Short: "Deploy traefik gateway",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if err := newArgoClient(); err != nil {
+				return err
+			}
+			if err := newKubeClient(); err != nil {
+				return err
+			}
+			return nil
+		},
+		Run: func(cmd *cobra.Command, args []string) {
+			synth, _ := cmd.Flags().GetBool("synth")
+
+			if synth {
+				if err := kplus.SynthGateway(outDir, ns); err != nil {
+					log.Fatal(err)
+				}
+			}
+
+			ctx := context.Background()
+
+			ghCfg, err := config.NewGithubConfig(configDir, "github.yaml")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if err = argoClient.AddRepoCredentials(ctx); err != nil {
+				log.Fatal(err)
+			}
+			if synth {
+				res, err := orchestration.CommitAndPushGateway(ctx, ghCfg, outDir)
+
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				if err = prettyPrint(res); err != nil {
+					log.Fatal(err)
+				}
+			}
+
+			if err = handleGateway(ctx, ns); err != nil {
+				log.Fatal(err)
+			}
+		},
+	}
+	cmd.Flags().BoolP("synth", "s", false, "synth gateway manifests")
+	return cmd
+}
+
+func handleGateway(ctx context.Context, ns string) error {
 	if gatewayProj, _ := argoClient.GetProject(ctx, "ingress"); gatewayProj == nil {
 		if err := argoClient.CreateIngressProject(ctx); err != nil {
 			return err
 		}
 	} else {
+		params := &argocd.AppQueryParams{Options: []argocd.AppQueryFunc{
+			argocd.WithProject("ingress"),
+		}}
+		apps, _ := argoClient.ListApplications(ctx, params)
+		if apps == nil || len(apps.Items) == 0 {
+			if err := argoClient.CreateIngressApp(ctx); err != nil {
+				return err
+			}
+		}
+
 		if err := argoClient.SyncProject(ctx, "ingress"); err != nil {
 			return err
 		}
 	}
-	return nil
+	time.Sleep(5 * time.Second)
+	errChan := make(chan error)
+	go func() {
+
+		errChan <- watchInfrastructure(ctx, kubernetesClient, ns, "traefik")
+		close(errChan)
+	}()
+	select {
+	case err := <-errChan:
+		return err
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+
 }
 
 func deployAndWaitForApp(ctx context.Context, ns, app string, services []string) error {
@@ -188,6 +329,13 @@ func deployAndWaitForApp(ctx context.Context, ns, app string, services []string)
 		return err
 	}
 	if err := kubernetesClient.WatchAppDeployment(ctx, ns, services); err != nil {
+		return err
+	}
+	return nil
+}
+
+func watchInfrastructure(ctx context.Context, client kubeclient.Client, ns, name string) error {
+	if err := client.WaitAppPods(ctx, ns, name, 2*time.Minute); err != nil {
 		return err
 	}
 	return nil

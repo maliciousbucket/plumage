@@ -37,6 +37,7 @@ type ArgoClient interface {
 	ListProjects(ctx context.Context) (*v1alpha1.AppProjectList, error)
 	GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error)
 	ListApplications(ctx context.Context, params *argocd.AppQueryParams) (*v1alpha1.ApplicationList, error)
+	CreateIngressApp(ctx context.Context) error
 	CreateApplication(ctx context.Context) (*v1alpha1.Application, error)
 	AddApplicationToProject(ctx context.Context, appName string, project string, validate bool) (*v1alpha1.ApplicationSpec, error)
 	UpdateApplication(ctx context.Context, appName string) (*v1alpha1.Application, error)
@@ -375,9 +376,13 @@ func deleteProjectCmd() *cobra.Command {
 					if err != nil {
 						log.Fatal(err)
 					}
+					log.Println("Successfully deleted ArgoCD project: ", project)
+					return nil
 				} else {
 					log.Println("Aborting....")
+					return nil
 				}
+				return nil
 			}
 
 			if err := argoClient.DeleteProject(ctx, project); err != nil {

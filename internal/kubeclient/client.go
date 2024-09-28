@@ -12,7 +12,7 @@ import (
 
 // Client TODO: Change to interface
 type Client interface {
-	WatchDeployment(ctx context.Context, ns string, name string) error
+	WatchDeployment(ctx context.Context, ns string, name string, meta bool) error
 	WatchAppDeployment(ctx context.Context, ns string, services []string) error
 	WaitPodInstanceRunning(ctx context.Context, ns string, name string) error
 	WaitPodNameRunning(ctx context.Context, ns string, name string) error

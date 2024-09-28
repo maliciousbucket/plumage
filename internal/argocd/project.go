@@ -6,6 +6,8 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"log"
+	"time"
 )
 
 func (c *Client) CreateProject(ctx context.Context, name string) (*v1alpha1.AppProject, error) {
@@ -93,11 +95,13 @@ func (c *Client) DeleteProjectWithApps(ctx context.Context, name string) error {
 	opts := []AppQueryFunc{
 		WithProject(name),
 	}
+
 	params := &AppQueryParams{Options: opts}
 	projectApps, err := c.ListApplications(ctx, params)
 	if err != nil {
 		return fmt.Errorf("failed to list apps for project %s: %v", name, err)
 	}
+	log.Println(projectApps)
 	if len(projectApps.Items) == 0 {
 		return c.DeleteProject(ctx, name)
 	}
@@ -105,6 +109,10 @@ func (c *Client) DeleteProjectWithApps(ctx context.Context, name string) error {
 		if err = c.deleteApplication(ctx, proj.Name, app.Name); err != nil {
 			return err
 		}
+	}
+	time.Sleep(10 * time.Second)
+	if err = c.DeleteProject(ctx, name); err != nil {
+		return err
 	}
 	return nil
 }

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
@@ -22,26 +23,6 @@ var (
 	resource    = ""
 	app         = ""
 )
-
-func promptUser(prompt string) bool {
-	var response string
-
-	for {
-		fmt.Println(prompt)
-		_, _ = fmt.Scanln(&response)
-
-		response = strings.ToLower(strings.TrimSpace(response))
-
-		switch response {
-		case "yes", "y":
-			return true
-		case "no", "n":
-			return false
-		default:
-			fmt.Println("Please enter yes/y or no/n.")
-		}
-	}
-}
 
 func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Command {
 	cmd := &cobra.Command{
@@ -272,4 +253,33 @@ func ExposeCmd() *cobra.Command {
 	_ = cmd.MarkFlagRequired("port")
 	_ = cmd.MarkFlagRequired("nodePort")
 	return cmd
+}
+
+func promptUser(prompt string) bool {
+	var response string
+
+	for {
+		fmt.Println(prompt)
+		_, _ = fmt.Scanln(&response)
+
+		response = strings.ToLower(strings.TrimSpace(response))
+
+		switch response {
+		case "yes", "y":
+			return true
+		case "no", "n":
+			return false
+		default:
+			fmt.Println("Please enter yes/y or no/n.")
+		}
+	}
+}
+
+func prettyPrint(v any) error {
+	jsonData, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(jsonData))
+	return nil
 }

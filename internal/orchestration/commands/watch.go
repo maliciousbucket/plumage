@@ -46,7 +46,7 @@ func WatchCmd(template string) *cobra.Command {
 			ctx := context.Background()
 			if deployment {
 
-				if err := kubernetesClient.WatchDeployment(ctx, ns, name); err != nil {
+				if err := kubernetesClient.WatchDeployment(ctx, ns, name, false); err != nil {
 					log.Fatalf("failed to watch deployment %s/%s: %v", ns, name, err)
 				}
 			}

@@ -17,10 +17,19 @@ const (
 )
 
 func (c *Client) CreateIngressProject(ctx context.Context) error {
-	project, err := c.createIngressProject(ctx)
-	if err != nil {
-		return err
+	var project string
+	existing, _ := c.GetProject(ctx, "ingress")
+
+	if existing == nil {
+		newProj, err := c.createIngressProject(ctx)
+		if err != nil {
+			return err
+		}
+		project = newProj
+	} else {
+		project = "ingress"
 	}
+
 	apps, err := c.ListApplications(ctx, nil)
 	if err != nil {
 		return err
@@ -71,6 +80,10 @@ func (c *Client) createIngressProject(ctx context.Context) (string, error) {
 		namespaces,
 		destinations,
 	)
+}
+
+func (c *Client) CreateIngressApp(ctx context.Context) error {
+	return c.createIngressApp(ctx, "ingress")
 }
 
 func (c *Client) createIngressApp(ctx context.Context, project string) error {

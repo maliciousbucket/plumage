@@ -85,6 +85,30 @@ func (c *Client) DeleteProject(ctx context.Context, name string) error {
 	return err
 }
 
+func (c *Client) DeleteProjectWithApps(ctx context.Context, name string) error {
+	proj, err := c.GetProject(ctx, name)
+	if err != nil {
+		return err
+	}
+	opts := []AppQueryFunc{
+		WithProject(name),
+	}
+	params := &AppQueryParams{Options: opts}
+	projectApps, err := c.ListApplications(ctx, params)
+	if err != nil {
+		return fmt.Errorf("failed to list apps for project %s: %v", name, err)
+	}
+	if len(projectApps.Items) == 0 {
+		return c.DeleteProject(ctx, name)
+	}
+	for _, app := range projectApps.Items {
+		if err = c.deleteApplication(ctx, proj.Name, app.Name); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (c *Client) GetProject(ctx context.Context, name string) (*v1alpha1.AppProject, error) {
 	return c.projectClient.Get(ctx, &project.ProjectQuery{Name: name})
 }

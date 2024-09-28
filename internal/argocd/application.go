@@ -6,6 +6,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"log"
 )
 
 const (
@@ -121,4 +122,30 @@ func (c *Client) UpdateApplication(ctx context.Context, appName string) (*v1alph
 	return c.applicationClient.Update(ctx, &application.ApplicationUpdateRequest{
 		Application: app,
 	})
+}
+
+func (c *Client) DeleteApplication(ctx context.Context, appName string) error {
+	return c.deleteApplication(ctx, "", appName)
+}
+
+func (c *Client) deleteApplication(ctx context.Context, project, appName string) error {
+	app, err := c.GetApplication(ctx, appName)
+	if err != nil {
+		return err
+	}
+	var projectName *string
+	if project != "" {
+		projectName = &project
+	}
+	cascade := true
+	res, err := c.applicationClient.Delete(ctx, &application.ApplicationDeleteRequest{
+		Name:    &app.Name,
+		Cascade: &cascade,
+		Project: projectName,
+	})
+	if err != nil {
+		return err
+	}
+	log.Println(res.String())
+	return nil
 }

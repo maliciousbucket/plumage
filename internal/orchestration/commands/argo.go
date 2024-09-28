@@ -32,6 +32,7 @@ type ArgoClient interface {
 	AddApplicationDestination(ctx context.Context, appName string, server string, namespace string, name string) error
 	CreateProject(ctx context.Context, name string) (*v1alpha1.AppProject, error)
 	DeleteProject(ctx context.Context, name string) error
+	DeleteProjectWithApps(ctx context.Context, name string) error
 	GetProject(ctx context.Context, name string) (*v1alpha1.AppProject, error)
 	ListProjects(ctx context.Context) (*v1alpha1.AppProjectList, error)
 	GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error)
@@ -362,11 +363,23 @@ func deleteProjectCmd() *cobra.Command {
 			if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
 				return err
 			}
+			withApps, _ := cmd.Flags().GetBool("withApps")
 			project := args[0]
 			if project == "" {
 				return fmt.Errorf("project is required")
 			}
 			ctx := context.Background()
+			if withApps {
+				if promptUser("Are you sure?") {
+					err := argoClient.DeleteProjectWithApps(ctx, project)
+					if err != nil {
+						log.Fatal(err)
+					}
+				} else {
+					log.Println("Aborting....")
+				}
+			}
+
 			if err := argoClient.DeleteProject(ctx, project); err != nil {
 				return err
 			}
@@ -374,6 +387,7 @@ func deleteProjectCmd() *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().BoolP("withApps", "a", false, "Delete all of the project's apps")
 
 	return cmd
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -21,6 +22,26 @@ var (
 	resource    = ""
 	app         = ""
 )
+
+func promptUser(prompt string) bool {
+	var response string
+
+	for {
+		fmt.Println(prompt)
+		_, _ = fmt.Scanln(&response)
+
+		response = strings.ToLower(strings.TrimSpace(response))
+
+		switch response {
+		case "yes", "y":
+			return true
+		case "no", "n":
+			return false
+		default:
+			fmt.Println("Please enter yes/y or no/n.")
+		}
+	}
+}
 
 func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Command {
 	cmd := &cobra.Command{

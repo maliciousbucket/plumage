@@ -2,7 +2,6 @@ package helm
 
 import (
 	"context"
-	"fmt"
 	helmc "github.com/mittwald/go-helm-client"
 	"helm.sh/helm/v3/pkg/release"
 	"os"
@@ -75,7 +74,6 @@ func newClient(cfg *ClientCfg) (*helmClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(opts.KubeConfig))
 	return &helmClient{Client: client}, nil
 }
 

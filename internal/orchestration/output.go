@@ -233,11 +233,3 @@ func CommitAndPushGateway(ctx context.Context, cfg *config.GitHubConfig, dir str
 
 	return CommitAndPushService(ctx, cfg, ingressDir, "traefik", msg)
 }
-
-func CommitDashboardRoutes(ctx context.Context, cfg *config.GitHubConfig, dir string) (*GitHubCommitResponse, error) {
-	ingressDir := filepath.Join(dir, "ingress")
-	msg := fmt.Sprintf("plumage manifests - dashboard routes - %s", time.Now().String())
-
-	return CommitAndPushService(ctx, cfg, ingressDir, "dashboards", msg)
-
-}

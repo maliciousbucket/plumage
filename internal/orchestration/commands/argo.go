@@ -358,10 +358,11 @@ func deleteProjectCmd() *cobra.Command {
 		Use:   "delete",
 		Short: "Delete ArgoCD projects",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := cmd.ValidateFlagGroups(); err != nil {
+
+			if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
 				return err
 			}
-			project, _ := cmd.Flags().GetString("project")
+			project := args[0]
 			if project == "" {
 				return fmt.Errorf("project is required")
 			}
@@ -373,8 +374,7 @@ func deleteProjectCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringP("project", "p", "", "Project name")
-	_ = cmd.MarkFlagRequired("project")
+
 	return cmd
 }
 
@@ -433,7 +433,7 @@ func DeployAppCmd(filePath string) *cobra.Command {
 				return fmt.Errorf("error adding GitHub repo credentials: %w", err)
 			}
 
-			services, appName, err := kplus.GetServices(filePath)
+			services, _, appName, err := kplus.GetServices(filePath)
 			if err != nil {
 				return err
 			}

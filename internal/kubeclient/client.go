@@ -7,11 +7,13 @@ import (
 	"k8s.io/client-go/util/homedir"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // Client TODO: Change to interface
 type Client interface {
 	WatchDeployment(ctx context.Context, ns string, name string) error
+	WatchAppDeployment(ctx context.Context, ns string, services []string) error
 	WaitPodInstanceRunning(ctx context.Context, ns string, name string) error
 	WaitPodNameRunning(ctx context.Context, ns string, name string) error
 	CreateNamespace(ctx context.Context, ns string) (*NameSpaceInfo, error)
@@ -19,6 +21,8 @@ type Client interface {
 	WaitAllArgoPods(ctx context.Context, ns string) error
 	PatchArgoToLB(ctx context.Context, ns string) error
 	WaitServicePods(ctx context.Context, ns string, name string) error
+	WaitAppPods(ctx context.Context, ns, name string, timeout time.Duration) error
+
 	GetServiceAddress(ctx context.Context, ns string, name string) (string, error)
 	CreateGalahArgoAccount(ctx context.Context, ns string) error
 	GetArgoPassword(ctx context.Context, ns string) (string, error)

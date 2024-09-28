@@ -66,10 +66,6 @@ func (k *k8sClient) waitServicePods(ctx context.Context, ns string, pods *v1.Pod
 	var instances []string
 
 	for _, pod := range pods.Items {
-		//instance, ok := pod.Labels["app.kubernetes.io/instance"]
-		//if !ok {
-		//	return fmt.Errorf("pod %s/%s does not have instance label", pod.Namespace, pod.Name)
-		//}
 		instance := pod.Name
 		instances = append(instances, instance)
 	}

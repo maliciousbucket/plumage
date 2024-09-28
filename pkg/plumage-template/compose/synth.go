@@ -94,6 +94,12 @@ func WithVerticalScaling() SynthFunc {
 	}
 }
 
+func WithDefaultVerticalScaling() SynthFunc {
+	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
+		return nil
+	}
+}
+
 func WithIngressRoute() SynthFunc {
 	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
 		props := p.ingressRouteProps()

@@ -152,7 +152,7 @@ func DefaultHorizontalAutoScaler(scope constructs.Construct, id string, ns strin
 						Name: jsii.String("cpu"),
 						Target: &k8s.MetricTargetV2{
 							Type:               jsii.String("Utilization"),
-							AverageUtilization: jsii.Number(70),
+							AverageUtilization: jsii.Number(80),
 						},
 					},
 				},
@@ -162,7 +162,7 @@ func DefaultHorizontalAutoScaler(scope constructs.Construct, id string, ns strin
 						Name: jsii.String("memory"),
 						Target: &k8s.MetricTargetV2{
 							Type:               jsii.String("Utilization"),
-							AverageUtilization: jsii.Number(70),
+							AverageUtilization: jsii.Number(80),
 						},
 					},
 				},

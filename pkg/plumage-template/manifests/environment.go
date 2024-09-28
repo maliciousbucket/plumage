@@ -8,7 +8,6 @@ import (
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	"github.com/maliciousbucket/plumage/imports/k8s"
-	"github.com/maliciousbucket/plumage/pkg/config"
 	"slices"
 )
 
@@ -16,9 +15,9 @@ const (
 	containerPath = "/spec/template/spec/containers/0/envFrom"
 )
 
-func AddServiceEnvironmentVariables(scope constructs.Construct, s *ServiceTemplate, target cdk8s.ApiObject, m *config.CollectorConfig) constructs.Construct {
-	collectorMap := m.ToStringMap()
-	envConfig := loadMonitoringEnvWithAliases(collectorMap, s.MonitoringAliases, s.MonitoringEnv)
+func AddServiceEnvironmentVariables(scope constructs.Construct, s *ServiceTemplate, target cdk8s.ApiObject, monitoring map[string]string) constructs.Construct {
+
+	envConfig := loadMonitoringEnvWithAliases(monitoring, s.MonitoringAliases, s.MonitoringEnv)
 	envValues := StringMapToK8s(envConfig)
 	fmt.Printf("Env Values: %v", envValues)
 

@@ -85,6 +85,8 @@ func GetServices(filePath string) ([]string, string, string, error) {
 		return nil, "", "", fmt.Errorf("no namespace found in %s", filePath)
 	}
 
+	template.applyHost()
+
 	var services []string
 	for _, service := range template.Services {
 		services = append(services, service.Name)
@@ -168,6 +170,14 @@ func SynthGateway(outputDir, ns string) error {
 	ProjectNamespace(app, ns)
 	app.Synth()
 	return nil
+}
+
+func (t *Template) applyHost() {
+	if t.Host != "" {
+		for _, service := range t.Services {
+			service.Host = t.Host
+		}
+	}
 }
 
 func loadTemplate(filePath string) (*Template, error) {

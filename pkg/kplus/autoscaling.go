@@ -7,12 +7,7 @@ import (
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	autoscaling "github.com/maliciousbucket/plumage/imports/autoscalingk8sio"
-)
-
-const (
-	ScalingTypeVertical   = ScalingType("vertical")
-	ScalingTypeHorizontal = ScalingType("horizontal")
-	ScalingTypeUnknown    = ScalingType("unknown")
+	autoscaling2 "github.com/maliciousbucket/plumage/pkg/plumage-template/autoscaling"
 )
 
 type ScalingTemplate interface {
@@ -46,13 +41,13 @@ type VerticalScalingTemplate struct {
 }
 
 func (t *VerticalScalingTemplate) ScalingType() ScalingType {
-	return ScalingTypeVertical
+	return autoscaling2.ScalingTypeVertical
 }
 
 type ScalingType string
 
 func (t *HorizontalScalingTemplate) ScalingType() ScalingType {
-	return ScalingTypeHorizontal
+	return autoscaling2.ScalingTypeHorizontal
 }
 
 func NewAutoScaler(scope constructs.Construct, deployment kplus.Deployment, template ScalingTemplate, id string) constructs.Construct {
@@ -61,14 +56,14 @@ func NewAutoScaler(scope constructs.Construct, deployment kplus.Deployment, temp
 	}
 
 	switch template.ScalingType() {
-	case ScalingTypeVertical:
+	case autoscaling2.ScalingTypeVertical:
 		if vertical, ok := template.(*VerticalScalingTemplate); ok {
 			if vertical.Version == 0 || vertical.Version == 1 {
 				return newVerticalScaler(scope, deployment, id, vertical)
 			}
 			return newVerticalScalerV2(scope, deployment, id, vertical)
 		}
-	case ScalingTypeHorizontal:
+	case autoscaling2.ScalingTypeHorizontal:
 		if horizontal, ok := template.(*HorizontalScalingTemplate); ok {
 			return addHorizontalAutoScaler(scope, deployment, id, horizontal)
 		}
@@ -287,21 +282,21 @@ func verticalScalingPolicies(template *VerticalScalingTemplate) *autoscaling.Ver
 	}
 }
 
-func AddDefaultScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling DefaultAutoScaling) constructs.Construct {
+func AddDefaultScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling autoscaling2.DefaultAutoScaling) constructs.Construct {
 	if scaling.DefaultScaling == nil {
 		return nil
 	}
 
-	if scaling.DefaultScaling.ScalingType() == ScalingTypeHorizontal {
+	if scaling.DefaultScaling.ScalingType() == autoscaling2.ScalingTypeHorizontal {
 
-		if horizontal, ok := scaling.DefaultScaling.(*DefaultHorizontalScaling); ok {
+		if horizontal, ok := scaling.DefaultScaling.(*autoscaling2.DefaultHorizontalScaling); ok {
 			return addDefaultHorizontalScaling(scope, deployment, id, horizontal)
 		}
 		return nil
 	}
 
-	if scaling.DefaultScaling.ScalingType() == ScalingTypeVertical {
-		if vertical, ok := scaling.DefaultScaling.(*DefaultVerticalScaling); ok {
+	if scaling.DefaultScaling.ScalingType() == autoscaling2.ScalingTypeVertical {
+		if vertical, ok := scaling.DefaultScaling.(*autoscaling2.DefaultVerticalScaling); ok {
 			return addDefaultVerticalScaling(scope, deployment, id, vertical)
 		}
 		return nil
@@ -310,7 +305,7 @@ func AddDefaultScaling(scope constructs.Construct, deployment kplus.Deployment, 
 	return nil
 }
 
-func addDefaultHorizontalScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling *DefaultHorizontalScaling) kplus.HorizontalPodAutoscaler {
+func addDefaultHorizontalScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling *autoscaling2.DefaultHorizontalScaling) kplus.HorizontalPodAutoscaler {
 	template := &HorizontalScalingTemplate{
 		Type: "horizontal",
 		CPU: &HorizontalResourceScaling{
@@ -326,7 +321,7 @@ func addDefaultHorizontalScaling(scope constructs.Construct, deployment kplus.De
 	return addHorizontalAutoScaler(scope, deployment, id, template)
 }
 
-func addDefaultVerticalScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling *DefaultVerticalScaling) autoscaling.VerticalPodAutoscaler {
+func addDefaultVerticalScaling(scope constructs.Construct, deployment kplus.Deployment, id string, scaling *autoscaling2.DefaultVerticalScaling) autoscaling.VerticalPodAutoscaler {
 	minCpu := 100
 	maxCpu := 300
 	minMem := 75

@@ -19,7 +19,7 @@ func NewIngressRoute(scope constructs.Construct, id string, ns string, service *
 		Name:      service.Name,
 		Namespace: ns,
 		Config: &ingress.RouteConfig{
-			Host:               "",
+			Host:               service.Host,
 			Paths:              paths,
 			EnableLoadBalancer: false,
 		},

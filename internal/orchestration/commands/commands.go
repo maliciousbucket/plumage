@@ -262,7 +262,7 @@ func ExposeCmd() *cobra.Command {
 
 			ctx := context.Background()
 			if err := kubernetesClient.ExposeService(ctx, args[1], args[0], port, nodePort); err != nil {
-				return err
+				log.Fatal(err)
 			}
 			return nil
 		},

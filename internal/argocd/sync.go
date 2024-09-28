@@ -2,6 +2,9 @@ package argocd
 
 import (
 	"context"
+	"log"
+	"strings"
+
 	"fmt"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/application"
 )
@@ -31,6 +34,10 @@ func (c *Client) syncApplication(ctx context.Context, name, ns, project string) 
 		Project:      &project,
 	})
 	if err != nil {
+		if strings.Contains(err.Error(), "another operation is already in progress") {
+			log.Println("Operation already in progress.")
+			return nil
+		}
 		return err
 	}
 	fmt.Printf("Syncing %s in namespace %s with project %s\nStatus: %+v", sync.Name, sync.Namespace, project, sync.Status.Conditions)
@@ -61,7 +68,7 @@ func (c *Client) SyncProject(ctx context.Context, name string) error {
 	for _, app := range apps.Items {
 		err = c.syncApplication(ctx, app.Name, app.Namespace, project.Name)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to sync application %s: %v", app.Name, err)
 		}
 	}
 	return nil

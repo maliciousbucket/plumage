@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func DeployTemplateCommand(cfg config.AppConfig) *cobra.Command {
+func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "template",
 		Short: "Deploy a template",
@@ -42,9 +42,18 @@ func DeployTemplateCommand(cfg config.AppConfig) *cobra.Command {
 			gateway, _ := cmd.Flags().GetBool("gateway")
 			monitoring, _ := cmd.Flags().GetBool("monitoring")
 			ctx := context.Background()
+			if err := kubernetesClient.WatchDeployment(ctx, "argocd", "argocd-helm-server"); err != nil {
+				log.Fatal(fmt.Errorf("failed to watch argocd deployment: %w", err))
+			}
+
 			if err := argoClient.AddRepoCredentials(ctx); err != nil {
 				log.Fatal(err)
 			}
+			if cfg == nil {
+				log.Fatal("config is required")
+			}
+			fmt.Println(cfg.UserConfig)
+			fmt.Println(cfg.UserConfig.TemplateConfig)
 
 			templateFile := cfg.UserConfig.TemplateConfig.TemplateFile
 			if file != "" {
@@ -66,15 +75,21 @@ func DeployTemplateCommand(cfg config.AppConfig) *cobra.Command {
 			}
 
 			if monitoring {
-				if err = argoClient.CreateMonitoringProject(ctx); err != nil {
+				if err = handleMonitoring(ctx); err != nil {
 					log.Fatal(err)
 				}
 			}
 
 			if gateway {
-				if err = argoClient.CreateIngressProject(ctx); err != nil {
+				if err = handleGateway(ctx); err != nil {
 					log.Fatal(err)
 				}
+			}
+			if appProject, _ := argoClient.GetProject(ctx, appName); appProject != nil {
+				if _, err = argoClient.CreateProject(ctx, appName); err != nil {
+					log.Fatal(err)
+				}
+
 			}
 
 			if err = argoClient.CreateServiceApplications(ctx, appName, services); err != nil {
@@ -106,7 +121,7 @@ func synthAll(file, outputDir string, monitoring map[string]string) error {
 	return nil
 }
 
-func commitAndPushAll(ctx context.Context, cfg config.AppConfig, app string) error {
+func commitAndPushAll(ctx context.Context, cfg *config.AppConfig, app string) error {
 	ghCfg, err := config.NewGithubConfig(cfg.ConfigDir, "github.yaml")
 	if err != nil {
 		log.Fatal(err)
@@ -134,6 +149,33 @@ func commitAndPushAll(ctx context.Context, cfg config.AppConfig, app string) err
 	log.Printf("\nCommits for App %s successful\n", app)
 	log.Println(string(templateJson))
 	log.Println(string(gatewayJson))
+	return nil
+}
+
+func handleMonitoring(ctx context.Context) error {
+	if monitoringProj, _ := argoClient.GetProject(ctx, "galah-monitoring"); monitoringProj == nil {
+		if err := argoClient.CreateMonitoringProject(ctx); err != nil {
+			return err
+		}
+	} else {
+		if err := argoClient.SyncProject(ctx, "galah-monitoring"); err != nil {
+			return err
+		}
+	}
+	return nil
+
+}
+
+func handleGateway(ctx context.Context) error {
+	if gatewayProj, _ := argoClient.GetProject(ctx, "ingress"); gatewayProj == nil {
+		if err := argoClient.CreateIngressProject(ctx); err != nil {
+			return err
+		}
+	} else {
+		if err := argoClient.SyncProject(ctx, "ingress"); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

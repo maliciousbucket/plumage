@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -27,6 +28,7 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(userConfig)
 	monitoringConfig, err := NewMonitoringConfig(configDir, monitoringEnv)
 	if err != nil {
 		return nil, err
@@ -45,10 +47,17 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 		MonitoringConfig: monitoringConfig,
 		OutputDir:        outDir,
 	}
+	appConfig.OutputDir = userConfig.OutputDir
+	appConfig.Namespace = userConfig.Namespace
+	fmt.Printf("Using output dir: %s\n", appConfig.UserConfig.OutputDir)
+	fmt.Printf("Using namespace : %s\n", appConfig.UserConfig.Namespace)
+	fmt.Printf("Using template file: %s\n", userConfig.TemplateConfig.TemplateFile)
 	return appConfig, nil
 }
 
 type UserConfig struct {
+	OutputDir      string         `yaml:"outputDir"`
+	Namespace      string         `yaml:"namespace"`
 	ComposeConfig  ComposeConfig  `yaml:"compose"`
 	TemplateConfig TemplateConfig `yaml:"template"`
 	TraefikConfig  TraefikConfig  `yaml:"traefik"`
@@ -104,15 +113,15 @@ func loadUserConfig(configDir string, base *UserConfig) (*UserConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := yaml.Unmarshal(content, base); err != nil {
+	if err = yaml.Unmarshal(content, base); err != nil {
 		return nil, err
 	}
 	return base, nil
 }
 
 type TemplateConfig struct {
-	WorkingDir              string   `json:"workingDir"`
-	TemplateFile            string   `json:"templateFile"`
+	WorkingDir              string   `yaml:"workingDir"`
+	TemplateFile            string   `yaml:"templateFile"`
 	ServiceTemplateFiles    []string `json:"serviceTemplateFiles"`
 	MonitoringTemplateFiles []string `json:"monitoringTemplateFiles"`
 	ResilienceTemplateFiles []string `json:"resilienceTemplateFiles"`
@@ -181,7 +190,6 @@ func configDir(envfile string) (string, error) {
 	if envConfigDir != "" {
 		return envConfigDir, nil
 	}
-	fmt.Println("Not supposed to be here")
 	userConfigDir, err := os.UserConfigDir()
 	if err != nil {
 		return "", err
@@ -195,11 +203,19 @@ func findOrCreateConfigDir(projectName string, envFile string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	err = os.MkdirAll(dir, 0755)
-	if err != nil {
-		return "", err
+	log.Println(dir)
+	if _, err = os.Stat(dir); os.IsNotExist(err) {
+		err = os.MkdirAll(dir, 0755)
+		if err != nil {
+			return "", err
+		}
+		return dir, nil
 	}
+	if dir != "" {
+		log.Println("It exists..")
+		return dir, nil
+	}
+
 	fmt.Printf("Creating config directory: %s\n", dir)
 	return dir, nil
 }

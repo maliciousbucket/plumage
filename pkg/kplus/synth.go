@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
+	"github.com/maliciousbucket/plumage/pkg/kubernetes"
 	"gopkg.in/yaml.v3"
 	"io"
 	"log"
@@ -62,10 +63,10 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 	return nil
 }
 
-func GetServices(filePath string) ([]string, string, error) {
+func GetServices(filePath string) ([]string, string, string, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, "", err
+		return nil, "", "", err
 	}
 
 	data, err := io.ReadAll(file)
@@ -73,18 +74,22 @@ func GetServices(filePath string) ([]string, string, error) {
 	var template Template
 	err = yaml.Unmarshal(data, &template)
 	if len(template.Services) == 0 {
-		return nil, "", fmt.Errorf("no services found in %s", filePath)
+		return nil, "", "", fmt.Errorf("no services found in %s", filePath)
 	}
 
 	if template.Name == "" {
-		return nil, "", fmt.Errorf("no name found in %s", filePath)
+		return nil, "", "", fmt.Errorf("no name found in %s", filePath)
+	}
+
+	if template.Namespace == "" {
+		return nil, "", "", fmt.Errorf("no namespace found in %s", filePath)
 	}
 
 	var services []string
 	for _, service := range template.Services {
 		services = append(services, service.Name)
 	}
-	return services, template.Name, nil
+	return services, template.Namespace, template.Name, nil
 }
 
 func SynthService(filePath, outputDir, service string, monitoring map[string]string) error {
@@ -141,6 +146,26 @@ func SynthService(filePath, outputDir, service string, monitoring map[string]str
 
 	log.Printf("\n Manifests for %s have been created at %s/%s", service, out, service)
 
+	return nil
+}
+
+func SynthGateway(outputDir, ns string) error {
+	if _, err := os.Stat(outputDir); err != nil {
+		return fmt.Errorf("output directory %s does not exist", outputDir)
+	}
+
+	out := fmt.Sprintf("%s/ingress/traefik", outputDir)
+
+	app := cdk8s.NewApp(&cdk8s.AppProps{
+		Outdir:                  jsii.String(out),
+		OutputFileExtension:     nil,
+		RecordConstructMetadata: jsii.Bool(false),
+		Resolvers:               nil,
+		YamlOutputType:          cdk8s.YamlOutputType_FILE_PER_CHART,
+	})
+
+	kubernetes.NewTraefikIngress(app, "traefik-chart", ns)
+	app.Synth()
 	return nil
 }
 

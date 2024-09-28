@@ -34,7 +34,7 @@ func grafanaRoute(scope constructs.Construct, ns string) traefikio.IngressRoute 
 						{
 							Name:      jsii.String("grafana"),
 							Port:      traefikio.IngressRouteSpecRoutesServicesPort_FromNumber(jsii.Number(3000)),
-							Namespace: jsii.String(ns),
+							Namespace: jsii.String("galah-monitoring"),
 						},
 					},
 				},

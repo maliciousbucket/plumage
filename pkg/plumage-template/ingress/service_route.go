@@ -33,7 +33,6 @@ func NewServiceIngressRoute(scope constructs.Construct, id string, props *RouteP
 			withRule(props.Config.Host, path.Path)(&newRouteSpec)
 			fmt.Println(path.Path)
 			withService(props.Namespace, props.Name, *path, props.Config.EnableLoadBalancer)(&newRouteSpec)
-			fmt.Printf("New Route Spec: %v", newRouteSpec)
 			ingressRoute = append(ingressRoute, &newRouteSpec)
 		}
 	}
@@ -77,7 +76,6 @@ func withRule(host string, prefix string) ingressRouteRoutesFunc {
 
 		r.Kind = RouteTypeRule
 		r.Match = jsii.String(rule)
-		fmt.Printf("\nRule: %s\n", rule)
 	}
 }
 

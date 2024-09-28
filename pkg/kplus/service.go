@@ -15,7 +15,6 @@ import (
 func NewServiceManifests(scope constructs.Construct, id string, ns string, template *ServiceTemplate, monitoring map[string]string, nodePort int) constructs.Construct {
 	ct := constructs.NewConstruct(scope, jsii.String(id))
 
-	//deploymentName := fmt.Sprintf("%s-deployment", template.Name)
 	deploymentName := "deployment"
 	deployment := newServiceDeployment(ct, deploymentName, template, monitoring)
 

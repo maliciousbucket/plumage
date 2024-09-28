@@ -2,6 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/maliciousbucket/plumage/internal/argocd/commands"
+	kubeCmd "github.com/maliciousbucket/plumage/internal/kubeclient/commands"
+	orchestrationCmds "github.com/maliciousbucket/plumage/internal/orchestration/commands"
+	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
 )
 
@@ -15,17 +19,32 @@ var (
 It generates the necessary Kubernetes manifests and chaos test configurations.`,
 		// Run: func(cmd *cobra.Command, args []string) { },
 	}
+	appCfg *config.AppConfig
 )
 
 type rootCommand struct {
 	cmd *cobra.Command
 }
 
-func newRootCommand() *rootCommand {
+func newRootCommand(cfg *config.AppConfig) *rootCommand {
+	appCfg = cfg
 	c := &rootCommand{}
 	rt := rootCmd
 
-	rt.AddCommand(testComand())
+	rt.AddCommand(testComand(cfg))
+	rt.AddCommand(configCmd(cfg))
+	rt.AddCommand(loadCmd())
+	rt.AddCommand(synthCommand())
+	rt.AddCommand(orchestrationCmds.CommitPushCmd(cfg.ConfigDir, "github.yaml", cfg))
+	//rt.AddCommand(commands.ArgoProjectCmd())
+	rt.AddCommand(orchestrationCmds.ProjectCmd())
+	rt.AddCommand(commands.ArgoApplicationCmd())
+
+	rt.AddCommand(kubeCmd.ServiceCmd())
+	rt.AddCommand(kubeCmd.WaitRelatedPodsCmd())
+	rt.AddCommand(orchestrationCmds.SetArgoTokenCmd())
+	rt.AddCommand(orchestrationCmds.WatchCmd(cfg.UserConfig.TemplateConfig.TemplateFile))
+	rt.AddCommand(orchestrationCmds.ExposeCmd())
 
 	c.cmd = rt
 	return c
@@ -39,8 +58,8 @@ func (c *rootCommand) execute() {
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	command := newRootCommand()
+func Execute(cfg *config.AppConfig) {
+	command := newRootCommand(cfg)
 	command.execute()
 	//err := rootCmd.Execute()
 	//if err != nil {
@@ -49,13 +68,7 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.plumage.yaml)")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

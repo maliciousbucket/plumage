@@ -165,6 +165,7 @@ func SynthGateway(outputDir, ns string) error {
 	})
 
 	kubernetes.NewTraefikIngress(app, "traefik-chart", ns)
+	ProjectNamespace(app, ns)
 	app.Synth()
 	return nil
 }

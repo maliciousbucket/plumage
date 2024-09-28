@@ -49,6 +49,7 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 	}
 	appConfig.OutputDir = userConfig.OutputDir
 	appConfig.Namespace = userConfig.Namespace
+
 	fmt.Printf("Using output dir: %s\n", appConfig.UserConfig.OutputDir)
 	fmt.Printf("Using namespace : %s\n", appConfig.UserConfig.Namespace)
 	fmt.Printf("Using template file: %s\n", userConfig.TemplateConfig.TemplateFile)

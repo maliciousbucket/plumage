@@ -354,7 +354,8 @@ func traefikIngressAnnotations(ns string) map[string]*string {
 
 func traefikIngressLabels() map[string]*string {
 	labels := map[string]*string{
-		"app": jsii.String("traefik"),
+		"app.kubernetes.io/name": jsii.String("traefik"),
+		"app":                    jsii.String("traefik"),
 	}
 	return labels
 }

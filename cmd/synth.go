@@ -19,14 +19,13 @@ const (
 func synthCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "synth",
-		Short: "synth",
+		Short: "Synth Kubernetes manifests",
 		Run: func(cmd *cobra.Command, args []string) {
-
+			log.Println("use plumage synth <template/service/gateway>")
 		},
 	}
 	cmd.AddCommand(synthGatewayCmd(appCfg.OutputDir, appCfg.Namespace))
 	cmd.AddCommand(synthTemplateCommand("testdata/chirp/template.yaml", appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
-	cmd.AddCommand(synthDashboardRoutes(appCfg.OutputDir))
 	cmd.AddCommand(synthServiceCmd(appCfg.OutputDir, appCfg.Namespace))
 	return cmd
 
@@ -42,7 +41,7 @@ func synthProvidedCmd(cfg *config.AppConfig) *cobra.Command {
 func synthGatewayCmd(outputDir string, namespace string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gateway",
-		Short: "synth gateway manifests",
+		Short: "Synth gateway manifests",
 		Run: func(cmd *cobra.Command, args []string) {
 			out := fmt.Sprintf("%s/ingress/traefik", outputDir)
 
@@ -53,7 +52,6 @@ func synthGatewayCmd(outputDir string, namespace string) *cobra.Command {
 				Resolvers:               nil,
 				YamlOutputType:          cdk8s.YamlOutputType_FILE_PER_CHART,
 			})
-			fmt.Println(namespace)
 
 			kubernetes.NewTraefikIngress(app, "traefik-chart", namespace)
 
@@ -66,7 +64,7 @@ func synthGatewayCmd(outputDir string, namespace string) *cobra.Command {
 func synthTemplateCommand(file string, outputDir string, c *config.CollectorConfig) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "template",
-		Short: "synth template manifests",
+		Short: "Synth template manifests",
 		Run: func(cmd *cobra.Command, args []string) {
 			log.Println("synthesizing manifests from " + file)
 			m := c.ToStringMap()
@@ -75,24 +73,6 @@ func synthTemplateCommand(file string, outputDir string, c *config.CollectorConf
 				log.Fatal(err)
 
 			}
-		},
-	}
-	return cmd
-}
-
-func synthDashboardRoutes(outputDir string) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "dashboards",
-		Short: "synth infrastructure ingress route manifests",
-		Run: func(cmd *cobra.Command, args []string) {
-			out := fmt.Sprintf("%s/ingress/dashboards", outputDir)
-			app := cdk8s.NewApp(&cdk8s.AppProps{
-				Outdir:         jsii.String(out),
-				YamlOutputType: cdk8s.YamlOutputType_FILE_PER_CHART,
-			})
-
-			kubernetes.NewInfraDashboardRoutes(app, "dashboards-chart", "galah-testbed")
-			app.Synth()
 		},
 	}
 	return cmd

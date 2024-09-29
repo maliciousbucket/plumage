@@ -5,6 +5,7 @@ import (
 	"fmt"
 	helmc "github.com/mittwald/go-helm-client"
 	"github.com/mittwald/go-helm-client/values"
+	"log"
 	"os"
 )
 
@@ -32,7 +33,7 @@ func InstallArgo(ctx context.Context, clientCfg *ClientCfg, ns string, opts ...A
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Successfully installed helm chart %s in namespace %s\n", res.Name, res.Namespace)
+	log.Printf("Successfully installed helm chart %s in namespace %s\n", res.Name, res.Namespace)
 	return nil
 }
 

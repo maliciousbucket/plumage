@@ -45,18 +45,6 @@ func (c *helmClient) InstallArgo(ctx context.Context, argo *ArgoConfig, opts ...
 		RollBack: c.Client,
 	}
 
-	//chartSpec := &helmc.ChartSpec{
-	//	Namespace:       "argocd",
-	//	ChartName:       "https://github.com/argoproj/argo-helm/releases/download/argo-cd-7.5.2/argo-cd-7.5.2.tgz",
-	//	UpgradeCRDs:     false,
-	//	Wait:            true,
-	//	Version:         argoVersion,
-	//	DryRun:          true,
-	//	ReleaseName:     "argocd-helm",
-	//	CreateNamespace: true,
-	//	Force:           true,
-	//}
-
 	res, err := c.Client.InstallOrUpgradeChart(ctx, chartSpec, helmOpts)
 	if err != nil {
 		return nil, err

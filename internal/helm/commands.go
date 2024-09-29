@@ -124,69 +124,16 @@ func InstallChartCmd(appCfg *config.AppConfig) *cobra.Command {
 				return fmt.Errorf("must specify both a dir and file together")
 			}
 
-			local, _ := cmd.Flags().GetBool("local")
-
-			values, _ := cmd.Flags().GetString("values")
-			namespace, _ := cmd.Flags().GetString("namespace")
-			name, _ := cmd.Flags().GetString("name")
-			repository, _ := cmd.Flags().GetString("repository")
-			version, _ := cmd.Flags().GetString("version")
-			crds, _ := cmd.Flags().GetBool("crds")
-			replace, _ := cmd.Flags().GetBool("replace")
-			lint, _ := cmd.Flags().GetBool("lint")
-
-			skip := false
-			upgrade := false
-			if crds {
-				upgrade = true
-			} else {
-				skip = true
-			}
-
-			cfg := &ChartConfig{
-				Repository:  repository,
-				Namespace:   namespace,
-				Name:        name,
-				ReleaseName: name,
-				Version:     version,
-				Replace:     replace,
-				ValuesFiles: []string{
-					values,
-				},
-				Local:       local,
-				SkipCRDs:    upgrade,
-				UpgradeCRDs: skip,
-				Labels:      nil,
-				Lint:        lint,
-			}
-			chartsConf := &ChartsConfig{Charts: []*ChartConfig{cfg}}
-
-			err := InstallCRDChartsFromConfig(ctx, nil, chartsConf)
-			if err != nil {
-				log.Fatal(err)
-			}
-
 			return nil
 		},
 	}
 	cmd.Flags().BoolP("appConfig", "a", false, "Install charts from the AppConfig")
 	cmd.Flags().StringP("helmConfig", "h", "", "Specify a file with Helm Chart Configs")
 	cmd.Flags().StringP("dir", "d", "", "Specify a directory with Helm Configs")
-	cmd.Flags().BoolP("local", "l", false, "Use a local version of the Helm Chart")
-	cmd.Flags().StringP("values", "v", "", "Specify a values file for the chart")
-	cmd.Flags().StringP("namespace", "n", "", "Specify the namespace for Helm Chart")
-	cmd.Flags().StringP("name", "n", "", "Specify the release name of the Helm Chart")
-	cmd.Flags().StringP("repository", "r", "", "Specify the local file or repository to pull the helm chart from")
-	cmd.Flags().String("version", "", "Specify the version of the Helm Chart")
-	cmd.Flags().Bool("crds", false, "Install CRDs")
-	cmd.Flags().Bool("replace", false, "Replace existing Helm Chart with the latest version")
-	cmd.Flags().Bool("lint", false, "Lint the chart before installing")
 
 	cmd.MarkFlagsRequiredTogether("helmConfig", "dir")
 	cmd.MarkFlagsMutuallyExclusive("helmConfig", "appConfig")
-	_ = cmd.MarkFlagFilename("values", "values.yaml", "values.yml", ".yaml", ".yml")
+	_ = cmd.MarkPersistentFlagFilename("helmConfig", ".yaml", ".yml")
 	_ = cmd.MarkFlagDirname("dir")
-	cmd.MarkFlagsMutuallyExclusive("appConfig", "repository")
-	cmd.MarkFlagsRequiredTogether("name", "repository", "local", "version")
 	return cmd
 }

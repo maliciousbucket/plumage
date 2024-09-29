@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/joho/godotenv"
+	"github.com/maliciousbucket/plumage/internal/helm"
 	"gopkg.in/yaml.v3"
 	"log"
 	"os"
@@ -49,19 +50,16 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 	}
 	appConfig.OutputDir = userConfig.OutputDir
 	appConfig.Namespace = userConfig.Namespace
-
-	fmt.Printf("Using output dir: %s\n", appConfig.UserConfig.OutputDir)
-	fmt.Printf("Using namespace : %s\n", appConfig.UserConfig.Namespace)
-	fmt.Printf("Using template file: %s\n", userConfig.TemplateConfig.TemplateFile)
 	return appConfig, nil
 }
 
 type UserConfig struct {
-	OutputDir      string         `yaml:"outputDir"`
-	Namespace      string         `yaml:"namespace"`
-	ComposeConfig  ComposeConfig  `yaml:"compose"`
-	TemplateConfig TemplateConfig `yaml:"template"`
-	TraefikConfig  TraefikConfig  `yaml:"traefik"`
+	OutputDir      string             `yaml:"outputDir"`
+	Namespace      string             `yaml:"namespace"`
+	ComposeConfig  ComposeConfig      `yaml:"compose"`
+	TemplateConfig TemplateConfig     `yaml:"template"`
+	TraefikConfig  TraefikConfig      `yaml:"traefik"`
+	ChartConfig    *helm.ChartsConfig `yaml:"helm"`
 }
 
 func getDefaultUserConfig() UserConfig {
@@ -206,6 +204,7 @@ func findOrCreateConfigDir(projectName string, envFile string) (string, error) {
 	}
 	log.Println(dir)
 	if _, err = os.Stat(dir); os.IsNotExist(err) {
+		log.Printf("\nCreating config directory: %s\n", dir)
 		err = os.MkdirAll(dir, 0755)
 		if err != nil {
 			return "", err
@@ -213,10 +212,8 @@ func findOrCreateConfigDir(projectName string, envFile string) (string, error) {
 		return dir, nil
 	}
 	if dir != "" {
-		log.Println("It exists..")
 		return dir, nil
 	}
 
-	fmt.Printf("Creating config directory: %s\n", dir)
 	return dir, nil
 }

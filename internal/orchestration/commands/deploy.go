@@ -45,7 +45,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			gateway, _ := cmd.Flags().GetBool("gateway")
 			monitoring, _ := cmd.Flags().GetBool("monitoring")
 			ctx := context.Background()
-			if err := kubernetesClient.WatchDeployment(ctx, "argocd", "argocd-helm-server", false); err != nil {
+			if err := kubernetesClient.WatchDeployment(ctx, "argocd", "argo-helm-argocd-server", false); err != nil {
 				log.Fatal(fmt.Errorf("failed to watch argocd deployment: %w", err))
 			}
 
@@ -197,14 +197,12 @@ func handleMonitoring(ctx context.Context) error {
 	}
 
 	resources := map[string]string{
-		"alloy": "galah-monitoring",
-		//"nginx":    "gateway",
+		"alloy":    "galah-monitoring",
 		"tempo":    "galah-tracing",
 		"loki":     "galah-logging",
 		"mimir":    "galah-monitoring",
 		"grafana":  "galah-monitoring",
 		"operator": "minio-store",
-		"minio":    "minio-store",
 	}
 	time.Sleep(10 * time.Second)
 	var watchErr error
@@ -264,6 +262,7 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 
 			if synth {
 				if err := kplus.SynthGateway(outDir, ns); err != nil {
+					fmt.Println("hmm")
 					log.Fatal(err)
 				}
 			}
@@ -271,14 +270,17 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 			ctx := context.Background()
 
 			_, err := kubernetesClient.CreateNamespace(ctx, ns)
+			if err != nil {
+				log.Fatal("Error creating namespace", err)
+			}
 
 			ghCfg, err := config.NewGithubConfig(configDir, "github.yaml")
 			if err != nil {
-				log.Fatal(err)
+				log.Fatal("creating GitHub Config", err)
 			}
 
 			if err = argoClient.AddRepoCredentials(ctx); err != nil {
-				log.Fatal(err)
+				log.Fatal("Adding Repo Credentials", err)
 			}
 			if synth {
 				res, err := orchestration.CommitAndPushGateway(ctx, ghCfg, outDir)
@@ -295,6 +297,7 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 			if err = handleGateway(ctx, ns); err != nil {
 				log.Fatal(err)
 			}
+			log.Println("Gateway has been deployed")
 		},
 	}
 	cmd.Flags().BoolP("synth", "s", false, "synth gateway manifests")

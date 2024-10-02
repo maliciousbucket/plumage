@@ -371,6 +371,9 @@ func traefikIngressArgs() []*string {
 		jsii.String("--entryPoints.traefik.Address=:8080"),
 		jsii.String("--providers.kubernetescrd.namespaces=default,galah-testbed,galah-monitoring,argocd"),
 		jsii.String("--providers.kubernetescrd.allowCrossNamespace=true"),
+		jsii.String("--api.insecure=true"),
+		jsii.String("--metrics.prometheus=true"),
+		jsii.String("--metrics.prometheus.addEntryPointsLabels=true"),
 		//jsii.String("allowEmptyServices: true"),
 	}
 	return args

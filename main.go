@@ -1,31 +1,24 @@
 package main
 
 import (
-	"github.com/aws/constructs-go/constructs/v10"
-	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	"github.com/maliciousbucket/plumage/cmd"
+	"github.com/maliciousbucket/plumage/pkg/config"
+)
+
+var (
+	Cfg *config.AppConfig
 )
 
 type MyChartProps struct {
 	cdk8s.ChartProps
 }
 
-func NewMyChart(scope constructs.Construct, id string, props *MyChartProps) cdk8s.Chart {
-	var cprops cdk8s.ChartProps
-	if props != nil {
-		cprops = props.ChartProps
-	}
-	chart := cdk8s.NewChart(scope, jsii.String(id), &cprops)
-
-	// define resources here
-
-	return chart
-}
-
 func main() {
-	app := cdk8s.NewApp(nil)
-	NewMyChart(app, "plumage", nil)
-	app.Synth()
-	cmd.Execute()
+	appConfig, err := config.NewAppConfig("./config/compose", "galah-testbed", "", "")
+	if err != nil {
+		panic(err)
+	}
+	Cfg = appConfig
+	cmd.Execute(Cfg)
 }

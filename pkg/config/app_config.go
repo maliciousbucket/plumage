@@ -29,7 +29,6 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(userConfig)
 	monitoringConfig, err := NewMonitoringConfig(configDir, monitoringEnv)
 	if err != nil {
 		return nil, err
@@ -54,12 +53,12 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 }
 
 type UserConfig struct {
-	OutputDir      string             `yaml:"outputDir"`
-	Namespace      string             `yaml:"namespace"`
-	ComposeConfig  ComposeConfig      `yaml:"compose"`
-	TemplateConfig TemplateConfig     `yaml:"template"`
-	TraefikConfig  TraefikConfig      `yaml:"traefik"`
-	ChartConfig    *helm.ChartsConfig `yaml:"helm"`
+	OutputDir      string         `yaml:"outputDir"`
+	Namespace      string         `yaml:"namespace"`
+	ComposeConfig  ComposeConfig  `yaml:"compose"`
+	TemplateConfig TemplateConfig `yaml:"template"`
+	TraefikConfig  TraefikConfig  `yaml:"traefik"`
+	ChartConfig    ChartConfig    `yaml:"charts"`
 }
 
 func getDefaultUserConfig() UserConfig {
@@ -85,6 +84,15 @@ func getDefaultUserConfig() UserConfig {
 			ResilienceTemplateFiles: []string{},
 		},
 		TraefikConfig: getDefaultTraefikConfig(),
+		ChartConfig: ChartConfig{
+			ArgoVersion:             "argo-cd-7.6.1",
+			ArgoValuesFile:          "",
+			KubeStateMetricsVersion: "5.25.1",
+			MetricsVersion:          "3.12.1",
+			PromOperatorVersion:     "14.0.0",
+			CertManagerVersion:      "v1.15.3",
+			Charts:                  nil,
+		},
 	}
 }
 
@@ -179,6 +187,27 @@ type Port struct {
 type AlloyConfig struct {
 }
 
+type ChartConfig struct {
+	ArgoVersion             string             `yaml:"argoVersion,omitempty"`
+	ArgoValuesFile          string             `yaml:"argoValuesFile,omitempty"`
+	KubeStateMetricsVersion string             `yaml:"stateMetricsVersion,omitempty"`
+	MetricsVersion          string             `yaml:"metricsVersion,omitempty"`
+	PromOperatorVersion     string             `yaml:"promOperatorVersion,omitempty"`
+	CertManagerVersion      string             `yaml:"certManagerVersion,omitempty"`
+	Charts                  *helm.ChartsConfig `yaml:"charts,omitempty"`
+}
+
+func (c *ChartConfig) ToBaseOpts() *helm.BaseChartOpts {
+	return &helm.BaseChartOpts{
+		KubeStateMetrics: c.KubeStateMetricsVersion,
+		CertManager:      c.CertManagerVersion,
+		MetricsServer:    c.MetricsVersion,
+		PromOperatorCRDs: c.PromOperatorVersion,
+		ArgoCD:           c.ArgoVersion,
+		ArgoValues:       c.ArgoValuesFile,
+	}
+}
+
 func configDir(envfile string) (string, error) {
 	err := godotenv.Load(envfile)
 	if err != nil {
@@ -202,7 +231,6 @@ func findOrCreateConfigDir(projectName string, envFile string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Println(dir)
 	if _, err = os.Stat(dir); os.IsNotExist(err) {
 		log.Printf("\nCreating config directory: %s\n", dir)
 		err = os.MkdirAll(dir, 0755)

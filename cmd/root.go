@@ -31,7 +31,6 @@ func newRootCommand(cfg *config.AppConfig) *rootCommand {
 
 	rt.AddCommand(testComand(cfg))
 	rt.AddCommand(configCmd(cfg))
-	rt.AddCommand(loadCmd())
 	rt.AddCommand(synthCommand())
 	rt.AddCommand(deployCmd(cfg))
 	rt.AddCommand(orchestrationCmds.CommitPushCmd(cfg.ConfigDir, "github.yaml", cfg))
@@ -44,6 +43,8 @@ func newRootCommand(cfg *config.AppConfig) *rootCommand {
 	rt.AddCommand(orchestrationCmds.SetArgoTokenCmd())
 	rt.AddCommand(orchestrationCmds.WatchCmd(cfg.UserConfig.TemplateConfig.TemplateFile))
 	rt.AddCommand(orchestrationCmds.ExposeCmd())
+
+	rt.AddCommand(orchestrationCmds.ChartsCmd(&cfg.UserConfig.ChartConfig))
 
 	c.cmd = rt
 	return c
@@ -60,10 +61,7 @@ func (c *rootCommand) execute() {
 func Execute(cfg *config.AppConfig) {
 	command := newRootCommand(cfg)
 	command.execute()
-	//err := rootCmd.Execute()
-	//if err != nil {
-	//	os.Exit(1)
-	//}
+
 }
 
 func init() {

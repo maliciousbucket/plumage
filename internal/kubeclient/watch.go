@@ -62,7 +62,7 @@ func (k *k8sClient) WatchAppDeployment(ctx context.Context, ns string, services 
 				errChan <- fmt.Errorf("context cancelled while watching service %s", service)
 				return
 			default:
-				err := k.WaitAppPods(ctx, ns, service, time.Duration(2*time.Minute))
+				err := k.WaitAppPods(ctx, ns, service, 1, time.Duration(2*time.Minute))
 				if err != nil {
 					errChan <- err
 				} else {
@@ -239,6 +239,14 @@ func (k *k8sClient) createPodLabelWatcher(ctx context.Context, ns, name string) 
 	return k.kubeClient.CoreV1().Pods(ns).Watch(ctx, opts)
 }
 
+func (k *k8sClient) createPodFieldWatcher(ctx context.Context, ns, name string) (watch.Interface, error) {
+	fieldSelector := fmt.Sprintf("metadata.name=%s", name)
+	opts := metav1.ListOptions{
+		FieldSelector: fieldSelector,
+	}
+	return k.kubeClient.CoreV1().Pods(ns).Watch(ctx, opts)
+}
+
 func (k *k8sClient) waitPodRunning(ctx context.Context, watcher watch.Interface) error {
 
 	defer watcher.Stop()
@@ -281,110 +289,99 @@ func (k *k8sClient) waitPodRunning(ctx context.Context, watcher watch.Interface)
 	}
 }
 
-func (k *k8sClient) WaitAppPods(ctx context.Context, ns, name string, timeout time.Duration) error {
-	return k.waitAppPods(ctx, ns, name, timeout)
+func (k *k8sClient) WaitAppPods(ctx context.Context, ns, name string, expected int, timeout time.Duration) error {
+	return k.waitAppPods(ctx, ns, name, expected, timeout)
 }
 
-func (k *k8sClient) waitAppPods(ctx context.Context, ns, name string, timeout time.Duration) error {
+func (k *k8sClient) waitAppPods(ctx context.Context, ns, name string, expected int, timeout time.Duration) error {
+	tctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	//fieldSelector := fmt.Sprintf("metadata.name=%s", name)
 	labelSelector, err := labels.ValidatedSelectorFromSet(map[string]string{"app.kubernetes.io/name": name})
 	if err != nil {
 		return fmt.Errorf("failed to parse label selector: %v", err)
 	}
 
-	pods, err := k.kubeClient.CoreV1().Pods(ns).List(ctx, metav1.ListOptions{
-		TypeMeta:      metav1.TypeMeta{},
+	pods, err := k.kubeClient.CoreV1().Pods(ns).List(tctx, metav1.ListOptions{
 		LabelSelector: labelSelector.String(),
 	})
-	if err != nil {
-		return fmt.Errorf("failed to list pods for %s/%s: %v", ns, name, err)
-	}
-	if len(pods.Items) == 0 {
-		return fmt.Errorf("no pods found for %s/%s", ns, name)
-	}
-	expectedPods := len(pods.Items)
-	fmt.Printf("Expected pods: %d\n", expectedPods)
-	for _, pod := range pods.Items {
-		fmt.Printf("Pod: %s\n", pod.Name)
-	}
 
-	watcher, err := k.createPodLabelWatcher(ctx, ns, name)
 	if err != nil {
 		return err
 	}
-	var watchErr error
-	errChan := make(chan error)
-	statusChan := make(chan int)
-	runningPods := make(map[string]bool)
-	defer watcher.Stop()
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				errChan <- ctx.Err()
-				return
-			case event := <-watcher.ResultChan():
-				pod, ok := event.Object.(*v2.Pod)
-				if !ok {
-					errChan <- fmt.Errorf("unexpected type: %v", event.Object)
-					return
-				}
-				if pod.Status.Phase == v2.PodRunning && !runningPods[pod.Name] {
-					runningPods[pod.Name] = true
-					statusChan <- len(runningPods)
-				}
 
-				if pod.Status.Phase == v2.PodFailed {
-					errChan <- fmt.Errorf("pod %s failed", pod.Name)
-					return
-				}
-
-				if pod.Status.Phase == v2.PodSucceeded && !runningPods[pod.Name] {
-					runningPods[pod.Name] = true
-					statusChan <- len(runningPods)
-				}
-				if pod.Status.Phase == v2.PodUnknown {
-
-				}
-			}
+	if len(pods.Items) == 0 {
+		nameSelector, err := labels.ValidatedSelectorFromSet(map[string]string{"app": name})
+		if err != nil {
+			return fmt.Errorf("failed to parse label selector: %v", err)
 		}
-	}()
-	go func() {
-		podList, podErr := k.kubeClient.CoreV1().Pods(ns).List(ctx, metav1.ListOptions{
-			LabelSelector: labelSelector.String(),
+		namePods, err := k.kubeClient.CoreV1().Pods(ns).List(tctx, metav1.ListOptions{
+			LabelSelector: nameSelector.String(),
 		})
-		if podErr != nil {
-			errChan <- podErr
+		if err != nil {
+			return err
 		}
-		for _, pod := range podList.Items {
-			if pod.Status.Phase == v2.PodRunning && !runningPods[pod.Name] {
-				runningPods[pod.Name] = true
-			}
+		if len(namePods.Items) == 0 {
+			return fmt.Errorf("no pods found for %s/%s\n", ns, name)
 		}
-		statusChan <- len(runningPods)
-	}()
+		pods = namePods
 
-	for len(runningPods) < expectedPods {
+	}
+
+	podsRunning := 0
+	for _, pod := range pods.Items {
+		if pod.Status.Phase == v2.PodRunning {
+			podsRunning++
+		}
+	}
+	if podsRunning == expected {
+		return nil
+	}
+	if podsRunning <= 0 {
+		return nil
+	}
+
+	newExpected := 0
+	for _, pod := range pods.Items {
+		if pod.Status.Phase == v2.PodPending || pod.Status.Phase == v2.PodUnknown {
+			newExpected++
+		}
+	}
+
+	watcher, err := k.createPodInstanceWatcher(tctx, ns, name)
+	if err != nil {
+		return err
+	}
+	defer watcher.Stop()
+	for event := range watcher.ResultChan() {
+		pod, ok := event.Object.(*v2.Pod)
+		if !ok {
+			return fmt.Errorf("unexpected type: %v", event.Object)
+		}
+		switch pod.Status.Phase {
+		case v2.PodRunning, v2.PodSucceeded:
+			podsRunning++
+		case v2.PodFailed:
+			return fmt.Errorf("pod %s failed", pod.Name)
+		case v2.PodPending, v2.PodUnknown:
+			log.Printf("pod %s is pending or in unknown state\n", pod.Name)
+		}
+		if podsRunning >= expected {
+			return nil
+		}
+		if podsRunning >= newExpected {
+			return nil
+		}
 		select {
-		case podsRunning := <-statusChan:
-			if podsRunning == expectedPods {
-				log.Printf("all pods (%d) for %s/%s are running", podsRunning, ns, name)
-				return nil
-			} else {
-				log.Printf("waiting for all pods for %s%s to be running. %d/%d", ns, name, podsRunning, expectedPods)
-			}
-		case podErr := <-errChan:
-			if podErr != nil {
-				watchErr = errors.Join(watchErr, podErr)
-			}
-		case <-time.After(timeout):
-			return fmt.Errorf("timed out waiting for pods for %s/%s to be running", ns, name)
-		case <-ctx.Done():
-			log.Println("Exiting from wait deployment pods because context stopped")
-			return ctx.Err()
+		case <-tctx.Done():
+			return fmt.Errorf("timed out waiting for pod %s to be running: %v", pod.Name, tctx.Err())
+		default:
 		}
 
 	}
-	return watchErr
+
+	log.Printf("Waiting for %d/%d pods running\n", expected-podsRunning, len(pods.Items))
+	return fmt.Errorf("timedout waiting for %d pods running", expected-podsRunning)
 
 }
 

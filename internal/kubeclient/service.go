@@ -143,12 +143,41 @@ func (k *k8sClient) exposeService(ctx context.Context, ns string, name string, p
 			return fmt.Errorf("service %s/%s not found", ns, name)
 		}
 
-		service.Spec.Type = v1.ServiceTypeNodePort
-		exposedPort := v1.ServicePort{Port: int32(port), NodePort: int32(nodePort)}
-		disruptorPort := v1.ServicePort{Port: int32(8000), TargetPort: intstr.FromInt32(int32(port)), Name: "disruptor"}
+		foundNodePort := false
+		for i, p := range service.Spec.Ports {
+			if p.Port == int32(port) {
+				service.Spec.Ports[i].NodePort = int32(nodePort)
+				service.Spec.Ports[i].Name = "nodeport"
+				foundNodePort = true
+				break
+			}
+		}
+		if !foundNodePort {
+			exposedPort := v1.ServicePort{
+				NodePort: int32(nodePort),
+				Name:     "nodeport",
+				Port:     int32(port),
+				Protocol: v1.ProtocolTCP,
+			}
+			service.Spec.Ports = append(service.Spec.Ports, exposedPort)
+		}
 
-		service.Spec.Ports = append(service.Spec.Ports, exposedPort)
-		service.Spec.Ports = append(service.Spec.Ports, disruptorPort)
+		foundDisruptorPort := false
+		for _, p := range service.Spec.Ports {
+			if p.Port == 8000 {
+				foundDisruptorPort = true
+				break
+			}
+		}
+		if !foundDisruptorPort {
+			disruptorPort := v1.ServicePort{
+				Port:       int32(8000),
+				TargetPort: intstr.FromInt32(int32(port)),
+				Name:       "disruptor",
+				Protocol:   v1.ProtocolTCP,
+			}
+			service.Spec.Ports = append(service.Spec.Ports, disruptorPort)
+		}
 
 		_, updateErr := serviceClient.Update(ctx, service, metav1.UpdateOptions{})
 		return updateErr

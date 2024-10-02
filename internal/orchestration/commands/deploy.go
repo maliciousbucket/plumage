@@ -49,7 +49,12 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 				log.Fatal(fmt.Errorf("failed to watch argocd deployment: %w", err))
 			}
 
-			if err := argoClient.AddRepoCredentials(ctx); err != nil {
+			_, err := kubernetesClient.CreateNamespace(ctx, cfg.Namespace)
+			if err != nil {
+				log.Fatal(fmt.Errorf("failed to create namespace: %w", err))
+			}
+
+			if err = argoClient.AddRepoCredentials(ctx); err != nil {
 				log.Fatal(err)
 			}
 			if cfg == nil {
@@ -64,7 +69,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			}
 			m := cfg.MonitoringConfig.Collectors.ToStringMap()
 
-			if err := synthAll(templateFile, cfg.OutputDir, m); err != nil {
+			if err = synthAll(templateFile, cfg.OutputDir, m); err != nil {
 				log.Fatal(err)
 			}
 
@@ -264,6 +269,8 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 			}
 
 			ctx := context.Background()
+
+			_, err := kubernetesClient.CreateNamespace(ctx, ns)
 
 			ghCfg, err := config.NewGithubConfig(configDir, "github.yaml")
 			if err != nil {

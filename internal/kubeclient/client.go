@@ -21,7 +21,7 @@ type Client interface {
 	WaitAllArgoPods(ctx context.Context, ns string) error
 	PatchArgoToLB(ctx context.Context, ns string) error
 	WaitServicePods(ctx context.Context, ns string, name string) error
-	WaitAppPods(ctx context.Context, ns, name string, timeout time.Duration) error
+	WaitAppPods(ctx context.Context, ns, name string, expected int, timeout time.Duration) error
 
 	GetServiceAddress(ctx context.Context, ns string, name string) (string, error)
 	CreateGalahArgoAccount(ctx context.Context, ns string) error

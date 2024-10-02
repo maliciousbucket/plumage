@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	helmc "github.com/mittwald/go-helm-client"
+	"github.com/mittwald/go-helm-client/values"
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/repo"
 	"log"
@@ -220,6 +221,21 @@ func (chart *ChartConfig) chartSpec(client *helmClient, opts ...chartOpts) (*hel
 		}
 	}
 
+	generateNamespace := false
+	if chart.Namespace == "" {
+		generateNamespace = true
+	}
+
+	valuesOpts := values.Options{}
+
+	if chart.valuesString != nil && len(chart.valuesString) > 0 {
+		valuesOpts.Values = chart.valuesString
+	}
+
+	if chart.ValuesFiles != nil && len(chart.ValuesFiles) > 0 {
+		valuesOpts.ValueFiles = chart.ValuesFiles
+	}
+
 	spec := &helmc.ChartSpec{
 		ChartName:       chart.Name,
 		ReleaseName:     chart.ReleaseName,
@@ -229,6 +245,8 @@ func (chart *ChartConfig) chartSpec(client *helmClient, opts ...chartOpts) (*hel
 		CleanupOnFail:   true,
 		Labels:          chart.Labels,
 		CreateNamespace: true,
+		GenerateName:    generateNamespace,
+		ValuesOptions:   valuesOpts,
 	}
 
 	if chart.Lint {
@@ -243,6 +261,7 @@ type chartOpts func(chart *ChartConfig) error
 
 func withValuesFiles(files []string) chartOpts {
 	return func(chart *ChartConfig) error {
+		result := []string{}
 		for _, file := range files {
 			if file == "" {
 				continue
@@ -254,8 +273,9 @@ func withValuesFiles(files []string) chartOpts {
 			if info.IsDir() {
 				return fmt.Errorf("values file %s is a directory", file)
 			}
+			result = append(result, file)
 		}
-		chart.ValuesFiles = files
+		chart.ValuesFiles = result
 		return nil
 	}
 }
@@ -287,7 +307,7 @@ func fromRemote(repository string) chartOpts {
 			return fmt.Errorf("failed to parse repository %s: %w", repository, err)
 		}
 
-		if strings.HasSuffix(remote.Path, ".gz") {
+		if strings.HasSuffix(remote.Path, "gz") || strings.HasSuffix(remote.Path, "yaml") || strings.HasSuffix(remote.Path, "yml") {
 			chart.remoteFile = true
 		}
 
@@ -300,9 +320,10 @@ func fromRemote(repository string) chartOpts {
 
 func fromRemoteFile() chartOpts {
 	return func(chart *ChartConfig) error {
-		if !strings.HasSuffix(chart.Repository, "gz") {
-			return fmt.Errorf("repository %s does not contain a .gz file", chart.Repository)
+		if !strings.HasSuffix(chart.Repository, "gz") && !strings.HasSuffix(chart.Repository, ".yaml") && !strings.HasSuffix(chart.Repository, ".yml") {
+			return fmt.Errorf("repository %s does not contain a .gz, .yaml, or .yml file", chart.Repository)
 		}
+
 		chart.Name = chart.Repository
 		return nil
 	}
@@ -310,7 +331,7 @@ func fromRemoteFile() chartOpts {
 
 func fromRemoteRepository(c *helmClient) chartOpts {
 	return func(chart *ChartConfig) error {
-		err := c.addChartRepo(chart.ReleaseName, chart.Repository)
+		err := c.addChartRepo(chart.Name, chart.Repository)
 		if err != nil {
 			return err
 		}
@@ -335,13 +356,48 @@ func withValues(values map[string]interface{}) chartOpts {
 	return func(chart *ChartConfig) error {
 		result := []string{}
 
+		var formatValues func(prefix string, v interface{}) error
+		formatValues = func(prefix string, v interface{}) error {
+			switch val := v.(type) {
+			case map[string]interface{}:
+				for nestedKey, nestedValue := range val {
+					err := formatValues(prefix+"."+nestedKey, nestedValue)
+					if err != nil {
+						return err
+					}
+				}
+			case []interface{}:
+				for i, elem := range val {
+					err := formatValues(fmt.Sprintf("%s[%d]", prefix, i), elem)
+					if err != nil {
+						return err
+					}
+				}
+			case []map[string]interface{}:
+				for i, elem := range val {
+					for nestedKey, nestedValue := range elem {
+						err := formatValues(fmt.Sprintf("%s[%d].%s", prefix, i, nestedKey), nestedValue)
+						if err != nil {
+							return err
+						}
+					}
+				}
+			default:
+				b := new(bytes.Buffer)
+				_, err := fmt.Fprintf(b, "%s=%v", prefix, val)
+				if err != nil {
+					return err
+				}
+				result = append(result, b.String())
+			}
+			return nil
+		}
+
 		for k, v := range values {
-			b := new(bytes.Buffer)
-			_, err := fmt.Fprintf(b, "%s=%v", k, v)
+			err := formatValues(k, v)
 			if err != nil {
 				return err
 			}
-			result = append(result, b.String())
 		}
 		chart.valuesString = result
 		return nil

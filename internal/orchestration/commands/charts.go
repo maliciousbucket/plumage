@@ -10,7 +10,7 @@ import (
 func ChartsCmd(cfg *config.ChartConfig) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "charts",
-		Short: "Mange Helm Charts",
+		Short: "Manage Helm Charts",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return newHelmClient()
 		},
@@ -116,8 +116,6 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 
 	cmd.MarkFlagsMutuallyExclusive("argo", "prom-operator-crds", "cert-manager", "kube-state-metrics", "kube-metrics-server")
 	_ = cmd.MarkFlagFilename("argo-values-file", "yaml", "yml")
-
-	_ = cmd.MarkFlagRequired("version")
 
 	return cmd
 }

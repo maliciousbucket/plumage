@@ -98,6 +98,8 @@ func (c *helmClient) installKubeMetricsServer(ctx context.Context, version strin
 		Lint:        false,
 	}
 
+	c.setNamespace(config.Namespace)
+
 	if err := c.installChart(ctx, config); err != nil {
 		return err
 	}
@@ -120,6 +122,7 @@ func (c *helmClient) installCertManager(ctx context.Context, version string, rep
 		Labels:      nil,
 		Lint:        false,
 	}
+	c.setNamespace(config.Namespace)
 
 	if err := c.installChart(ctx, config); err != nil {
 		return err
@@ -143,6 +146,8 @@ func (c *helmClient) installKubeStateMetrics(ctx context.Context, version string
 		Lint:        false,
 	}
 
+	c.setNamespace(config.Namespace)
+
 	if err := c.installChart(ctx, config); err != nil {
 		return err
 	}
@@ -153,7 +158,7 @@ func (c *helmClient) installKubeStateMetrics(ctx context.Context, version string
 func (c *helmClient) installPromOperatorCrds(ctx context.Context, version string, replace bool) error {
 	config := &ChartConfig{
 		Repository:  "https://prometheus-community.github.io/helm-charts",
-		Namespace:   "",
+		Namespace:   "default",
 		Name:        "prometheus-community",
 		ReleaseName: "prometheus-operator-crds",
 		Version:     version,
@@ -166,6 +171,8 @@ func (c *helmClient) installPromOperatorCrds(ctx context.Context, version string
 		Lint:        false,
 	}
 
+	c.setNamespace(config.Namespace)
+
 	if err := c.installChart(ctx, config); err != nil {
 		return err
 	}
@@ -176,12 +183,17 @@ func (c *helmClient) installPromOperatorCrds(ctx context.Context, version string
 func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string, replace bool) error {
 	valuesFiles := []string{valuesFile}
 	values := map[string]interface{}{
-		"ingress": map[string]string{
-			"enabled": "true",
+		"server": map[string]interface{}{
+			"ingress": map[string]interface{}{
+				"enabled": true,
+			},
+			"service": map[string]interface{}{
+				"type": "NodePort",
+			},
 		},
 	}
 
-	path := fmt.Sprintf("https://github.com/argoproj/argo-helm/releases/download/%s/%s,tgz", version, version)
+	path := fmt.Sprintf("https://github.com/argoproj/argo-helm/releases/download/%s/%s.tgz", version, version)
 
 	config := &ChartConfig{
 		Repository:  path,

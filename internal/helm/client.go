@@ -122,3 +122,7 @@ func getKubeConfig(configPath string) ([]byte, error) {
 
 	return config, err
 }
+
+func (c *helmClient) setNamespace(namespace string) {
+	c.Client.GetSettings().SetNamespace(namespace)
+}

@@ -95,7 +95,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 
 			}
 
-			if err = argoClient.CreateServiceApplications(ctx, appName, services); err != nil {
+			if err = argoClient.CreateApplicationProject(ctx, appName); err != nil {
 				log.Fatal(err)
 			}
 
@@ -192,42 +192,52 @@ func handleMonitoring(ctx context.Context) error {
 	}
 
 	resources := map[string]string{
-		"alloy":          "galah-monitoring",
-		"nginx":          "gateway",
-		"tempo":          "galah-tracing",
-		"loki":           "galah-logging",
-		"mimir":          "galah-monitoring",
-		"grafana":        "galah-monitoring",
-		"minio-operator": "minio-store",
-		"minio-tenant":   "minio-store",
+		"alloy": "galah-monitoring",
+		//"nginx":    "gateway",
+		"tempo":    "galah-tracing",
+		"loki":     "galah-logging",
+		"mimir":    "galah-monitoring",
+		"grafana":  "galah-monitoring",
+		"operator": "minio-store",
+		"minio":    "minio-store",
 	}
+	time.Sleep(10 * time.Second)
 	var watchErr error
-	errChan := make(chan error)
+	errChan := make(chan error, len(resources)+1)
 	var wg sync.WaitGroup
 	for res, namespace := range resources {
 		wg.Add(1)
-		go func() {
+		go func(res, namespace string) {
 			defer wg.Done()
-			defer close(errChan)
-			errChan <- watchInfrastructure(ctx, kubernetesClient, namespace, res)
-		}()
+			err := watchInfrastructure(ctx, kubernetesClient, namespace, res)
+			errChan <- err
+		}(res, namespace)
 	}
-	wg.Wait()
 
-	i := 0
-	for i < len(resources) {
+	go func() {
+		wg.Wait()
+		close(errChan)
+	}()
+
+	for {
 		select {
-		case err := <-errChan:
-			if err != nil {
-				watchErr = errors.Join(watchErr, err)
+		case err, ok := <-errChan:
+			if ok {
+				if err != nil {
+					watchErr = errors.Join(watchErr, err)
+				}
+			} else {
+				return watchErr
 			}
+		case <-time.After(time.Second * 30):
+			ctx.Done()
+			wg.Done()
+			return watchErr
 		case <-ctx.Done():
 			watchErr = errors.Join(watchErr, ctx.Err())
 			return watchErr
 		}
 	}
-
-	return watchErr
 
 }
 
@@ -304,7 +314,7 @@ func handleGateway(ctx context.Context, ns string) error {
 			return err
 		}
 	}
-	time.Sleep(5 * time.Second)
+	time.Sleep(10 * time.Second)
 	errChan := make(chan error)
 	go func() {
 
@@ -335,7 +345,7 @@ func deployAndWaitForApp(ctx context.Context, ns, app string, services []string)
 }
 
 func watchInfrastructure(ctx context.Context, client kubeclient.Client, ns, name string) error {
-	if err := client.WaitAppPods(ctx, ns, name, 2*time.Minute); err != nil {
+	if err := client.WaitAppPods(ctx, ns, name, 1, 2*time.Minute); err != nil {
 		return err
 	}
 	return nil

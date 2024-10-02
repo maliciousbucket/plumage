@@ -10,9 +10,15 @@ import (
 
 type Client interface {
 	InstallArgo(ctx context.Context, argo *ArgoConfig, opts ...ArgoOpts) (*release.Release, error)
+	InstallBaseCharts(ctx context.Context, opts *BaseChartOpts, replace bool) error
+	InstallArgoChart(ctx context.Context, version, valuesFile string) error
+	InstallKubeMetricsServerChart(ctx context.Context, version string, replace bool) error
+	InstallCertManagerChart(ctx context.Context, version string, replace bool) error
+	InstallPromOperatorCRDs(ctx context.Context, version string, replace bool) error
+	InstallKubeStateMetricsServerChart(ctx context.Context, version string, replace bool) error
 }
 
-func New(cfg *ClientCfg) (Client, error) {
+func NewClient(cfg *ClientCfg) (Client, error) {
 	return newClient(cfg)
 }
 

@@ -240,7 +240,8 @@ func ExposeCmd() *cobra.Command {
 			if args[1] == "" {
 				return fmt.Errorf("namespace must be specified")
 			}
-
+			fmt.Println(port)
+			fmt.Println(nodePort)
 			ctx := context.Background()
 			if err := kubernetesClient.ExposeService(ctx, args[1], args[0], port, nodePort); err != nil {
 				log.Fatal(err)

@@ -24,7 +24,7 @@ type ArgoConfig struct {
 func InstallArgo(ctx context.Context, clientCfg *ClientCfg, ns string, opts ...ArgoOpts) error {
 	argo := defaultArgoConfig(ns)
 
-	client, err := New(clientCfg)
+	client, err := NewClient(clientCfg)
 	if err != nil {
 		return err
 	}

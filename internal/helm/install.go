@@ -222,6 +222,9 @@ type chartOpts func(chart *ChartConfig) error
 func withValuesFiles(files []string) chartOpts {
 	return func(chart *ChartConfig) error {
 		for _, file := range files {
+			if file == "" {
+				continue
+			}
 			info, err := os.Stat(file)
 			if err != nil {
 				return fmt.Errorf("failed to stat values file %s: %w", file, err)

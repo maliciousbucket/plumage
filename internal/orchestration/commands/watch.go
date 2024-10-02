@@ -65,7 +65,7 @@ func WatchCmd(template string) *cobra.Command {
 			}
 			if allPods {
 
-				if err := kubernetesClient.WaitAppPods(ctx, ns, name, watchDuration); err != nil {
+				if err := kubernetesClient.WaitAppPods(ctx, ns, name, 1, watchDuration); err != nil {
 					log.Fatalf("failed to watch all pods %s/%s: %v", ns, name, err)
 				}
 			}

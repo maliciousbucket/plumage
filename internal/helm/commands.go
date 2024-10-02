@@ -3,7 +3,6 @@ package helm
 import (
 	"context"
 	"fmt"
-	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
@@ -81,7 +80,7 @@ func installArgo(ns, file, ver, chart, remote string) error {
 	return nil
 }
 
-func InstallChartCmd(appCfg *config.AppConfig) *cobra.Command {
+func InstallChartCmd(cfg *ChartsConfig, configDir string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "install-chart",
 		Short: "Install Helm Charts",
@@ -93,14 +92,14 @@ func InstallChartCmd(appCfg *config.AppConfig) *cobra.Command {
 			ctx := context.Background()
 			appConfig, _ := cmd.Flags().GetBool("appConfig")
 			if appConfig {
-				if appCfg.UserConfig != nil && appCfg.UserConfig.ChartConfig != nil {
-					err := InstallCRDChartsFromConfig(ctx, nil, appCfg.UserConfig.ChartConfig)
+				if cfg != nil {
+					err := InstallCRDChartsFromConfig(ctx, nil, cfg)
 					if err != nil {
 						log.Fatal(err)
 					}
 					return nil
 				}
-				path := filepath.Join(appCfg.ConfigDir, "helm.yaml")
+				path := filepath.Join(configDir, "helm.yaml")
 				configFile, err := os.Stat(path)
 				if err != nil {
 					return err

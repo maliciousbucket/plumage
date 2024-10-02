@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -15,6 +16,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"sync"
 	"syscall"
@@ -56,8 +58,10 @@ func SetArgoTokenCmd() *cobra.Command {
 		Use:   "set-argo-token",
 		Short: "set argo token",
 		Run: func(cmd *cobra.Command, args []string) {
-
-			setArgoToken()
+			err := GetHttpToken()
+			if err != nil {
+				log.Fatal(err)
+			}
 		},
 	}
 	return cmd
@@ -162,10 +166,7 @@ func GetHttpToken() error {
 		log.Fatal(err)
 	}
 	ctx := context.Background()
-	err = k8sClient.PatchArgoToLB(ctx, "argocd")
-	if err != nil {
-		log.Fatal(err)
-	}
+
 	err = k8sClient.CreateGalahArgoAccount(ctx, "argocd")
 	if err != nil {
 		log.Fatal(err)
@@ -174,13 +175,14 @@ func GetHttpToken() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	address, err := k8sClient.GetServiceAddress(ctx, "argocd", "argocd-helm-server")
-	if err != nil {
-		log.Fatal(err)
+
+	address := os.Getenv("ARGOCD_ADDRESS")
+	if address == "" {
+		return errors.New("ARGO_ADDRESS environment variable not set")
 	}
 	token, err := getArgoAuthToken(address, secret)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if token == "" {
 		return errors.New("token empty")
@@ -191,6 +193,7 @@ func GetHttpToken() error {
 	}
 	myEnv["ARGOCD_TOKEN"] = token
 	err = godotenv.Write(myEnv, ".env")
+	log.Println("Argo Token Set")
 	if err != nil {
 		return nil
 	}
@@ -199,7 +202,10 @@ func GetHttpToken() error {
 }
 
 func getArgoAuthToken(url, secret string) (string, error) {
-	client := &http.Client{}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	httpClient := &http.Client{Transport: tr}
 
 	body := struct {
 		Username string `json:"username"`
@@ -208,19 +214,24 @@ func getArgoAuthToken(url, secret string) (string, error) {
 		Username: "admin",
 		Password: secret,
 	}
+	address := fmt.Sprintf("https://%s/api/v1/session", url)
 	jsonData, err := json.Marshal(body)
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(http.MethodPost, address, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return "", err
+
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return "", err
 	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	var token string
+	token := struct {
+		Token string `json:"token"`
+	}{}
 	defer resp.Body.Close()
 	respData, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -230,7 +241,7 @@ func getArgoAuthToken(url, secret string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	key, err := getAccountAPIKey(client, token, url)
+	key, err := getAccountAPIKey(httpClient, token.Token, url)
 	if err != nil {
 		return "", err
 	}
@@ -238,7 +249,7 @@ func getArgoAuthToken(url, secret string) (string, error) {
 }
 
 func getAccountAPIKey(client *http.Client, token, url string) (string, error) {
-	path := fmt.Sprintf("%s/api/v1/galah/token", url)
+	path := fmt.Sprintf("https://%s/api/v1/account/galah/token", url)
 	body := struct {
 		Name string `json:"name"`
 	}{
@@ -248,7 +259,7 @@ func getAccountAPIKey(client *http.Client, token, url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest(http.MethodGet, path, bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest(http.MethodPost, path, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return "", err
 	}
@@ -258,7 +269,9 @@ func getAccountAPIKey(client *http.Client, token, url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var key string
+	key := struct {
+		Token string `json:"token"`
+	}{}
 	defer resp.Body.Close()
 	respData, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -268,7 +281,7 @@ func getAccountAPIKey(client *http.Client, token, url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return key, nil
+	return key.Token, nil
 }
 
 func actionsCmd() *cobra.Command {

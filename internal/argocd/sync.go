@@ -25,7 +25,7 @@ func (c *Client) syncApplication(ctx context.Context, name, ns, project string) 
 	prune := true
 	dryRun := false
 
-	sync, err := c.applicationClient.Sync(ctx, &application.ApplicationSyncRequest{
+	_, err := c.applicationClient.Sync(ctx, &application.ApplicationSyncRequest{
 		Name:         &name,
 		Revision:     nil,
 		DryRun:       &dryRun,
@@ -40,7 +40,6 @@ func (c *Client) syncApplication(ctx context.Context, name, ns, project string) 
 		}
 		return err
 	}
-	fmt.Printf("Syncing %s in namespace %s with project %s\nStatus: %+v", sync.Name, sync.Namespace, project, sync.Status.Conditions)
 	return nil
 }
 

@@ -9,7 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var (
 	cfgFile string
 	rootCmd = &cobra.Command{
@@ -17,7 +16,6 @@ var (
 		Short: "A tool for parsing templates for the Galah Testing Suite",
 		Long: `Plumage is a tool for parsing templates for the Galah Testing Suite.
 It generates the necessary Kubernetes manifests and chaos test configurations.`,
-		// Run: func(cmd *cobra.Command, args []string) { },
 	}
 	appCfg *config.AppConfig
 )
@@ -35,6 +33,7 @@ func newRootCommand(cfg *config.AppConfig) *rootCommand {
 	rt.AddCommand(configCmd(cfg))
 	rt.AddCommand(loadCmd())
 	rt.AddCommand(synthCommand())
+	rt.AddCommand(deployCmd(cfg))
 	rt.AddCommand(orchestrationCmds.CommitPushCmd(cfg.ConfigDir, "github.yaml", cfg))
 	//rt.AddCommand(commands.ArgoProjectCmd())
 	rt.AddCommand(orchestrationCmds.ProjectCmd())

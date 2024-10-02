@@ -1,15 +1,18 @@
 package helm
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	helmc "github.com/mittwald/go-helm-client"
 	"gopkg.in/yaml.v3"
+	"helm.sh/helm/v3/pkg/repo"
 	"log"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type ChartsConfig struct {
@@ -19,18 +22,21 @@ type ChartsConfig struct {
 }
 
 type ChartConfig struct {
-	Repository  string            `yaml:"repository"`
-	Namespace   string            `yaml:"namespace"`
-	Name        string            `yaml:"chartName"`
-	ReleaseName string            `yaml:"releaseName"`
-	Version     string            `yaml:"version"`
-	Replace     bool              `yaml:"replace"`
-	ValuesFiles []string          `yaml:"valuesFiles"`
-	Local       bool              `yaml:"local"`
-	SkipCRDs    bool              `yaml:"skipCRDs"`
-	UpgradeCRDs bool              `yaml:"upgradeCRDs"`
-	Labels      map[string]string `yaml:"labels"`
-	Lint        bool              `yaml:"lint"`
+	Repository   string `yaml:"repository"`
+	remoteFile   bool
+	Namespace    string                 `yaml:"namespace"`
+	Name         string                 `yaml:"chartName"`
+	ReleaseName  string                 `yaml:"releaseName"`
+	Version      string                 `yaml:"version"`
+	Replace      bool                   `yaml:"replace"`
+	ValuesFiles  []string               `yaml:"valuesFiles"`
+	Values       map[string]interface{} `yaml:"values"`
+	valuesString []string
+	Local        bool              `yaml:"local"`
+	SkipCRDs     bool              `yaml:"skipCRDs"`
+	UpgradeCRDs  bool              `yaml:"upgradeCRDs"`
+	Labels       map[string]string `yaml:"labels"`
+	Lint         bool              `yaml:"lint"`
 }
 
 func InstallCRDChartsFromConfig(ctx context.Context, client *helmClient, cfg *ChartsConfig) error {
@@ -181,6 +187,10 @@ func getChartOpts(chart *ChartConfig) []chartOpts {
 	if chart.ValuesFiles != nil && len(chart.ValuesFiles) > 0 {
 		opts = append(opts, withValuesFiles(chart.ValuesFiles))
 	}
+
+	if chart.Values != nil {
+		opts = append(opts, withValues(chart.Values))
+	}
 	return opts
 }
 
@@ -198,8 +208,20 @@ func (chart *ChartConfig) chartSpec(client *helmClient, opts ...chartOpts) (*hel
 	if chartConfigErr != nil {
 		return nil, chartConfigErr
 	}
+	if chart.remoteFile == false {
+		repoErr := fromRemoteRepository(client)(chart)
+		if repoErr != nil {
+			return nil, repoErr
+		}
+	} else {
+		fileErr := fromRemoteFile()(chart)
+		if fileErr != nil {
+			return nil, fileErr
+		}
+	}
+
 	spec := &helmc.ChartSpec{
-		ChartName:       chart.Repository,
+		ChartName:       chart.Name,
 		ReleaseName:     chart.ReleaseName,
 		Namespace:       chart.Namespace,
 		Version:         chart.Version,
@@ -264,7 +286,36 @@ func fromRemote(repository string) chartOpts {
 		if err != nil {
 			return fmt.Errorf("failed to parse repository %s: %w", repository, err)
 		}
-		chart.Repository = remote.Host
+
+		if strings.HasSuffix(remote.Path, ".gz") {
+			chart.remoteFile = true
+		}
+
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+}
+
+func fromRemoteFile() chartOpts {
+	return func(chart *ChartConfig) error {
+		if !strings.HasSuffix(chart.Repository, "gz") {
+			return fmt.Errorf("repository %s does not contain a .gz file", chart.Repository)
+		}
+		chart.Name = chart.Repository
+		return nil
+	}
+}
+
+func fromRemoteRepository(c *helmClient) chartOpts {
+	return func(chart *ChartConfig) error {
+		err := c.addChartRepo(chart.ReleaseName, chart.Repository)
+		if err != nil {
+			return err
+		}
+		chartName := fmt.Sprintf("%s/%s", chart.Name, chart.ReleaseName)
+		chart.Name = chartName
 		return nil
 	}
 }
@@ -278,4 +329,41 @@ func withCRDOpts(skip, upgrade bool) chartOpts {
 		chart.UpgradeCRDs = upgrade
 		return nil
 	}
+}
+
+func withValues(values map[string]interface{}) chartOpts {
+	return func(chart *ChartConfig) error {
+		result := []string{}
+
+		for k, v := range values {
+			b := new(bytes.Buffer)
+			_, err := fmt.Fprintf(b, "%s=%v", k, v)
+			if err != nil {
+				return err
+			}
+			result = append(result, b.String())
+		}
+		chart.valuesString = result
+		return nil
+	}
+}
+
+func (c *helmClient) addChartRepo(name, repository string) error {
+	if repository == "" {
+		return fmt.Errorf("repository address must be specified")
+	}
+
+	if name == "" {
+		return fmt.Errorf("chart name must be specified")
+	}
+
+	chartRepo := repo.Entry{Name: name, URL: repository}
+
+	if err := c.Client.AddOrUpdateChartRepo(chartRepo); err != nil {
+		return fmt.Errorf("failed to add chart repo %s: %w", chartRepo.Name, err)
+	}
+
+	log.Printf("\nchart repo added %s\n", chartRepo.Name)
+	return nil
+
 }

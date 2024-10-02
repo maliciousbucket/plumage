@@ -86,7 +86,7 @@ func (c *helmClient) installKubeMetricsServer(ctx context.Context, version strin
 	config := &ChartConfig{
 		Repository:  "https://kubernetes-sigs.github.io/metrics-server/",
 		Namespace:   "",
-		Name:        "kube metrics server",
+		Name:        "metrics-server",
 		ReleaseName: "metrics-server",
 		Version:     version,
 		Replace:     replace,
@@ -131,7 +131,7 @@ func (c *helmClient) installKubeStateMetrics(ctx context.Context, version string
 	config := &ChartConfig{
 		Repository:  "https://prometheus-community.github.io/helm-charts",
 		Namespace:   "galah-monitoring",
-		Name:        "kube-state-metrics",
+		Name:        "prometheus-community",
 		ReleaseName: "kube-state-metrics",
 		Version:     version,
 		Replace:     replace,
@@ -154,7 +154,7 @@ func (c *helmClient) installPromOperatorCrds(ctx context.Context, version string
 	config := &ChartConfig{
 		Repository:  "https://prometheus-community.github.io/helm-charts",
 		Namespace:   "",
-		Name:        "prometheus-operator-crds",
+		Name:        "prometheus-community",
 		ReleaseName: "prometheus-operator-crds",
 		Version:     version,
 		Replace:     true,
@@ -175,15 +175,23 @@ func (c *helmClient) installPromOperatorCrds(ctx context.Context, version string
 
 func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string, replace bool) error {
 	valuesFiles := []string{valuesFile}
+	values := map[string]interface{}{
+		"ingress": map[string]string{
+			"enabled": "true",
+		},
+	}
+
+	path := fmt.Sprintf("https://github.com/argoproj/argo-helm/releases/download/%s/%s,tgz", version, version)
 
 	config := &ChartConfig{
-		Repository:  "https://argocd.argoproj.io/helm-charts",
+		Repository:  path,
 		Namespace:   "argocd",
 		Name:        "argocd",
 		ReleaseName: "argo-helm",
 		Version:     version,
 		Replace:     replace,
 		ValuesFiles: valuesFiles,
+		Values:      values,
 		Local:       false,
 		SkipCRDs:    false,
 		UpgradeCRDs: true,

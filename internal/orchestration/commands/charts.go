@@ -2,12 +2,12 @@ package commands
 
 import (
 	"context"
-	"github.com/maliciousbucket/plumage/internal/helm"
+	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
 	"log"
 )
 
-func ChartsCmd() *cobra.Command {
+func ChartsCmd(cfg *config.ChartConfig) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "charts",
 		Short: "Mange Helm Charts",
@@ -18,10 +18,11 @@ func ChartsCmd() *cobra.Command {
 			return nil
 		},
 	}
+	cmd.AddCommand(installChartCmd(cfg))
 	return cmd
 }
 
-func installChartCmd(opts *helm.BaseChartOpts) *cobra.Command {
+func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 	var (
 		installArgo              bool
 		argoValuesFile           string
@@ -43,6 +44,7 @@ func installChartCmd(opts *helm.BaseChartOpts) *cobra.Command {
 			if err := cmd.ValidateFlagGroups(); err != nil {
 				return err
 			}
+			opts := cfg.ToBaseOpts()
 			ctx := context.Background()
 
 			if installArgo {
@@ -120,7 +122,7 @@ func installChartCmd(opts *helm.BaseChartOpts) *cobra.Command {
 	return cmd
 }
 
-func installBaseChartsCmd(opts *helm.BaseChartOpts) *cobra.Command {
+func installBaseChartsCmd(cfg *config.ChartConfig) *cobra.Command {
 	var (
 		argoVersion               string
 		certManagerVersion        string
@@ -139,6 +141,7 @@ func installBaseChartsCmd(opts *helm.BaseChartOpts) *cobra.Command {
 - Kubernetes Metrics Server
 - Cert Manager`,
 		Run: func(cmd *cobra.Command, args []string) {
+			opts := cfg.ToBaseOpts()
 			if argoVersion != "" {
 				opts.ArgoCD = argoVersion
 			}

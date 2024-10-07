@@ -11,7 +11,7 @@ import (
 )
 
 type ScalingTemplate interface {
-	ScalingType() ScalingType
+	ScalingType() autoscaling2.ScalingType
 }
 
 type HorizontalScalingTemplate struct {
@@ -40,13 +40,11 @@ type VerticalScalingTemplate struct {
 	MinReplicas   int32  `yaml:"minReplicas"`
 }
 
-func (t *VerticalScalingTemplate) ScalingType() ScalingType {
+func (t *VerticalScalingTemplate) ScalingType() autoscaling2.ScalingType {
 	return autoscaling2.ScalingTypeVertical
 }
 
-type ScalingType string
-
-func (t *HorizontalScalingTemplate) ScalingType() ScalingType {
+func (t *HorizontalScalingTemplate) ScalingType() autoscaling2.ScalingType {
 	return autoscaling2.ScalingTypeHorizontal
 }
 

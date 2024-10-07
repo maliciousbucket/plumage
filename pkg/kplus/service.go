@@ -44,7 +44,7 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 
 	if template.CircuitBreaker != nil {
 		cbName := fmt.Sprintf("%s-circuitbreaker", template.Name)
-		circuitBreaker := NewCircuitBreaker(ct, cbName, template)
+		circuitBreaker := NewCircuitBreaker(ct, cbName, ns, template)
 		if circuitBreaker != nil {
 			middlewareRefs = append(middlewareRefs, cbName)
 		}
@@ -52,7 +52,7 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 
 	if template.Retry != nil {
 		retryName := fmt.Sprintf("%s-retry", template.Name)
-		retry := NewRetry(ct, retryName, template)
+		retry := NewRetry(ct, retryName, ns, template)
 		if retry != nil {
 			middlewareRefs = append(middlewareRefs, retryName)
 		}
@@ -60,7 +60,7 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 
 	if template.RateLimit != nil {
 		rlName := fmt.Sprintf("%s-ratelimit", template.Name)
-		rl := NewRateLimit(ct, rlName, template)
+		rl := NewRateLimit(ct, rlName, ns, template)
 		if rl != nil {
 			middlewareRefs = append(middlewareRefs, rlName)
 		}

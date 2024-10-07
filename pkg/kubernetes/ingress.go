@@ -374,7 +374,6 @@ func traefikIngressArgs() []*string {
 		jsii.String("--api.insecure=true"),
 		jsii.String("--metrics.prometheus=true"),
 		jsii.String("--metrics.prometheus.addEntryPointsLabels=true"),
-		//jsii.String("allowEmptyServices: true"),
 	}
 	return args
 }

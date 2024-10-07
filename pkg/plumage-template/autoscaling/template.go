@@ -2,7 +2,6 @@ package autoscaling
 
 import (
 	"errors"
-	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"gopkg.in/yaml.v3"
 )
 
@@ -47,7 +46,7 @@ func (s *DefaultAutoScaling) UnmarshalYAML(unmarshal func(interface{}) error) er
 }
 
 type DefaultScaling interface {
-	ScalingType() kplus.ScalingType
+	ScalingType() ScalingType
 }
 
 type DefaultHorizontalScaling struct {
@@ -55,7 +54,7 @@ type DefaultHorizontalScaling struct {
 	MaxReplicas int `yaml:"maxReplicas"`
 }
 
-func (s *DefaultHorizontalScaling) ScalingType() kplus.ScalingType {
+func (s *DefaultHorizontalScaling) ScalingType() ScalingType {
 	return ScalingTypeHorizontal
 }
 
@@ -67,7 +66,7 @@ type DefaultVerticalScaling struct {
 	MaxMemoryMi   int  `yaml:"maxMemoryMb"`
 }
 
-func (s *DefaultVerticalScaling) ScalingType() kplus.ScalingType {
+func (s *DefaultVerticalScaling) ScalingType() ScalingType {
 	return ScalingTypeVertical
 }
 
@@ -80,7 +79,9 @@ func decodeNode(data map[string]interface{}, target interface{}) error {
 }
 
 const (
-	ScalingTypeVertical   = kplus.ScalingType("vertical")
-	ScalingTypeHorizontal = kplus.ScalingType("horizontal")
-	ScalingTypeUnknown    = kplus.ScalingType("unknown")
+	ScalingTypeVertical   = ScalingType("vertical")
+	ScalingTypeHorizontal = ScalingType("horizontal")
+	ScalingTypeUnknown    = ScalingType("unknown")
 )
+
+type ScalingType string

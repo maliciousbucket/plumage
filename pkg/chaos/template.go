@@ -44,6 +44,8 @@ type ScriptTemplate struct {
 	Env              map[string]string `yaml:"env"`
 	RunOnce          bool              `yaml:"runOnce"`
 	Schedule         string            `yaml:"schedule"`
+	Labels           map[string]string `yaml:"labels"`
+	Annotations      map[string]string `yaml:"annotations"`
 }
 
 type ScriptResources struct {

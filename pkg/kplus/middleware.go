@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func NewCircuitBreaker(scope constructs.Construct, id string, service *ServiceTemplate) traefikio.Middleware {
+func NewCircuitBreaker(scope constructs.Construct, id string, ns string, service *ServiceTemplate) traefikio.Middleware {
 	if service.CircuitBreaker == nil {
 		return nil
 	}
@@ -20,11 +20,11 @@ func NewCircuitBreaker(scope constructs.Construct, id string, service *ServiceTe
 		RecoveryDuration:         service.CircuitBreaker.RecoveryDuration(),
 	}
 
-	circuitBreaker := middleware.NewCircuitBreakerMiddleware(scope, id, service.Namespace, service.Name, props)
+	circuitBreaker := middleware.NewCircuitBreakerMiddleware(scope, id, ns, service.Name, props)
 	return circuitBreaker
 }
 
-func NewRetry(scope constructs.Construct, id string, service *ServiceTemplate) traefikio.Middleware {
+func NewRetry(scope constructs.Construct, id string, ns string, service *ServiceTemplate) traefikio.Middleware {
 	if service.Retry == nil {
 		return nil
 	}
@@ -34,11 +34,11 @@ func NewRetry(scope constructs.Construct, id string, service *ServiceTemplate) t
 		IntervalMs:    service.Retry.IntervalMS(),
 	}
 
-	retry := middleware.NewRetryMiddleware(scope, id, service.Namespace, service.Name, props)
+	retry := middleware.NewRetryMiddleware(scope, id, ns, service.Name, props)
 	return retry
 }
 
-func NewRateLimit(scope constructs.Construct, id string, service *ServiceTemplate) traefikio.Middleware {
+func NewRateLimit(scope constructs.Construct, id string, ns string, service *ServiceTemplate) traefikio.Middleware {
 	if service.RateLimit == nil {
 		return nil
 	}
@@ -49,7 +49,7 @@ func NewRateLimit(scope constructs.Construct, id string, service *ServiceTemplat
 		RatePeriod:      service.RateLimit.RatePeriod(),
 		LimitStrategy:   service.RateLimit.LimitStrategy(),
 	}
-	rateLimit := middleware.NewRateLimitMiddleware(scope, id, service.Namespace, service.Name, props)
+	rateLimit := middleware.NewRateLimitMiddleware(scope, id, ns, service.Name, props)
 	return rateLimit
 }
 

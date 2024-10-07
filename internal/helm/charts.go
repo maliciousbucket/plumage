@@ -82,6 +82,14 @@ func (c *helmClient) InstallPromOperatorCRDs(ctx context.Context, version string
 	return nil
 }
 
+func (c *helmClient) InstallK6(ctx context.Context, version string, replace bool) error {
+	err := c.installK6(ctx, version, replace)
+	if err != nil {
+		return fmt.Errorf("installing k6 chart: %w", err)
+	}
+	return nil
+}
+
 func (c *helmClient) installKubeMetricsServer(ctx context.Context, version string, replace bool) error {
 	config := &ChartConfig{
 		Repository:  "https://kubernetes-sigs.github.io/metrics-server/",
@@ -117,7 +125,7 @@ func (c *helmClient) installCertManager(ctx context.Context, version string, rep
 		Replace:     replace,
 		ValuesFiles: nil,
 		Local:       false,
-		SkipCRDs:    true,
+		SkipCRDs:    false,
 		UpgradeCRDs: false,
 		Labels:      nil,
 		Lint:        false,
@@ -181,6 +189,9 @@ func (c *helmClient) installPromOperatorCrds(ctx context.Context, version string
 }
 
 func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string, replace bool) error {
+	if version == "" {
+		return fmt.Errorf("no version for argo chart specified")
+	}
 	valuesFiles := []string{valuesFile}
 	values := map[string]interface{}{
 		"server": map[string]interface{}{
@@ -209,6 +220,27 @@ func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string
 		UpgradeCRDs: true,
 		Labels:      nil,
 		Lint:        false,
+	}
+	return c.installChart(ctx, config)
+}
+
+func (c *helmClient) installK6(ctx context.Context, version string, replace bool) error {
+	config := &ChartConfig{
+		Repository:   "https://grafana.github.io/helm-charts",
+		remoteFile:   false,
+		Namespace:    "",
+		Name:         "grafana",
+		ReleaseName:  "k6-operator",
+		Version:      version,
+		Replace:      false,
+		ValuesFiles:  nil,
+		Values:       nil,
+		valuesString: nil,
+		Local:        false,
+		SkipCRDs:     false,
+		UpgradeCRDs:  true,
+		Labels:       nil,
+		Lint:         false,
 	}
 	return c.installChart(ctx, config)
 }

@@ -169,6 +169,9 @@ func (c *Client) addTestBedApp(ctx context.Context, name, path, project string) 
 				Finalizers: []string{
 					"resources-finalizer.argocd.argoproj.io",
 				},
+				Annotations: map[string]string{
+					" argocd.argoproj.io/skip-reconcile": "true",
+				},
 			},
 			Spec: v1alpha1.ApplicationSpec{
 				Project: project,

@@ -112,6 +112,10 @@ func InstallCRDChartsFromFile(ctx context.Context, client *helmClient, configDir
 	return nil
 }
 
+func (c *helmClient) InstallChart(ctx context.Context, chart *ChartConfig) error {
+	return c.installChart(ctx, chart)
+}
+
 func (c *helmClient) installChart(ctx context.Context, chart *ChartConfig) error {
 	opts := getChartOpts(chart)
 	spec, err := chart.chartSpec(c, opts...)
@@ -119,7 +123,7 @@ func (c *helmClient) installChart(ctx context.Context, chart *ChartConfig) error
 		return err
 	}
 
-	res, err := c.Client.InstallChart(ctx, spec, &helmc.GenericHelmOptions{
+	res, err := c.Client.InstallOrUpgradeChart(ctx, spec, &helmc.GenericHelmOptions{
 		RollBack: c.Client,
 	})
 	if err != nil {

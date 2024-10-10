@@ -8,11 +8,11 @@ import (
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 )
 
-func NewTestRunRBAC(scope constructs.Construct, ns string) kplus.RoleBinding {
+func NewTestRunRBAC(scope constructs.Construct, ns string) (kplus.RoleBinding, string) {
 	account := newJobServiceAccount(scope, "k6-account", ns)
 	role := newJobRole(scope, "k6-role", ns)
 
-	return role.Bind(account)
+	return role.Bind(account), *account.Metadata().Name()
 }
 
 func newJobServiceAccount(scope constructs.Construct, id string, ns string) kplus.ServiceAccount {

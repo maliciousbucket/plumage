@@ -8,15 +8,21 @@ import (
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 )
 
-func newTestFileConfigMap(scope constructs.Construct, ns, name, scriptDir, libDir string, template *ScriptTemplate) kplus.ConfigMap {
+var (
+	testAnnotation    = "galah-monitoring.io/test"
+	testEnvAnnotation = "galah-monitoring.io/test-env"
+)
+
+func newTestFileConfigMap(scope constructs.Construct, ns, name, scriptDir, libDir, scriptName string, libFiles []string) kplus.ConfigMap {
 	configMap := kplus.NewConfigMap(scope, jsii.String(name), &kplus.ConfigMapProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
 			Name:      jsii.String(name),
 			Namespace: jsii.String(ns),
 		},
 	})
-	addScript(configMap, scriptDir, template.ScriptName)
-	addLibFiles(configMap, libDir, scriptDir, template.LibFiles)
+	addScript(configMap, scriptDir, scriptName)
+	addLibFiles(configMap, libDir, scriptDir, libFiles)
+	configMap.Metadata().AddAnnotation(jsii.String(testAnnotation), jsii.String(name))
 	return configMap
 }
 
@@ -57,9 +63,10 @@ func addLibFiles(configMap kplus.ConfigMap, libDir, scriptDir string, libFiles [
 }
 
 func newEnvConfigMap(scope constructs.Construct, name, ns string, env map[string]string) kplus.ConfigMap {
+	mapName := fmt.Sprintf("%s-env", name)
 	configMap := kplus.NewConfigMap(scope, jsii.String(name), &kplus.ConfigMapProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
-			Name:      jsii.String(name),
+			Name:      jsii.String(mapName),
 			Namespace: jsii.String(ns),
 		},
 	})
@@ -67,5 +74,6 @@ func newEnvConfigMap(scope constructs.Construct, name, ns string, env map[string
 	for k, v := range env {
 		configMap.AddData(jsii.String(k), jsii.String(v))
 	}
+	configMap.Metadata().AddAnnotation(jsii.String(testEnvAnnotation), jsii.String(name))
 	return configMap
 }

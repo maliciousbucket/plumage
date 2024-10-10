@@ -4,26 +4,29 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path/filepath"
 )
 
 type Template struct {
-	Namespace string
-	ScriptDir string           `yaml:"scriptDir"`
-	Scripts   []ScriptTemplate `yaml:"scripts"`
-	LibDir    string           `yaml:"libDir"`
-	LibFiles  []string         `yaml:"libFiles"`
+	Namespace      string
+	ScriptDir      string `yaml:"scriptDir"`
+	ServiceAccount string
+	Scripts        []ScriptTemplate `yaml:"scripts"`
+	LibDir         string           `yaml:"libDir"`
+	LibFiles       []string         `yaml:"libFiles"`
 }
 
-func loadTemplate(file, namespace string) (*Template, error) {
-	info, err := os.Stat(file)
+func loadTemplate(configDir, file, namespace string) (*Template, error) {
+	path := filepath.Join(configDir, file)
+	info, err := os.Stat(path)
 	if err != nil {
 		return nil, err
 	}
 	if info.IsDir() {
-		return nil, fmt.Errorf("%s is a directory", file)
+		return nil, fmt.Errorf("%s is a directory", path)
 	}
 	template := &Template{}
-	bytes, err := os.ReadFile(file)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
@@ -43,9 +46,20 @@ type ScriptTemplate struct {
 	Args             []string          `yaml:"args"`
 	Env              map[string]string `yaml:"env"`
 	RunOnce          bool              `yaml:"runOnce"`
-	Schedule         string            `yaml:"schedule"`
+	Schedule         *JobSchedule      `yaml:"schedule"`
 	Labels           map[string]string `yaml:"labels"`
 	Annotations      map[string]string `yaml:"annotations"`
+	ExistingScript   string            `yaml:"existingScript"`
+	ExistingEnv      string            `yaml:"existingEnv"`
+	ExistingAccount  string            `yaml:"existingAccount"`
+}
+
+type JobSchedule struct {
+	Minute     string `yaml:"minute"`
+	Hour       string `yaml:"hour"`
+	DayOfMonth string `yaml:"dayOfMonth"`
+	Month      string `yaml:"month"`
+	DayOfWeek  string `yaml:"dayOfWeek"`
 }
 
 type ScriptResources struct {

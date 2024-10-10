@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	argoCmds "github.com/maliciousbucket/plumage/internal/argocd/commands"
 	"github.com/maliciousbucket/plumage/internal/helm"
 	orchestrationCmds "github.com/maliciousbucket/plumage/internal/orchestration/commands"
@@ -11,9 +12,9 @@ import (
 func deployCmd(cfg *config.AppConfig) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "deploy",
-		Short: "deployment commands",
+		Short: "Deployment commands",
 		Run: func(cmd *cobra.Command, args []string) {
-
+			fmt.Println(cmd.UsageString())
 		},
 	}
 	cmd.AddCommand(createArgoTK())

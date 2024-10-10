@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
-	"path/filepath"
 )
 
 type Template struct {
@@ -16,17 +15,17 @@ type Template struct {
 	LibFiles       []string         `yaml:"libFiles"`
 }
 
-func loadTemplate(configDir, file, namespace string) (*Template, error) {
-	path := filepath.Join(configDir, file)
-	info, err := os.Stat(path)
+func loadTemplate(file, namespace string) (*Template, error) {
+
+	info, err := os.Stat(file)
 	if err != nil {
 		return nil, err
 	}
 	if info.IsDir() {
-		return nil, fmt.Errorf("%s is a directory", path)
+		return nil, fmt.Errorf("%s is a directory", file)
 	}
 	template := &Template{}
-	bytes, err := os.ReadFile(path)
+	bytes, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}

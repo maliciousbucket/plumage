@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
+	"log"
 )
 
 const (
@@ -12,11 +13,12 @@ const (
 	runCmd  = "k6 run"
 )
 
-func SynthTemplateFile(configDir, file, outDir, ns, alloy string, account string) error {
+func SynthTemplateFile(file, outDir, ns, alloy string, account string) error {
 	if outDir == "" {
 		return fmt.Errorf("no output dir specified")
 	}
-	template, err := loadTemplate(configDir, file, ns)
+	outPut := fmt.Sprintf("%s/%s", outDir, "tests")
+	template, err := loadTemplate(file, ns)
 	if err != nil {
 		return err
 	}
@@ -26,7 +28,7 @@ func SynthTemplateFile(configDir, file, outDir, ns, alloy string, account string
 	}
 
 	app := cdk8s.NewApp(&cdk8s.AppProps{
-		Outdir:         jsii.String(outDir),
+		Outdir:         jsii.String(outPut),
 		YamlOutputType: cdk8s.YamlOutputType_FOLDER_PER_CHART_FILE_PER_RESOURCE,
 	})
 	var accountName string
@@ -45,8 +47,10 @@ func SynthTemplateFile(configDir, file, outDir, ns, alloy string, account string
 		if err != nil {
 			return err
 		}
+		log.Println("Synthed files for: ", test.Name)
 	}
 	app.Synth()
+	log.Println("Success! Files can be found at ", outPut)
 	return nil
 
 }

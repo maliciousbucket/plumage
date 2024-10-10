@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
+	"github.com/maliciousbucket/plumage/pkg/chaos"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"github.com/maliciousbucket/plumage/pkg/kubernetes"
@@ -21,7 +22,7 @@ func synthCommand() *cobra.Command {
 		Use:   "synth",
 		Short: "Synth Kubernetes manifests",
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Println("use plumage synth <template/service/gateway>")
+			log.Println("use plumage synth <template/service/gateway/tests>")
 		},
 	}
 	cmd.AddCommand(synthGatewayCmd(appCfg.OutputDir, appCfg.Namespace))
@@ -95,5 +96,35 @@ func synthServiceCmd(file string, outputDir string) *cobra.Command {
 			return nil
 		},
 	}
+	return cmd
+}
+
+func synthTestCommand(outputDir, ns, alloy string) *cobra.Command {
+	var outDir string
+	var fileName string
+	var account string
+	cmd := &cobra.Command{
+		Use:   "tests",
+		Short: "Synth manifests for a tests",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateRequiredFlags(); err != nil {
+				return err
+			}
+			out := outDir
+			if outDir != "" {
+				out = outDir
+			}
+			err := chaos.SynthTemplateFile(fileName, out, ns, alloy, account)
+			if err != nil {
+				log.Fatal(err)
+			}
+			return nil
+
+		},
+	}
+	cmd.Flags().StringVar(&fileName, "file", "tests/tests.yaml", "path to the template file")
+	cmd.Flags().StringVar(&outDir, "output-dir", outDir, "directory where the output is stored")
+	cmd.Flags().StringVar(&account, "account", "", "service account name")
+	cmd.MarkFlagsOneRequired("file")
 	return cmd
 }

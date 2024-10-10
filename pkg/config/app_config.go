@@ -10,6 +10,14 @@ import (
 	"path/filepath"
 )
 
+const (
+	argoVersion             = "argo-cd-7.6.1"
+	promOperatorVersion     = "14.0.0"
+	kubeStateMetricsVersion = "5.25.1"
+	certManagerVersion      = "v1.15.3"
+	k6OperatorVersion       = "3.9.0"
+)
+
 type AppConfig struct {
 	ProjectName      string            `yaml:"project"`
 	ConfigDir        string            `yaml:"configDir"`

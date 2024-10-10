@@ -2,5 +2,6 @@ language: go
 app: go run .
 imports:
   - imports/traefik/kubernetes-crd-definition-v1.yml
+  - imports/galah/chaos.galah-monitoring.io_testrunjobs.yaml
   - https://raw.githubusercontent.com/kubernetes/autoscaler/master/vertical-pod-autoscaler/deploy/vpa-v1-crd-gen.yaml
   - k8s@1.30.0

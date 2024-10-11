@@ -2,16 +2,12 @@ package commands
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"github.com/spf13/cobra"
 	"log"
-	"sync"
-	"time"
 )
 
 func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
@@ -48,12 +44,12 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 				log.Fatal(fmt.Errorf("failed to watch argocd deployment: %w", err))
 			}
 
-			_, err := kubernetesClient.CreateNamespace(ctx, cfg.Namespace)
+			err := orchestration.CreateNamespace(ctx, kubernetesClient, cfg.Namespace)
 			if err != nil {
 				log.Fatal(fmt.Errorf("failed to create namespace: %w", err))
 			}
 
-			if err = argoClient.AddRepoCredentials(ctx); err != nil {
+			if err = orchestration.AddRepoCredentials(ctx, argoClient); err != nil {
 				log.Fatal(err)
 			}
 			if cfg == nil {
@@ -82,9 +78,10 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			}
 
 			if monitoring {
-				if err = handleMonitoring(ctx); err != nil {
+				if err = orchestration.DeployMonitoring(ctx, argoClient, kubernetesClient); err != nil {
 					log.Fatal(err)
 				}
+
 			}
 
 			if gateway {
@@ -104,9 +101,10 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 				log.Fatal(err)
 			}
 
-			if err = deployAndWaitForApp(ctx, ns, appName, services); err != nil {
+			if err = orchestration.DeployAndWaitForApp(ctx, argoClient, kubernetesClient, ns, appName, services); err != nil {
 				log.Fatal(err)
 			}
+
 			log.Printf("\n Successfully Deployed %s in %s", appName, ns)
 
 			return nil
@@ -130,18 +128,7 @@ func synthAll(file, outputDir string, monitoring map[string]string) error {
 }
 
 func commitAndPushAll(ctx context.Context, cfg *config.AppConfig, app string) error {
-	ghCfg, err := config.NewGithubConfig(cfg.ConfigDir, "github.yaml")
-	if err != nil {
-		log.Fatal(err)
-	}
-	path := fmt.Sprintf("%s/%s", cfg.OutputDir, app)
-	msg := fmt.Sprintf("Plumage Manifests - %s - %s", app, time.Now().String())
-	templateCommit, err := orchestration.CommitAndPush(ctx, ghCfg, path, msg)
-	if err != nil {
-		return err
-	}
-	log.Printf("\nCommits for App %s successful\n", app)
-	gatewayCommit, err := orchestration.CommitAndPushGateway(ctx, ghCfg, cfg.OutputDir)
+	templateCommit, gatewayCommit, err := orchestration.CommitAndPushTestBed(ctx, cfg, app)
 	if err != nil {
 		return err
 	}
@@ -174,74 +161,15 @@ func DeployMonitoringCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.Background()
 
-			if err := argoClient.AddRepoCredentials(ctx); err != nil {
+			if err := orchestration.AddRepoCredentials(ctx, argoClient); err != nil {
 				log.Fatal(err)
 			}
-			if err := handleMonitoring(ctx); err != nil {
+			if err := orchestration.DeployMonitoring(ctx, argoClient, kubernetesClient); err != nil {
 				log.Fatal(err)
 			}
 		},
 	}
 	return cmd
-}
-
-func handleMonitoring(ctx context.Context) error {
-	if monitoringProj, _ := argoClient.GetProject(ctx, "galah-monitoring"); monitoringProj == nil {
-		if err := argoClient.CreateMonitoringProject(ctx); err != nil {
-			return err
-		}
-	} else {
-		if err := argoClient.SyncProject(ctx, "galah-monitoring"); err != nil {
-			return err
-		}
-	}
-
-	resources := map[string]string{
-		"alloy":    "galah-monitoring",
-		"tempo":    "galah-tracing",
-		"loki":     "galah-logging",
-		"mimir":    "galah-monitoring",
-		"grafana":  "galah-monitoring",
-		"operator": "minio-store",
-	}
-	time.Sleep(10 * time.Second)
-	var watchErr error
-	errChan := make(chan error, len(resources)+1)
-	var wg sync.WaitGroup
-	for res, namespace := range resources {
-		wg.Add(1)
-		go func(res, namespace string) {
-			defer wg.Done()
-			err := watchInfrastructure(ctx, kubernetesClient, namespace, res)
-			errChan <- err
-		}(res, namespace)
-	}
-
-	go func() {
-		wg.Wait()
-		close(errChan)
-	}()
-
-	for {
-		select {
-		case err, ok := <-errChan:
-			if ok {
-				if err != nil {
-					watchErr = errors.Join(watchErr, err)
-				}
-			} else {
-				return watchErr
-			}
-		case <-time.After(time.Second * 30):
-			ctx.Done()
-			wg.Done()
-			return watchErr
-		case <-ctx.Done():
-			watchErr = errors.Join(watchErr, ctx.Err())
-			return watchErr
-		}
-	}
-
 }
 
 func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
@@ -269,7 +197,7 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 
 			ctx := context.Background()
 
-			_, err := kubernetesClient.CreateNamespace(ctx, ns)
+			err := orchestration.CreateNamespace(ctx, kubernetesClient, ns)
 			if err != nil {
 				log.Fatal("Error creating namespace", err)
 			}
@@ -279,7 +207,7 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 				log.Fatal("creating GitHub Config", err)
 			}
 
-			if err = argoClient.AddRepoCredentials(ctx); err != nil {
+			if err = orchestration.AddRepoCredentials(ctx, argoClient); err != nil {
 				log.Fatal("Adding Repo Credentials", err)
 			}
 			if synth {
@@ -303,25 +231,4 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 	}
 	cmd.Flags().BoolP("synth", "s", false, "synth gateway manifests")
 	return cmd
-}
-
-func deployAndWaitForApp(ctx context.Context, ns, app string, services []string) error {
-	if err := argoClient.CreateServiceApplications(ctx, app, services); err != nil {
-		return err
-	}
-
-	if err := argoClient.SyncProject(ctx, app); err != nil {
-		return err
-	}
-	if err := kubernetesClient.WatchAppDeployment(ctx, ns, services); err != nil {
-		return err
-	}
-	return nil
-}
-
-func watchInfrastructure(ctx context.Context, client kubeclient.Client, ns, name string) error {
-	if err := client.WaitAppPods(ctx, ns, name, 1, 2*time.Minute); err != nil {
-		return err
-	}
-	return nil
 }

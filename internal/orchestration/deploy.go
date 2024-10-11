@@ -112,7 +112,15 @@ func deployMonitoring(ctx context.Context, argoClient ArgoClient, kubeClient Kub
 	}
 }
 
-func deployAndWaitForApp(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, ns, app string, services []string) error {
+func CreateNamespace(ctx context.Context, kubeClient KubeClient, ns string) error {
+	_, err := kubeClient.CreateNamespace(ctx, ns)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeployAndWaitForApp(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, ns, app string, services []string) error {
 	if err := argoClient.CreateServiceApplications(ctx, app, services); err != nil {
 		return err
 	}

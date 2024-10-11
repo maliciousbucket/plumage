@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-github/v64/github"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -55,6 +56,25 @@ type GitHubCommitResponse struct {
 	Name    string    `json:"name"`
 	Email   string    `json:"email"`
 	Date    time.Time `json:"date"`
+}
+
+func CommitAndPushTestBed(ctx context.Context, cfg *config.AppConfig, app string) (*GitHubCommitResponse, *GitHubCommitResponse, error) {
+	ghCfg, err := config.NewGithubConfig(cfg.ConfigDir, "github.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	path := fmt.Sprintf("%s/%s", cfg.OutputDir, app)
+	msg := fmt.Sprintf("Plumage Manifests - %s - %s", app, time.Now().String())
+	templateCommit, err := CommitAndPush(ctx, ghCfg, path, msg)
+	if err != nil {
+		return nil, nil, err
+	}
+	log.Printf("\nCommits for App %s successful\n", app)
+	gatewayCommit, err := CommitAndPushGateway(ctx, ghCfg, cfg.OutputDir)
+	if err != nil {
+		return templateCommit, nil, err
+	}
+	return templateCommit, gatewayCommit, nil
 }
 
 func newCommit(ctx context.Context, client *github.Client, ref *github.Reference, tree *github.Tree,

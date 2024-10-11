@@ -395,7 +395,6 @@ func deleteProjectCmd() *cobra.Command {
 					log.Println("Aborting....")
 					return nil
 				}
-				return nil
 			}
 
 			if err := argoClient.DeleteProject(ctx, project); err != nil {

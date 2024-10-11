@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/config"
@@ -89,9 +88,10 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			}
 
 			if gateway {
-				if err = handleGateway(ctx, ns); err != nil {
+				if err = orchestration.DeployGateway(ctx, argoClient, kubernetesClient, ns); err != nil {
 					log.Fatal(err)
 				}
+
 			}
 			if appProject, _ := argoClient.GetProject(ctx, appName); appProject != nil {
 				if _, err = argoClient.CreateProject(ctx, appName); err != nil {
@@ -294,50 +294,15 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 				}
 			}
 
-			if err = handleGateway(ctx, ns); err != nil {
+			if err = orchestration.DeployGateway(ctx, argoClient, kubernetesClient, ns); err != nil {
 				log.Fatal(err)
 			}
+
 			log.Println("Gateway has been deployed")
 		},
 	}
 	cmd.Flags().BoolP("synth", "s", false, "synth gateway manifests")
 	return cmd
-}
-
-func handleGateway(ctx context.Context, ns string) error {
-	if gatewayProj, _ := argoClient.GetProject(ctx, "ingress"); gatewayProj == nil {
-		if err := argoClient.CreateIngressProject(ctx); err != nil {
-			return err
-		}
-	} else {
-		params := &argocd.AppQueryParams{Options: []argocd.AppQueryFunc{
-			argocd.WithProject("ingress"),
-		}}
-		apps, _ := argoClient.ListApplications(ctx, params)
-		if apps == nil || len(apps.Items) == 0 {
-			if err := argoClient.CreateIngressApp(ctx); err != nil {
-				return err
-			}
-		}
-
-		if err := argoClient.SyncProject(ctx, "ingress"); err != nil {
-			return err
-		}
-	}
-	time.Sleep(10 * time.Second)
-	errChan := make(chan error)
-	go func() {
-
-		errChan <- watchInfrastructure(ctx, kubernetesClient, ns, "traefik")
-		close(errChan)
-	}()
-	select {
-	case err := <-errChan:
-		return err
-	case <-ctx.Done():
-		return ctx.Err()
-	}
-
 }
 
 func deployAndWaitForApp(ctx context.Context, ns, app string, services []string) error {

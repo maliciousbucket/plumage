@@ -53,8 +53,6 @@ func NewClient(c Connection) (*Client, error) {
 		ServerAddr: fmt.Sprintf(c.Address),
 		Insecure:   true,
 		AuthToken:  c.Token,
-		//PortForward: true,
-		//PortForwardNamespace: "argocd",
 	})
 
 	if err != nil {

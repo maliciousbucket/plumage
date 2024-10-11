@@ -1,6 +1,5 @@
 package k8s
 
-
 // DeploymentList is a list of Deployments.
 type KubeDeploymentListProps struct {
 	// Items is the list of Deployments.
@@ -8,4 +7,3 @@ type KubeDeploymentListProps struct {
 	// Standard list metadata.
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

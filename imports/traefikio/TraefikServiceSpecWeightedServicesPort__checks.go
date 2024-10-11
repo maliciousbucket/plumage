@@ -21,4 +21,3 @@ func validateTraefikServiceSpecWeightedServicesPort_FromStringParameters(value *
 
 	return nil
 }
-

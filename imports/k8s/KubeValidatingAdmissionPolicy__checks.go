@@ -57,4 +57,3 @@ func validateNewKubeValidatingAdmissionPolicyParameters(scope constructs.Constru
 
 	return nil
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // CronJobList is a collection of cron jobs.
 type KubeCronJobListProps struct {
 	// items is the list of CronJobs.
@@ -10,4 +9,3 @@ type KubeCronJobListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents a Ceph Filesystem mount that lasts the lifetime of a pod Cephfs volumes do not support ownership management or SELinux relabeling.
 type CephFsVolumeSource struct {
 	// monitors is Required: Monitors is a collection of Ceph monitors More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it.
@@ -22,4 +21,3 @@ type CephFsVolumeSource struct {
 	// user is optional: User is the rados user name, default is admin More info: https://examples.k8s.io/volumes/cephfs/README.md#how-to-use-it.
 	User *string `field:"optional" json:"user" yaml:"user"`
 }
-

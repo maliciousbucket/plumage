@@ -1,6 +1,5 @@
 package k8s
 
-
 // ValidatingAdmissionPolicyBinding binds the ValidatingAdmissionPolicy with paramerized resources.
 //
 // ValidatingAdmissionPolicyBinding and parameter CRDs together define how cluster administrators configure policies for clusters.
@@ -16,4 +15,3 @@ type KubeValidatingAdmissionPolicyBindingProps struct {
 	// Specification of the desired behavior of the ValidatingAdmissionPolicyBinding.
 	Spec *ValidatingAdmissionPolicyBindingSpec `field:"optional" json:"spec" yaml:"spec"`
 }
-

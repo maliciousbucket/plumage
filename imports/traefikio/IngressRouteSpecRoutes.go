@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Route holds the HTTP route configuration.
 type IngressRouteSpecRoutes struct {
 	// Kind defines the kind of the route.
@@ -28,4 +27,3 @@ type IngressRouteSpecRoutes struct {
 	// More info: https://doc.traefik.io/traefik/v3.1/routing/routers/#rulesyntax
 	Syntax *string `field:"optional" json:"syntax" yaml:"syntax"`
 }
-

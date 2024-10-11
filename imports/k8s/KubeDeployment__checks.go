@@ -57,4 +57,3 @@ func validateNewKubeDeploymentParameters(scope constructs.Construct, id *string,
 
 	return nil
 }
-

@@ -12,4 +12,3 @@ type MiddlewareTcpProps struct {
 	// MiddlewareTCPSpec defines the desired state of a MiddlewareTCP.
 	Spec *MiddlewareTcpSpec `field:"required" json:"spec" yaml:"spec"`
 }
-

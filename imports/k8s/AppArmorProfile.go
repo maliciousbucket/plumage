@@ -1,6 +1,5 @@
 package k8s
 
-
 // AppArmorProfile defines a pod or container's AppArmor settings.
 type AppArmorProfile struct {
 	// type indicates which kind of AppArmor profile will be applied.
@@ -15,4 +14,3 @@ type AppArmorProfile struct {
 	// The profile must be preconfigured on the node to work. Must match the loaded name of the profile. Must be set if and only if type is "Localhost".
 	LocalhostProfile *string `field:"optional" json:"localhostProfile" yaml:"localhostProfile"`
 }
-

@@ -79,4 +79,3 @@ type ObjectMeta struct {
 	// Populated by the system. Read-only. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names#uids
 	Uid *string `field:"optional" json:"uid" yaml:"uid"`
 }
-

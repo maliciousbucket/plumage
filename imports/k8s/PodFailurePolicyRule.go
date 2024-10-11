@@ -1,6 +1,5 @@
 package k8s
 
-
 // PodFailurePolicyRule describes how a pod failure is handled when the requirements are met.
 //
 // One of onExitCodes and onPodConditions, but not both, can be used in each rule.
@@ -26,4 +25,3 @@ type PodFailurePolicyRule struct {
 	// The requirement is represented as a list of pod condition patterns. The requirement is satisfied if at least one pattern matches an actual pod condition. At most 20 elements are allowed.
 	OnPodConditions *[]*PodFailurePolicyOnPodConditionsPattern `field:"optional" json:"onPodConditions" yaml:"onPodConditions"`
 }
-

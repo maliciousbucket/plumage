@@ -25,7 +25,6 @@ func (j *jsiiProxy_MiddlewareSpecCircuitBreakerFallbackDuration) Value() interfa
 	return returns
 }
 
-
 func MiddlewareSpecCircuitBreakerFallbackDuration_FromNumber(value *float64) MiddlewareSpecCircuitBreakerFallbackDuration {
 	_init_.Initialize()
 
@@ -61,4 +60,3 @@ func MiddlewareSpecCircuitBreakerFallbackDuration_FromString(value *string) Midd
 
 	return returns
 }
-

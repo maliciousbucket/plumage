@@ -1,6 +1,5 @@
 package k8s
 
-
 // ResourceClaimTemplateList is a collection of claim templates.
 type KubeResourceClaimTemplateListV1Alpha2Props struct {
 	// Items is the list of resource claim templates.
@@ -8,4 +7,3 @@ type KubeResourceClaimTemplateListV1Alpha2Props struct {
 	// Standard list metadata.
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

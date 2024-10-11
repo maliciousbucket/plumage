@@ -27,7 +27,6 @@ func (j *jsiiProxy_IngressRouteUdpSpecRoutesServicesPort) Value() interface{} {
 	return returns
 }
 
-
 func IngressRouteUdpSpecRoutesServicesPort_FromNumber(value *float64) IngressRouteUdpSpecRoutesServicesPort {
 	_init_.Initialize()
 
@@ -63,4 +62,3 @@ func IngressRouteUdpSpecRoutesServicesPort_FromString(value *string) IngressRout
 
 	return returns
 }
-

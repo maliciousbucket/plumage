@@ -1,6 +1,5 @@
 package k8s
 
-
 // ObjectMetricSource indicates how to scale on a metric describing a kubernetes object (for example, hits-per-second on an Ingress object).
 type ObjectMetricSourceV2 struct {
 	// describedObject specifies the descriptions of a object,such as kind,name apiVersion.
@@ -10,4 +9,3 @@ type ObjectMetricSourceV2 struct {
 	// target specifies the target value for the given metric.
 	Target *MetricTargetV2 `field:"required" json:"target" yaml:"target"`
 }
-

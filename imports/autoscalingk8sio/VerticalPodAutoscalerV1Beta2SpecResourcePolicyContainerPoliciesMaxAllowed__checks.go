@@ -21,4 +21,3 @@ func validateVerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMaxA
 
 	return nil
 }
-

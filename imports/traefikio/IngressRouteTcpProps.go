@@ -10,4 +10,3 @@ type IngressRouteTcpProps struct {
 	// IngressRouteTCPSpec defines the desired state of IngressRouteTCP.
 	Spec *IngressRouteTcpSpec `field:"required" json:"spec" yaml:"spec"`
 }
-

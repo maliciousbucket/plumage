@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeSecretList) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.core.v1.SecretList" API object.
 func NewKubeSecretList(scope constructs.Construct, id *string, props *KubeSecretListProps) KubeSecretList {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeSecretList) ToString() *string {
 
 	return returns
 }
-

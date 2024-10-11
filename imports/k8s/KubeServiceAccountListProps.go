@@ -1,6 +1,5 @@
 package k8s
 
-
 // ServiceAccountList is a list of ServiceAccount objects.
 type KubeServiceAccountListProps struct {
 	// List of ServiceAccounts.
@@ -12,4 +11,3 @@ type KubeServiceAccountListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

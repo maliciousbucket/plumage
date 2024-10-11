@@ -23,4 +23,3 @@ func validateKubeIpAddressListV1Alpha1_OfParameters(c constructs.IConstruct) err
 func validateNewKubeIpAddressListV1Alpha1Parameters(scope constructs.Construct, id *string, props *KubeIpAddressListV1Alpha1Props) error {
 	return nil
 }
-

@@ -11,4 +11,3 @@ func validateServersTransportSpecForwardingTimeoutsPingTimeout_FromNumberParamet
 func validateServersTransportSpecForwardingTimeoutsPingTimeout_FromStringParameters(value *string) error {
 	return nil
 }
-

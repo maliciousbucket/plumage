@@ -122,7 +122,6 @@ func (j *jsiiProxy_IngressRouteUdp) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "IngressRouteUDP" API object.
 func NewIngressRouteUdp(scope constructs.Construct, id *string, props *IngressRouteUdpProps) IngressRouteUdp {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (i *jsiiProxy_IngressRouteUdp) ToString() *string {
 
 	return returns
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // EventSource contains information for an event.
 type EventSource struct {
 	// Component from which the event is generated.
@@ -8,4 +7,3 @@ type EventSource struct {
 	// Node name on which the event is generated.
 	Host *string `field:"optional" json:"host" yaml:"host"`
 }
-

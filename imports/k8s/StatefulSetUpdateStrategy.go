@@ -1,6 +1,5 @@
 package k8s
 
-
 // StatefulSetUpdateStrategy indicates the strategy that the StatefulSet controller will use to perform updates.
 //
 // It includes any additional parameters necessary to perform the update for the indicated strategy.
@@ -14,4 +13,3 @@ type StatefulSetUpdateStrategy struct {
 	//
 	Type *string `field:"optional" json:"type" yaml:"type"`
 }
-

@@ -124,7 +124,6 @@ func (j *jsiiProxy_KubeFlowSchema) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.flowcontrol.v1.FlowSchema" API object.
 func NewKubeFlowSchema(scope constructs.Construct, id *string, props *KubeFlowSchemaProps) KubeFlowSchema {
 	_init_.Initialize()
@@ -316,4 +315,3 @@ func (k *jsiiProxy_KubeFlowSchema) ToString() *string {
 
 	return returns
 }
-

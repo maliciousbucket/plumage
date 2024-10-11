@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Subject defines the client certificate subject details to add to the X-Forwarded-Tls-Client-Cert-Info header.
 type MiddlewareSpecPassTlsClientCertInfoSubject struct {
 	// CommonName defines whether to add the organizationalUnit information into the subject.
@@ -20,4 +19,3 @@ type MiddlewareSpecPassTlsClientCertInfoSubject struct {
 	// SerialNumber defines whether to add the serialNumber information into the subject.
 	SerialNumber *bool `field:"optional" json:"serialNumber" yaml:"serialNumber"`
 }
-

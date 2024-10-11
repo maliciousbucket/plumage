@@ -1,6 +1,5 @@
 package k8s
 
-
 // ConfigMap holds configuration data for pods to consume.
 type KubeConfigMapProps struct {
 	// BinaryData contains the binary data.
@@ -20,4 +19,3 @@ type KubeConfigMapProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	Metadata *ObjectMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

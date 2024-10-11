@@ -63,4 +63,3 @@ func validateNewKubeResourceQuotaListParameters(scope constructs.Construct, id *
 
 	return nil
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents an NFS mount that lasts the lifetime of a pod.
 //
 // NFS volumes do not support ownership management or SELinux relabeling.
@@ -20,4 +19,3 @@ type NfsVolumeSource struct {
 	//
 	ReadOnly *bool `field:"optional" json:"readOnly" yaml:"readOnly"`
 }
-

@@ -23,4 +23,3 @@ func validateKubeResourceSliceV1Alpha2_OfParameters(c constructs.IConstruct) err
 func validateNewKubeResourceSliceV1Alpha2Parameters(scope constructs.Construct, id *string, props *KubeResourceSliceV1Alpha2Props) error {
 	return nil
 }
-

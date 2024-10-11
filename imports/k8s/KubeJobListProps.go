@@ -1,6 +1,5 @@
 package k8s
 
-
 // JobList is a collection of jobs.
 type KubeJobListProps struct {
 	// items is the list of Jobs.
@@ -10,4 +9,3 @@ type KubeJobListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

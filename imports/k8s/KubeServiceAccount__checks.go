@@ -57,4 +57,3 @@ func validateNewKubeServiceAccountParameters(scope constructs.Construct, id *str
 
 	return nil
 }
-

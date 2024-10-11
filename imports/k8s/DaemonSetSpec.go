@@ -1,6 +1,5 @@
 package k8s
 
-
 // DaemonSetSpec is the specification of a daemon set.
 type DaemonSetSpec struct {
 	// A label query over pods that are managed by the daemon set.
@@ -26,4 +25,3 @@ type DaemonSetSpec struct {
 	// An update strategy to replace existing DaemonSet pods with new pods.
 	UpdateStrategy *DaemonSetUpdateStrategy `field:"optional" json:"updateStrategy" yaml:"updateStrategy"`
 }
-

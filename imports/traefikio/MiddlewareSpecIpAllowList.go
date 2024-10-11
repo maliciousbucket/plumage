@@ -1,6 +1,5 @@
 package traefikio
 
-
 // IPAllowList holds the IP allowlist middleware configuration.
 //
 // This middleware limits allowed requests based on the client IP.
@@ -17,4 +16,3 @@ type MiddlewareSpecIpAllowList struct {
 	// SourceRange defines the set of allowed IPs (or ranges of allowed IPs by using CIDR notation).
 	SourceRange *[]*string `field:"optional" json:"sourceRange" yaml:"sourceRange"`
 }
-

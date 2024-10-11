@@ -1,6 +1,5 @@
 package k8s
 
-
 // EndpointAddress is a tuple that describes single IP address.
 type EndpointAddress struct {
 	// The IP of this endpoint.
@@ -16,4 +15,3 @@ type EndpointAddress struct {
 	// Reference to object providing the endpoint.
 	TargetRef *ObjectReference `field:"optional" json:"targetRef" yaml:"targetRef"`
 }
-

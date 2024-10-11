@@ -1,6 +1,5 @@
 package k8s
 
-
 // ContainerPort represents a network port in a single container.
 type ContainerPort struct {
 	// Number of port to expose on the pod's IP address.
@@ -24,4 +23,3 @@ type ContainerPort struct {
 	//
 	Protocol *string `field:"optional" json:"protocol" yaml:"protocol"`
 }
-

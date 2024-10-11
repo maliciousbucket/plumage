@@ -1,6 +1,5 @@
 package k8s
 
-
 // HPAScalingPolicy is a single policy which must hold true for a specified past interval.
 type HpaScalingPolicyV2 struct {
 	// periodSeconds specifies the window of time for which the policy should hold true.
@@ -14,4 +13,3 @@ type HpaScalingPolicyV2 struct {
 	// It must be greater than zero.
 	Value *float64 `field:"required" json:"value" yaml:"value"`
 }
-

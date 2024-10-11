@@ -25,7 +25,6 @@ func (j *jsiiProxy_ServersTransportTcpSpecTerminationDelay) Value() interface{} 
 	return returns
 }
 
-
 func ServersTransportTcpSpecTerminationDelay_FromNumber(value *float64) ServersTransportTcpSpecTerminationDelay {
 	_init_.Initialize()
 
@@ -61,4 +60,3 @@ func ServersTransportTcpSpecTerminationDelay_FromString(value *string) ServersTr
 
 	return returns
 }
-

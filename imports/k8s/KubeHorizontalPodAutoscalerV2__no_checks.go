@@ -23,4 +23,3 @@ func validateKubeHorizontalPodAutoscalerV2_OfParameters(c constructs.IConstruct)
 func validateNewKubeHorizontalPodAutoscalerV2Parameters(scope constructs.Construct, id *string, props *KubeHorizontalPodAutoscalerV2Props) error {
 	return nil
 }
-

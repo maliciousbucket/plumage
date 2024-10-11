@@ -63,4 +63,3 @@ func validateNewKubeClusterTrustBundleV1Alpha1Parameters(scope constructs.Constr
 
 	return nil
 }
-

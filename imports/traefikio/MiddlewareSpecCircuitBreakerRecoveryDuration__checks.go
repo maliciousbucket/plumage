@@ -21,4 +21,3 @@ func validateMiddlewareSpecCircuitBreakerRecoveryDuration_FromStringParameters(v
 
 	return nil
 }
-

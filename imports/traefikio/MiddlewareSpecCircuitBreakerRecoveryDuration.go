@@ -25,7 +25,6 @@ func (j *jsiiProxy_MiddlewareSpecCircuitBreakerRecoveryDuration) Value() interfa
 	return returns
 }
 
-
 func MiddlewareSpecCircuitBreakerRecoveryDuration_FromNumber(value *float64) MiddlewareSpecCircuitBreakerRecoveryDuration {
 	_init_.Initialize()
 
@@ -61,4 +60,3 @@ func MiddlewareSpecCircuitBreakerRecoveryDuration_FromString(value *string) Midd
 
 	return returns
 }
-

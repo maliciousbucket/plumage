@@ -1,6 +1,5 @@
 package k8s
 
-
 // NonResourceAttributes includes the authorization attributes available for non-resource requests to the Authorizer interface.
 type NonResourceAttributes struct {
 	// Path is the URL path of the request.
@@ -8,4 +7,3 @@ type NonResourceAttributes struct {
 	// Verb is the standard HTTP verb.
 	Verb *string `field:"optional" json:"verb" yaml:"verb"`
 }
-

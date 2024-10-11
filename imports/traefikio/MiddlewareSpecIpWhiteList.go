@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Deprecated: please use IPAllowList instead.
 type MiddlewareSpecIpWhiteList struct {
 	// IPStrategy holds the IP strategy configuration used by Traefik to determine the client IP.
@@ -12,4 +11,3 @@ type MiddlewareSpecIpWhiteList struct {
 	// Required.
 	SourceRange *[]*string `field:"optional" json:"sourceRange" yaml:"sourceRange"`
 }
-

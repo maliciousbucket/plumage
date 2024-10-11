@@ -9,7 +9,6 @@ type VerticalPodAutoscalerProps struct {
 	// Specification of the behavior of the autoscaler.
 	//
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
-	Spec *VerticalPodAutoscalerSpec `field:"required" json:"spec" yaml:"spec"`
-	Metadata *cdk8s.ApiObjectMetadata `field:"optional" json:"metadata" yaml:"metadata"`
+	Spec     *VerticalPodAutoscalerSpec `field:"required" json:"spec" yaml:"spec"`
+	Metadata *cdk8s.ApiObjectMetadata   `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

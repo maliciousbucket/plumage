@@ -1,6 +1,5 @@
 package traefikio
 
-
 // StripPrefix holds the strip prefix middleware configuration.
 //
 // This middleware removes the specified prefixes from the URL path.
@@ -14,4 +13,3 @@ type MiddlewareSpecStripPrefix struct {
 	// Prefixes defines the prefixes to strip from the request URL.
 	Prefixes *[]*string `field:"optional" json:"prefixes" yaml:"prefixes"`
 }
-

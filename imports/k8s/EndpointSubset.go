@@ -1,6 +1,5 @@
 package k8s
 
-
 // EndpointSubset is a group of addresses with a common set of ports.
 //
 // The expanded set of endpoints is the Cartesian product of Addresses x Ports. For example, given:
@@ -24,4 +23,3 @@ type EndpointSubset struct {
 	// Port numbers available on the related IP addresses.
 	Ports *[]*EndpointPort `field:"optional" json:"ports" yaml:"ports"`
 }
-

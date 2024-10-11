@@ -23,4 +23,3 @@ func validateKubeStatefulSet_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeStatefulSetParameters(scope constructs.Construct, id *string, props *KubeStatefulSetProps) error {
 	return nil
 }
-

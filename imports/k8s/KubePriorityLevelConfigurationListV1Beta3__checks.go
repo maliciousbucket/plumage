@@ -63,4 +63,3 @@ func validateNewKubePriorityLevelConfigurationListV1Beta3Parameters(scope constr
 
 	return nil
 }
-

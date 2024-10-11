@@ -1,6 +1,5 @@
 package k8s
 
-
 // MutatingWebhook describes an admission webhook and the resources and operations it applies to.
 type MutatingWebhook struct {
 	// AdmissionReviewVersions is an ordered list of preferred `AdmissionReview` versions the Webhook expects.
@@ -111,4 +110,3 @@ type MutatingWebhook struct {
 	//
 	TimeoutSeconds *float64 `field:"optional" json:"timeoutSeconds" yaml:"timeoutSeconds"`
 }
-

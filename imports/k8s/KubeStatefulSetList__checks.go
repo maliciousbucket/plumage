@@ -63,4 +63,3 @@ func validateNewKubeStatefulSetListParameters(scope constructs.Construct, id *st
 
 	return nil
 }
-

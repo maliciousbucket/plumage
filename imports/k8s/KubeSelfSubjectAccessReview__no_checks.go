@@ -23,4 +23,3 @@ func validateKubeSelfSubjectAccessReview_OfParameters(c constructs.IConstruct) e
 func validateNewKubeSelfSubjectAccessReviewParameters(scope constructs.Construct, id *string, props *KubeSelfSubjectAccessReviewProps) error {
 	return nil
 }
-

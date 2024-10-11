@@ -1,6 +1,5 @@
 package traefikio
 
-
 // ForwardAuth holds the forward auth middleware configuration.
 //
 // This middleware delegates the request authentication to a Service.
@@ -25,4 +24,3 @@ type MiddlewareSpecForwardAuth struct {
 	// TrustForwardHeader defines whether to trust (ie: forward) all X-Forwarded-* headers.
 	TrustForwardHeader *bool `field:"optional" json:"trustForwardHeader" yaml:"trustForwardHeader"`
 }
-

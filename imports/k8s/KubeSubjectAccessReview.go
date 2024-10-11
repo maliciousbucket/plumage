@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeSubjectAccessReview) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.authorization.v1.SubjectAccessReview" API object.
 func NewKubeSubjectAccessReview(scope constructs.Construct, id *string, props *KubeSubjectAccessReviewProps) KubeSubjectAccessReview {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeSubjectAccessReview) ToString() *string {
 
 	return returns
 }
-

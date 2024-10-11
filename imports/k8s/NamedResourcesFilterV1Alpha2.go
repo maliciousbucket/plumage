@@ -1,6 +1,5 @@
 package k8s
 
-
 // NamedResourcesFilter is used in ResourceFilterModel.
 type NamedResourcesFilterV1Alpha2 struct {
 	// Selector is a CEL expression which must evaluate to true if a resource instance is suitable.
@@ -13,4 +12,3 @@ type NamedResourcesFilterV1Alpha2 struct {
 	// attributes.stringslice["b"].isSorted()
 	Selector *string `field:"required" json:"selector" yaml:"selector"`
 }
-

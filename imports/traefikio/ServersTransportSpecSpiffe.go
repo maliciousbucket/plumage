@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Spiffe defines the SPIFFE configuration.
 type ServersTransportSpecSpiffe struct {
 	// IDs defines the allowed SPIFFE IDs (takes precedence over the SPIFFE TrustDomain).
@@ -8,4 +7,3 @@ type ServersTransportSpecSpiffe struct {
 	// TrustDomain defines the allowed SPIFFE trust domain.
 	TrustDomain *string `field:"optional" json:"trustDomain" yaml:"trustDomain"`
 }
-

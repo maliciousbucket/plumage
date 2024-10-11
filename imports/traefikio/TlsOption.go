@@ -124,7 +124,6 @@ func (j *jsiiProxy_TlsOption) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "TLSOption" API object.
 func NewTlsOption(scope constructs.Construct, id *string, props *TlsOptionProps) TlsOption {
 	_init_.Initialize()
@@ -316,4 +315,3 @@ func (t *jsiiProxy_TlsOption) ToString() *string {
 
 	return returns
 }
-

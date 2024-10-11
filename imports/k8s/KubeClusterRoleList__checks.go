@@ -63,4 +63,3 @@ func validateNewKubeClusterRoleListParameters(scope constructs.Construct, id *st
 
 	return nil
 }
-

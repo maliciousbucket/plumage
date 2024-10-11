@@ -14,4 +14,3 @@ type TlsStoreProps struct {
 	// TLSStoreSpec defines the desired state of a TLSStore.
 	Spec *TlsStoreSpec `field:"required" json:"spec" yaml:"spec"`
 }
-

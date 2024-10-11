@@ -21,4 +21,3 @@ func validateIngressRouteSpecRoutesServicesPort_FromStringParameters(value *stri
 
 	return nil
 }
-

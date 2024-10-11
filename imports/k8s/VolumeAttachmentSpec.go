@@ -1,6 +1,5 @@
 package k8s
 
-
 // VolumeAttachmentSpec is the specification of a VolumeAttachment request.
 type VolumeAttachmentSpec struct {
 	// attacher indicates the name of the volume driver that MUST handle this request.
@@ -12,4 +11,3 @@ type VolumeAttachmentSpec struct {
 	// source represents the volume that should be attached.
 	Source *VolumeAttachmentSource `field:"required" json:"source" yaml:"source"`
 }
-

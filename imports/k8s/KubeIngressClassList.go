@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeIngressClassList) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.networking.v1.IngressClassList" API object.
 func NewKubeIngressClassList(scope constructs.Construct, id *string, props *KubeIngressClassListProps) KubeIngressClassList {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeIngressClassList) ToString() *string {
 
 	return returns
 }
-

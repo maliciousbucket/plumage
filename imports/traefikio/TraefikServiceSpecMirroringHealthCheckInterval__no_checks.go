@@ -11,4 +11,3 @@ func validateTraefikServiceSpecMirroringHealthCheckInterval_FromNumberParameters
 func validateTraefikServiceSpecMirroringHealthCheckInterval_FromStringParameters(value *string) error {
 	return nil
 }
-

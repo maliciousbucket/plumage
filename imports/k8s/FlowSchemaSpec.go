@@ -1,6 +1,5 @@
 package k8s
 
-
 // FlowSchemaSpec describes how the FlowSchema's specification looks like.
 type FlowSchemaSpec struct {
 	// `priorityLevelConfiguration` should reference a PriorityLevelConfiguration in the cluster.
@@ -20,4 +19,3 @@ type FlowSchemaSpec struct {
 	// This FlowSchema matches a request if and only if at least one member of rules matches the request. if it is an empty slice, there will be no requests matching the FlowSchema.
 	Rules *[]*PolicyRulesWithSubjects `field:"optional" json:"rules" yaml:"rules"`
 }
-

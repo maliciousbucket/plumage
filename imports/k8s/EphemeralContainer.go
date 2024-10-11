@@ -1,6 +1,5 @@
 package k8s
 
-
 // An EphemeralContainer is a temporary container that you may add to an existing Pod for user-initiated activities such as debugging.
 //
 // Ephemeral containers have no resource or scheduling guarantees, and they will not be restarted when they exit or when a Pod is removed or restarted. The kubelet may evict a Pod if an ephemeral container causes the Pod to exceed its resource allocation.
@@ -108,4 +107,3 @@ type EphemeralContainer struct {
 	// If not specified, the container runtime's default will be used, which might be configured in the container image. Cannot be updated.
 	WorkingDir *string `field:"optional" json:"workingDir" yaml:"workingDir"`
 }
-

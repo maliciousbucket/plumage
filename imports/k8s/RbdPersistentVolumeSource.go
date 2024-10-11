@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents a Rados Block Device mount that lasts the lifetime of a pod.
 //
 // RBD volumes support ownership management and SELinux relabeling.
@@ -48,4 +47,3 @@ type RbdPersistentVolumeSource struct {
 	//
 	User *string `field:"optional" json:"user" yaml:"user"`
 }
-

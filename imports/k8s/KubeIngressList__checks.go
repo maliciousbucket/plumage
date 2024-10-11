@@ -63,4 +63,3 @@ func validateNewKubeIngressListParameters(scope constructs.Construct, id *string
 
 	return nil
 }
-

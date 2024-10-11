@@ -1,6 +1,5 @@
 package k8s
 
-
 // PersistentVolumeClaimSpec describes the common attributes of storage devices and allows a Source for provider-specific attributes.
 type PersistentVolumeClaimSpec struct {
 	// accessModes contains the desired access modes the volume should have.
@@ -41,4 +40,3 @@ type PersistentVolumeClaimSpec struct {
 	// volumeName is the binding reference to the PersistentVolume backing this claim.
 	VolumeName *string `field:"optional" json:"volumeName" yaml:"volumeName"`
 }
-

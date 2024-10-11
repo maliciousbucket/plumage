@@ -126,7 +126,6 @@ func (j *jsiiProxy_ServersTransport) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "ServersTransport" API object.
 func NewServersTransport(scope constructs.Construct, id *string, props *ServersTransportProps) ServersTransport {
 	_init_.Initialize()
@@ -318,4 +317,3 @@ func (s *jsiiProxy_ServersTransport) ToString() *string {
 
 	return returns
 }
-

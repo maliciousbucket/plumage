@@ -24,7 +24,6 @@ func (j *jsiiProxy_Quantity) Value() interface{} {
 	return returns
 }
 
-
 func Quantity_FromNumber(value *float64) Quantity {
 	_init_.Initialize()
 
@@ -60,4 +59,3 @@ func Quantity_FromString(value *string) Quantity {
 
 	return returns
 }
-

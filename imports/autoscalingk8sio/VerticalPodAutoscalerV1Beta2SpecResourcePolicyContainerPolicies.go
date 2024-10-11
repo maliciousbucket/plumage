@@ -1,6 +1,5 @@
 package autoscalingk8sio
 
-
 // ContainerResourcePolicy controls how autoscaler computes the recommended resources for a specific container.
 type VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPolicies struct {
 	// Name of the container or DefaultContainerResourcePolicy, in which case the policy is used by the containers that don't have their own policy specified.
@@ -18,4 +17,3 @@ type VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPolicies struct {
 	// The default is "Auto".
 	Mode VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMode `field:"optional" json:"mode" yaml:"mode"`
 }
-

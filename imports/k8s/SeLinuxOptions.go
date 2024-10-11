@@ -1,6 +1,5 @@
 package k8s
 
-
 // SELinuxOptions are the labels to be applied to the container.
 type SeLinuxOptions struct {
 	// Level is SELinux level label that applies to the container.
@@ -12,4 +11,3 @@ type SeLinuxOptions struct {
 	// User is a SELinux user label that applies to the container.
 	User *string `field:"optional" json:"user" yaml:"user"`
 }
-

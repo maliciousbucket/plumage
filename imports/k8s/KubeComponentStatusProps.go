@@ -1,6 +1,5 @@
 package k8s
 
-
 // ComponentStatus (and ComponentStatusList) holds the cluster validation info.
 //
 // Deprecated: This API is deprecated in v1.19+
@@ -12,4 +11,3 @@ type KubeComponentStatusProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	Metadata *ObjectMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

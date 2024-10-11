@@ -1,6 +1,5 @@
 package k8s
 
-
 // PodFailurePolicyOnPodConditionsPattern describes a pattern for matching an actual pod condition type.
 type PodFailurePolicyOnPodConditionsPattern struct {
 	// Specifies the required Pod condition status.
@@ -14,4 +13,3 @@ type PodFailurePolicyOnPodConditionsPattern struct {
 	// To match a pod condition it is required that specified type equals the pod condition type.
 	Type *string `field:"required" json:"type" yaml:"type"`
 }
-

@@ -63,4 +63,3 @@ func validateNewKubeCsiStorageCapacityListParameters(scope constructs.Construct,
 
 	return nil
 }
-

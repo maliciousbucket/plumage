@@ -21,4 +21,3 @@ type Taint struct {
 	// The taint value corresponding to the taint key.
 	Value *string `field:"optional" json:"value" yaml:"value"`
 }
-

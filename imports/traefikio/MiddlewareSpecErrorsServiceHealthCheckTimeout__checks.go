@@ -21,4 +21,3 @@ func validateMiddlewareSpecErrorsServiceHealthCheckTimeout_FromStringParameters(
 
 	return nil
 }
-

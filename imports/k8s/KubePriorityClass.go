@@ -124,7 +124,6 @@ func (j *jsiiProxy_KubePriorityClass) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.scheduling.v1.PriorityClass" API object.
 func NewKubePriorityClass(scope constructs.Construct, id *string, props *KubePriorityClassProps) KubePriorityClass {
 	_init_.Initialize()
@@ -316,4 +315,3 @@ func (k *jsiiProxy_KubePriorityClass) ToString() *string {
 
 	return returns
 }
-

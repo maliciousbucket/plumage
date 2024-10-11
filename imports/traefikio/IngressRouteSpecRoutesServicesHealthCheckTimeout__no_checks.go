@@ -11,4 +11,3 @@ func validateIngressRouteSpecRoutesServicesHealthCheckTimeout_FromNumberParamete
 func validateIngressRouteSpecRoutesServicesHealthCheckTimeout_FromStringParameters(value *string) error {
 	return nil
 }
-

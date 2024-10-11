@@ -11,4 +11,3 @@ func validateServersTransportSpecForwardingTimeoutsResponseHeaderTimeout_FromNum
 func validateServersTransportSpecForwardingTimeoutsResponseHeaderTimeout_FromStringParameters(value *string) error {
 	return nil
 }
-

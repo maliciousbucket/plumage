@@ -1,6 +1,5 @@
 package k8s
 
-
 // Scheduling specifies the scheduling constraints for nodes supporting a RuntimeClass.
 type Scheduling struct {
 	// nodeSelector lists labels that must be present on nodes that support this RuntimeClass.
@@ -10,4 +9,3 @@ type Scheduling struct {
 	// tolerations are appended (excluding duplicates) to pods running with this RuntimeClass during admission, effectively unioning the set of nodes tolerated by the pod and the RuntimeClass.
 	Tolerations *[]*Toleration `field:"optional" json:"tolerations" yaml:"tolerations"`
 }
-

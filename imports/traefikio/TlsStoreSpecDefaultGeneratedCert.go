@@ -1,6 +1,5 @@
 package traefikio
 
-
 // DefaultGeneratedCert defines the default generated certificate configuration.
 type TlsStoreSpecDefaultGeneratedCert struct {
 	// Domain is the domain definition for the DefaultCertificate.
@@ -8,4 +7,3 @@ type TlsStoreSpecDefaultGeneratedCert struct {
 	// Resolver is the name of the resolver that will be used to issue the DefaultCertificate.
 	Resolver *string `field:"optional" json:"resolver" yaml:"resolver"`
 }
-

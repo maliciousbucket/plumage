@@ -1,6 +1,5 @@
 package k8s
 
-
 // Endpoint represents a single logical "backend" implementing a service.
 type Endpoint struct {
 	// addresses of this endpoint.
@@ -28,4 +27,3 @@ type Endpoint struct {
 	// zone is the name of the Zone this endpoint exists in.
 	Zone *string `field:"optional" json:"zone" yaml:"zone"`
 }
-

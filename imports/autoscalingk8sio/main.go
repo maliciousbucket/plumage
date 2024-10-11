@@ -115,7 +115,7 @@ func init() {
 		reflect.TypeOf((*VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesControlledValues)(nil)).Elem(),
 		map[string]interface{}{
 			"REQUESTS_AND_LIMITS": VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesControlledValues_REQUESTS_AND_LIMITS,
-			"REQUESTS_ONLY": VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesControlledValues_REQUESTS_ONLY,
+			"REQUESTS_ONLY":       VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesControlledValues_REQUESTS_ONLY,
 		},
 	)
 	_jsii_.RegisterClass(
@@ -143,7 +143,7 @@ func init() {
 		reflect.TypeOf((*VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMode)(nil)).Elem(),
 		map[string]interface{}{
 			"AUTO": VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMode_AUTO,
-			"OFF": VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMode_OFF,
+			"OFF":  VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMode_OFF,
 		},
 	)
 	_jsii_.RegisterStruct(
@@ -163,17 +163,17 @@ func init() {
 		reflect.TypeOf((*VerticalPodAutoscalerSpecUpdatePolicyEvictionRequirementsChangeRequirement)(nil)).Elem(),
 		map[string]interface{}{
 			"TARGET_HIGHER_THAN_REQUESTS": VerticalPodAutoscalerSpecUpdatePolicyEvictionRequirementsChangeRequirement_TARGET_HIGHER_THAN_REQUESTS,
-			"TARGET_LOWER_THAN_REQUESTS": VerticalPodAutoscalerSpecUpdatePolicyEvictionRequirementsChangeRequirement_TARGET_LOWER_THAN_REQUESTS,
+			"TARGET_LOWER_THAN_REQUESTS":  VerticalPodAutoscalerSpecUpdatePolicyEvictionRequirementsChangeRequirement_TARGET_LOWER_THAN_REQUESTS,
 		},
 	)
 	_jsii_.RegisterEnum(
 		"autoscalingk8sio.VerticalPodAutoscalerSpecUpdatePolicyUpdateMode",
 		reflect.TypeOf((*VerticalPodAutoscalerSpecUpdatePolicyUpdateMode)(nil)).Elem(),
 		map[string]interface{}{
-			"OFF": VerticalPodAutoscalerSpecUpdatePolicyUpdateMode_OFF,
-			"INITIAL": VerticalPodAutoscalerSpecUpdatePolicyUpdateMode_INITIAL,
+			"OFF":      VerticalPodAutoscalerSpecUpdatePolicyUpdateMode_OFF,
+			"INITIAL":  VerticalPodAutoscalerSpecUpdatePolicyUpdateMode_INITIAL,
 			"RECREATE": VerticalPodAutoscalerSpecUpdatePolicyUpdateMode_RECREATE,
-			"AUTO": VerticalPodAutoscalerSpecUpdatePolicyUpdateMode_AUTO,
+			"AUTO":     VerticalPodAutoscalerSpecUpdatePolicyUpdateMode_AUTO,
 		},
 	)
 	_jsii_.RegisterClass(
@@ -239,7 +239,7 @@ func init() {
 		reflect.TypeOf((*VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMode)(nil)).Elem(),
 		map[string]interface{}{
 			"AUTO": VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMode_AUTO,
-			"OFF": VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMode_OFF,
+			"OFF":  VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMode_OFF,
 		},
 	)
 	_jsii_.RegisterStruct(
@@ -254,10 +254,10 @@ func init() {
 		"autoscalingk8sio.VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode",
 		reflect.TypeOf((*VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode)(nil)).Elem(),
 		map[string]interface{}{
-			"OFF": VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode_OFF,
-			"INITIAL": VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode_INITIAL,
+			"OFF":      VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode_OFF,
+			"INITIAL":  VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode_INITIAL,
 			"RECREATE": VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode_RECREATE,
-			"AUTO": VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode_AUTO,
+			"AUTO":     VerticalPodAutoscalerV1Beta2SpecUpdatePolicyUpdateMode_AUTO,
 		},
 	)
 }

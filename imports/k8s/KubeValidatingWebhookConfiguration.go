@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeValidatingWebhookConfiguration) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.admissionregistration.v1.ValidatingWebhookConfiguration" API object.
 func NewKubeValidatingWebhookConfiguration(scope constructs.Construct, id *string, props *KubeValidatingWebhookConfigurationProps) KubeValidatingWebhookConfiguration {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeValidatingWebhookConfiguration) ToString() *string {
 
 	return returns
 }
-

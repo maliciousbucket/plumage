@@ -1,6 +1,5 @@
 package traefikio
 
-
 // ClientAuth defines the server's policy for TLS Client Authentication.
 type TlsOptionSpecClientAuth struct {
 	// ClientAuthType defines the client authentication type to apply.
@@ -8,4 +7,3 @@ type TlsOptionSpecClientAuth struct {
 	// SecretNames defines the names of the referenced Kubernetes Secret storing certificate details.
 	SecretNames *[]*string `field:"optional" json:"secretNames" yaml:"secretNames"`
 }
-

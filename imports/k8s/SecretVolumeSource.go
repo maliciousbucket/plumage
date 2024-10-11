@@ -1,6 +1,5 @@
 package k8s
 
-
 // Adapts a Secret into a volume.
 //
 // The contents of the target Secret's Data field will be presented in a volume as files using the keys in the Data field as the file names. Secret volumes support ownership management and SELinux relabeling.
@@ -22,4 +21,3 @@ type SecretVolumeSource struct {
 	// More info: https://kubernetes.io/docs/concepts/storage/volumes#secret
 	SecretName *string `field:"optional" json:"secretName" yaml:"secretName"`
 }
-

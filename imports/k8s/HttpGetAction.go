@@ -1,6 +1,5 @@
 package k8s
 
-
 // HTTPGetAction describes an action based on HTTP Get requests.
 type HttpGetAction struct {
 	// Name or number of the port to access on the container.
@@ -24,4 +23,3 @@ type HttpGetAction struct {
 	//
 	Scheme *string `field:"optional" json:"scheme" yaml:"scheme"`
 }
-

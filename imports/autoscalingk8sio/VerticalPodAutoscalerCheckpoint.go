@@ -122,7 +122,6 @@ func (j *jsiiProxy_VerticalPodAutoscalerCheckpoint) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "VerticalPodAutoscalerCheckpoint" API object.
 func NewVerticalPodAutoscalerCheckpoint(scope constructs.Construct, id *string, props *VerticalPodAutoscalerCheckpointProps) VerticalPodAutoscalerCheckpoint {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (v *jsiiProxy_VerticalPodAutoscalerCheckpoint) ToString() *string {
 
 	return returns
 }
-

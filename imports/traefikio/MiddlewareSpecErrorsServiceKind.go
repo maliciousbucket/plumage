@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Kind defines the kind of the Service.
 type MiddlewareSpecErrorsServiceKind string
 
@@ -10,4 +9,3 @@ const (
 	// TraefikService.
 	MiddlewareSpecErrorsServiceKind_TRAEFIK_SERVICE MiddlewareSpecErrorsServiceKind = "TRAEFIK_SERVICE"
 )
-

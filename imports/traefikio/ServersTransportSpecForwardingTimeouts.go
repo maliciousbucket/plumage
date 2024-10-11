@@ -1,6 +1,5 @@
 package traefikio
 
-
 // ForwardingTimeouts defines the timeouts for requests forwarded to the backend servers.
 type ServersTransportSpecForwardingTimeouts struct {
 	// DialTimeout is the amount of time to wait until a connection to a backend server can be established.
@@ -14,4 +13,3 @@ type ServersTransportSpecForwardingTimeouts struct {
 	// ResponseHeaderTimeout is the amount of time to wait for a server's response headers after fully writing the request (including its body, if any).
 	ResponseHeaderTimeout ServersTransportSpecForwardingTimeoutsResponseHeaderTimeout `field:"optional" json:"responseHeaderTimeout" yaml:"responseHeaderTimeout"`
 }
-

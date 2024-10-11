@@ -1,6 +1,5 @@
 package k8s
 
-
 // IngressServiceBackend references a Kubernetes Service as a Backend.
 type IngressServiceBackend struct {
 	// name is the referenced service.
@@ -12,4 +11,3 @@ type IngressServiceBackend struct {
 	// A port name or port number is required for a IngressServiceBackend.
 	Port *ServiceBackendPort `field:"optional" json:"port" yaml:"port"`
 }
-

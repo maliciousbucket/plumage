@@ -23,4 +23,3 @@ func validateKubeApiServiceList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeApiServiceListParameters(scope constructs.Construct, id *string, props *KubeApiServiceListProps) error {
 	return nil
 }
-

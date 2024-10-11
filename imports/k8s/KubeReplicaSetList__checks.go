@@ -63,4 +63,3 @@ func validateNewKubeReplicaSetListParameters(scope constructs.Construct, id *str
 
 	return nil
 }
-

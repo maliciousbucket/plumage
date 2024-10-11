@@ -23,4 +23,3 @@ func validateServersTransport_OfParameters(c constructs.IConstruct) error {
 func validateNewServersTransportParameters(scope constructs.Construct, id *string, props *ServersTransportProps) error {
 	return nil
 }
-

@@ -27,7 +27,6 @@ func (j *jsiiProxy_MiddlewareSpecRateLimitPeriod) Value() interface{} {
 	return returns
 }
 
-
 func MiddlewareSpecRateLimitPeriod_FromNumber(value *float64) MiddlewareSpecRateLimitPeriod {
 	_init_.Initialize()
 
@@ -63,4 +62,3 @@ func MiddlewareSpecRateLimitPeriod_FromString(value *string) MiddlewareSpecRateL
 
 	return returns
 }
-

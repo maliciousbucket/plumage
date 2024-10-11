@@ -21,4 +21,3 @@ func validateMiddlewareSpecErrorsServiceHealthCheckInterval_FromStringParameters
 
 	return nil
 }
-

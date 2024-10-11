@@ -1,6 +1,5 @@
 package traefikio
 
-
 // ServiceTCP defines an upstream TCP service to proxy traffic to.
 type IngressRouteTcpSpecRoutesServices struct {
 	// Name defines the name of the referenced Kubernetes Service.
@@ -41,4 +40,3 @@ type IngressRouteTcpSpecRoutesServices struct {
 	// Weight defines the weight used when balancing requests between multiple Kubernetes Service.
 	Weight *float64 `field:"optional" json:"weight" yaml:"weight"`
 }
-

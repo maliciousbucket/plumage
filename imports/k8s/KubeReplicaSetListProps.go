@@ -1,6 +1,5 @@
 package k8s
 
-
 // ReplicaSetList is a collection of ReplicaSets.
 type KubeReplicaSetListProps struct {
 	// List of ReplicaSets.
@@ -12,4 +11,3 @@ type KubeReplicaSetListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

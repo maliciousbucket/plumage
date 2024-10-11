@@ -23,4 +23,3 @@ func validateKubeCronJobList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeCronJobListParameters(scope constructs.Construct, id *string, props *KubeCronJobListProps) error {
 	return nil
 }
-

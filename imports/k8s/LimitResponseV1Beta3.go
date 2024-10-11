@@ -1,6 +1,5 @@
 package k8s
 
-
 // LimitResponse defines how to handle requests that can not be executed right now.
 type LimitResponseV1Beta3 struct {
 	// `type` is "Queue" or "Reject".
@@ -12,4 +11,3 @@ type LimitResponseV1Beta3 struct {
 	// This field may be non-empty only if `type` is `"Queue"`.
 	Queuing *QueuingConfigurationV1Beta3 `field:"optional" json:"queuing" yaml:"queuing"`
 }
-

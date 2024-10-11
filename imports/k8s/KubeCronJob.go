@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeCronJob) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.batch.v1.CronJob" API object.
 func NewKubeCronJob(scope constructs.Construct, id *string, props *KubeCronJobProps) KubeCronJob {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeCronJob) ToString() *string {
 
 	return returns
 }
-

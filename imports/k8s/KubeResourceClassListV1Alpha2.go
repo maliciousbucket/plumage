@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeResourceClassListV1Alpha2) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.resource.v1alpha2.ResourceClassList" API object.
 func NewKubeResourceClassListV1Alpha2(scope constructs.Construct, id *string, props *KubeResourceClassListV1Alpha2Props) KubeResourceClassListV1Alpha2 {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeResourceClassListV1Alpha2) ToString() *string {
 
 	return returns
 }
-

@@ -14,4 +14,3 @@ type ServersTransportTcpProps struct {
 	// ServersTransportTCPSpec defines the desired state of a ServersTransportTCP.
 	Spec *ServersTransportTcpSpec `field:"required" json:"spec" yaml:"spec"`
 }
-

@@ -1,6 +1,5 @@
 package traefikio
 
-
 // InFlightReq holds the in-flight request middleware configuration.
 //
 // This middleware limits the number of requests being processed and served concurrently.
@@ -17,4 +16,3 @@ type MiddlewareSpecInFlightReq struct {
 	// More info: https://doc.traefik.io/traefik/v3.1/middlewares/http/inflightreq/#sourcecriterion
 	SourceCriterion *MiddlewareSpecInFlightReqSourceCriterion `field:"optional" json:"sourceCriterion" yaml:"sourceCriterion"`
 }
-

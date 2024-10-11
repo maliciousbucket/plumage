@@ -1,6 +1,5 @@
 package traefikio
 
-
 // MiddlewareTCPSpec defines the desired state of a MiddlewareTCP.
 type MiddlewareTcpSpec struct {
 	// InFlightConn defines the InFlightConn middleware configuration.
@@ -17,4 +16,3 @@ type MiddlewareTcpSpec struct {
 	// More info: https://doc.traefik.io/traefik/v3.1/middlewares/tcp/ipwhitelist/
 	IpWhiteList *MiddlewareTcpSpecIpWhiteList `field:"optional" json:"ipWhiteList" yaml:"ipWhiteList"`
 }
-

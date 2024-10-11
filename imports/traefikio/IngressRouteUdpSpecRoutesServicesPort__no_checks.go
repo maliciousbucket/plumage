@@ -11,4 +11,3 @@ func validateIngressRouteUdpSpecRoutesServicesPort_FromNumberParameters(value *f
 func validateIngressRouteUdpSpecRoutesServicesPort_FromStringParameters(value *string) error {
 	return nil
 }
-

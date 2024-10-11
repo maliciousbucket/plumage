@@ -1,6 +1,5 @@
 package k8s
 
-
 // BoundObjectReference is a reference to an object that a token is bound to.
 type BoundObjectReference struct {
 	// API version of the referent.
@@ -14,4 +13,3 @@ type BoundObjectReference struct {
 	// UID of the referent.
 	Uid *string `field:"optional" json:"uid" yaml:"uid"`
 }
-

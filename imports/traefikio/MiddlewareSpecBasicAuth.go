@@ -1,6 +1,5 @@
 package traefikio
 
-
 // BasicAuth holds the basic auth middleware configuration.
 //
 // This middleware restricts access to your services to known users.
@@ -21,4 +20,3 @@ type MiddlewareSpecBasicAuth struct {
 	// Secret is the name of the referenced Kubernetes Secret containing user credentials.
 	Secret *string `field:"optional" json:"secret" yaml:"secret"`
 }
-

@@ -63,4 +63,3 @@ func validateNewKubeTokenRequestParameters(scope constructs.Construct, id *strin
 
 	return nil
 }
-

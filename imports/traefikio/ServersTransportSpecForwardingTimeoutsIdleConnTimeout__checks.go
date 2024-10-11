@@ -21,4 +21,3 @@ func validateServersTransportSpecForwardingTimeoutsIdleConnTimeout_FromStringPar
 
 	return nil
 }
-

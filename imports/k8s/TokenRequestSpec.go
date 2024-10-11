@@ -1,6 +1,5 @@
 package k8s
 
-
 // TokenRequestSpec contains client provided parameters of a token request.
 type TokenRequestSpec struct {
 	// Audiences are the intendend audiences of the token.
@@ -16,4 +15,3 @@ type TokenRequestSpec struct {
 	// The token issuer may return a token with a different validity duration so a client needs to check the 'expiration' field in a response.
 	ExpirationSeconds *float64 `field:"optional" json:"expirationSeconds" yaml:"expirationSeconds"`
 }
-

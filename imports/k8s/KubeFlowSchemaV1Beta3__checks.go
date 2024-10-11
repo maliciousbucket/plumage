@@ -57,4 +57,3 @@ func validateNewKubeFlowSchemaV1Beta3Parameters(scope constructs.Construct, id *
 
 	return nil
 }
-

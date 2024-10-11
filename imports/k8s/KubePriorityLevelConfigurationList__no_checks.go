@@ -23,4 +23,3 @@ func validateKubePriorityLevelConfigurationList_OfParameters(c constructs.IConst
 func validateNewKubePriorityLevelConfigurationListParameters(scope constructs.Construct, id *string, props *KubePriorityLevelConfigurationListProps) error {
 	return nil
 }
-

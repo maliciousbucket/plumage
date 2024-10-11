@@ -12,4 +12,3 @@ type VerticalPodAutoscalerCheckpointV1Beta2Props struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
 	Spec *VerticalPodAutoscalerCheckpointV1Beta2Spec `field:"optional" json:"spec" yaml:"spec"`
 }
-

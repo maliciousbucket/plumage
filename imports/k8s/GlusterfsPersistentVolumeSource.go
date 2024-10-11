@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents a Glusterfs mount that lasts the lifetime of a pod.
 //
 // Glusterfs volumes do not support ownership management or SELinux relabeling.
@@ -24,4 +23,3 @@ type GlusterfsPersistentVolumeSource struct {
 	//
 	ReadOnly *bool `field:"optional" json:"readOnly" yaml:"readOnly"`
 }
-

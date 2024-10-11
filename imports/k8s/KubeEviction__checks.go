@@ -57,4 +57,3 @@ func validateNewKubeEvictionParameters(scope constructs.Construct, id *string, p
 
 	return nil
 }
-

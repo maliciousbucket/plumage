@@ -1,6 +1,5 @@
 package k8s
 
-
 // LimitedPriorityLevelConfiguration specifies how to handle requests that are subject to limits.
 //
 // It addresses two issues:
@@ -32,4 +31,3 @@ type LimitedPriorityLevelConfigurationV1Beta3 struct {
 	// Bigger numbers mean a larger nominal concurrency limit, at the expense of every other priority level. This field has a default value of 30.
 	NominalConcurrencyShares *float64 `field:"optional" json:"nominalConcurrencyShares" yaml:"nominalConcurrencyShares"`
 }
-

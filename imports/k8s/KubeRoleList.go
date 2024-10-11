@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeRoleList) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.rbac.v1.RoleList" API object.
 func NewKubeRoleList(scope constructs.Construct, id *string, props *KubeRoleListProps) KubeRoleList {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeRoleList) ToString() *string {
 
 	return returns
 }
-

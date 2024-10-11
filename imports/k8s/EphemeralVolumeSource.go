@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents an ephemeral volume that is handled by a normal storage driver.
 type EphemeralVolumeSource struct {
 	// Will be used to create a stand-alone PVC to provision the volume.
@@ -14,4 +13,3 @@ type EphemeralVolumeSource struct {
 	// Required, must not be nil.
 	VolumeClaimTemplate *PersistentVolumeClaimTemplate `field:"optional" json:"volumeClaimTemplate" yaml:"volumeClaimTemplate"`
 }
-

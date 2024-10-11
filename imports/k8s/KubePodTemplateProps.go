@@ -1,6 +1,5 @@
 package k8s
 
-
 // PodTemplate describes a template for creating copies of a predefined pod.
 type KubePodTemplateProps struct {
 	// Standard object's metadata.
@@ -12,4 +11,3 @@ type KubePodTemplateProps struct {
 	// https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 	Template *PodTemplateSpec `field:"optional" json:"template" yaml:"template"`
 }
-

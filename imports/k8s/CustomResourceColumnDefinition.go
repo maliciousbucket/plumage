@@ -1,6 +1,5 @@
 package k8s
 
-
 // CustomResourceColumnDefinition specifies a column for server side printing.
 type CustomResourceColumnDefinition struct {
 	// jsonPath is a simple JSON path (i.e. with array notation) which is evaluated against each custom resource to produce the value for this column.
@@ -22,4 +21,3 @@ type CustomResourceColumnDefinition struct {
 	// Lower numbers are considered higher priority. Columns that may be omitted in limited space scenarios should be given a priority greater than 0.
 	Priority *float64 `field:"optional" json:"priority" yaml:"priority"`
 }
-

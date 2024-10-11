@@ -1,6 +1,5 @@
 package k8s
 
-
 // Spec to control the desired behavior of rolling update.
 type RollingUpdateDeployment struct {
 	// The maximum number of pods that can be scheduled above the desired number of pods.
@@ -16,4 +15,3 @@ type RollingUpdateDeployment struct {
 	//
 	MaxUnavailable IntOrString `field:"optional" json:"maxUnavailable" yaml:"maxUnavailable"`
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents a Flocker volume mounted by the Flocker agent.
 //
 // One and only one of datasetName and datasetUUID should be set. Flocker volumes do not support ownership management or SELinux relabeling.
@@ -12,4 +11,3 @@ type FlockerVolumeSource struct {
 	// This is unique identifier of a Flocker dataset.
 	DatasetUuid *string `field:"optional" json:"datasetUuid" yaml:"datasetUuid"`
 }
-

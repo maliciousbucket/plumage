@@ -1,6 +1,5 @@
 package k8s
 
-
 // PriorityLevelConfigurationSpec specifies the configuration of a priority level.
 type PriorityLevelConfigurationSpec struct {
 	// `type` indicates whether this priority level is subject to limitation on request execution.
@@ -16,4 +15,3 @@ type PriorityLevelConfigurationSpec struct {
 	// This field must be non-empty if and only if `type` is `"Limited"`.
 	Limited *LimitedPriorityLevelConfiguration `field:"optional" json:"limited" yaml:"limited"`
 }
-

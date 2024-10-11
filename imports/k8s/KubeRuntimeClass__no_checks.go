@@ -23,4 +23,3 @@ func validateKubeRuntimeClass_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeRuntimeClassParameters(scope constructs.Construct, id *string, props *KubeRuntimeClassProps) error {
 	return nil
 }
-

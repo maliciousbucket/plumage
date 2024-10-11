@@ -23,4 +23,3 @@ func validateKubePodTemplate_OfParameters(c constructs.IConstruct) error {
 func validateNewKubePodTemplateParameters(scope constructs.Construct, id *string, props *KubePodTemplateProps) error {
 	return nil
 }
-

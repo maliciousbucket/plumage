@@ -21,4 +21,3 @@ func validateServersTransportSpecForwardingTimeoutsPingTimeout_FromStringParamet
 
 	return nil
 }
-

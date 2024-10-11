@@ -63,4 +63,3 @@ func validateNewKubeNamespaceListParameters(scope constructs.Construct, id *stri
 
 	return nil
 }
-

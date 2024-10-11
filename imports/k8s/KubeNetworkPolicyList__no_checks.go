@@ -23,4 +23,3 @@ func validateKubeNetworkPolicyList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeNetworkPolicyListParameters(scope constructs.Construct, id *string, props *KubeNetworkPolicyListProps) error {
 	return nil
 }
-

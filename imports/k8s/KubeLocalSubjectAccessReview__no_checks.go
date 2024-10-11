@@ -23,4 +23,3 @@ func validateKubeLocalSubjectAccessReview_OfParameters(c constructs.IConstruct) 
 func validateNewKubeLocalSubjectAccessReviewParameters(scope constructs.Construct, id *string, props *KubeLocalSubjectAccessReviewProps) error {
 	return nil
 }
-

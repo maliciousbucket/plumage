@@ -1,6 +1,5 @@
 package k8s
 
-
 // ServiceAccountTokenProjection represents a projected service account token volume.
 //
 // This projection can be used to insert a service account token into the pods runtime filesystem for use against APIs (Kubernetes API Server or otherwise).
@@ -18,4 +17,3 @@ type ServiceAccountTokenProjection struct {
 	//
 	ExpirationSeconds *float64 `field:"optional" json:"expirationSeconds" yaml:"expirationSeconds"`
 }
-

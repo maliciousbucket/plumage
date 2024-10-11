@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Healthcheck defines health checks for ExternalName services.
 type TraefikServiceSpecMirroringMirrorsHealthCheck struct {
 	// FollowRedirects defines whether redirects should be followed during the health check calls.
@@ -35,4 +34,3 @@ type TraefikServiceSpecMirroringMirrorsHealthCheck struct {
 	// Default: 5s.
 	Timeout TraefikServiceSpecMirroringMirrorsHealthCheckTimeout `field:"optional" json:"timeout" yaml:"timeout"`
 }
-

@@ -23,4 +23,3 @@ func validateKubeEndpointSlice_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeEndpointSliceParameters(scope constructs.Construct, id *string, props *KubeEndpointSliceProps) error {
 	return nil
 }
-

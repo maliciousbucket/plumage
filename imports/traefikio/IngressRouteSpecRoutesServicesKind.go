@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Kind defines the kind of the Service.
 type IngressRouteSpecRoutesServicesKind string
 
@@ -10,4 +9,3 @@ const (
 	// TraefikService.
 	IngressRouteSpecRoutesServicesKind_TRAEFIK_SERVICE IngressRouteSpecRoutesServicesKind = "TRAEFIK_SERVICE"
 )
-

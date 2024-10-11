@@ -1,6 +1,5 @@
 package k8s
 
-
 // OwnerReference contains enough information to let you identify an owning object.
 //
 // An owning object must be in the same namespace as the dependent, or be cluster-scoped, so there is no namespace field.
@@ -28,4 +27,3 @@ type OwnerReference struct {
 	// If true, this reference points to the managing controller.
 	Controller *bool `field:"optional" json:"controller" yaml:"controller"`
 }
-

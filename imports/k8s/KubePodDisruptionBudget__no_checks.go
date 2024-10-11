@@ -23,4 +23,3 @@ func validateKubePodDisruptionBudget_OfParameters(c constructs.IConstruct) error
 func validateNewKubePodDisruptionBudgetParameters(scope constructs.Construct, id *string, props *KubePodDisruptionBudgetProps) error {
 	return nil
 }
-

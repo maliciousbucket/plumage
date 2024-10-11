@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Options defines the reference to a TLSOption, that specifies the parameters of the TLS connection.
 //
 // If not defined, the `default` TLSOption is used.
@@ -11,4 +10,3 @@ type IngressRouteTcpSpecTlsOptions struct {
 	// Namespace defines the namespace of the referenced Traefik resource.
 	Namespace *string `field:"optional" json:"namespace" yaml:"namespace"`
 }
-

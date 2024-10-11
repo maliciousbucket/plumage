@@ -23,4 +23,3 @@ func validateKubeNamespaceList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeNamespaceListParameters(scope constructs.Construct, id *string, props *KubeNamespaceListProps) error {
 	return nil
 }
-

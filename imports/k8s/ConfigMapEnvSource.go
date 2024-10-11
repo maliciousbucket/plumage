@@ -1,6 +1,5 @@
 package k8s
 
-
 // ConfigMapEnvSource selects a ConfigMap to populate the environment variables with.
 //
 // The contents of the target ConfigMap's Data field will represent the key-value pairs as environment variables.
@@ -12,4 +11,3 @@ type ConfigMapEnvSource struct {
 	// Specify whether the ConfigMap must be defined.
 	Optional *bool `field:"optional" json:"optional" yaml:"optional"`
 }
-

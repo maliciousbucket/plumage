@@ -1,6 +1,5 @@
 package traefikio
 
-
 // RedirectRegex holds the redirect regex middleware configuration.
 //
 // This middleware redirects a request using regex matching and replacement.
@@ -13,4 +12,3 @@ type MiddlewareSpecRedirectRegex struct {
 	// Replacement defines how to modify the URL to have the new target URL.
 	Replacement *string `field:"optional" json:"replacement" yaml:"replacement"`
 }
-

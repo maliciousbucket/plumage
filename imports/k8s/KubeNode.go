@@ -124,7 +124,6 @@ func (j *jsiiProxy_KubeNode) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.core.v1.Node" API object.
 func NewKubeNode(scope constructs.Construct, id *string, props *KubeNodeProps) KubeNode {
 	_init_.Initialize()
@@ -316,4 +315,3 @@ func (k *jsiiProxy_KubeNode) ToString() *string {
 
 	return returns
 }
-

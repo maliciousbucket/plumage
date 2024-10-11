@@ -63,4 +63,3 @@ func validateNewKubePriorityClassListParameters(scope constructs.Construct, id *
 
 	return nil
 }
-

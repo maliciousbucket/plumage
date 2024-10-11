@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Buffering holds the buffering middleware configuration.
 //
 // This middleware retries or limits the size of requests that can be forwarded to backends.
@@ -30,4 +29,3 @@ type MiddlewareSpecBuffering struct {
 	// More info: https://doc.traefik.io/traefik/v3.1/middlewares/http/buffering/#retryexpression
 	RetryExpression *string `field:"optional" json:"retryExpression" yaml:"retryExpression"`
 }
-

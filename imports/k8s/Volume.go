@@ -1,6 +1,5 @@
 package k8s
 
-
 // Volume represents a named volume in a pod that may be accessed by any container in the pod.
 type Volume struct {
 	// name of the volume.
@@ -105,4 +104,3 @@ type Volume struct {
 	// vsphereVolume represents a vSphere volume attached and mounted on kubelets host machine.
 	VsphereVolume *VsphereVirtualDiskVolumeSource `field:"optional" json:"vsphereVolume" yaml:"vsphereVolume"`
 }
-

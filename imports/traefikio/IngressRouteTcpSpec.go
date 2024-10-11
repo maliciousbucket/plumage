@@ -1,6 +1,5 @@
 package traefikio
 
-
 // IngressRouteTCPSpec defines the desired state of IngressRouteTCP.
 type IngressRouteTcpSpec struct {
 	// Routes defines the list of routes.
@@ -16,4 +15,3 @@ type IngressRouteTcpSpec struct {
 	// More info: https://doc.traefik.io/traefik/v3.1/routing/routers/#tls_1
 	Tls *IngressRouteTcpSpecTls `field:"optional" json:"tls" yaml:"tls"`
 }
-

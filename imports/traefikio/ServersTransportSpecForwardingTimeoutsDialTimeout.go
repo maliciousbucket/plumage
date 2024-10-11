@@ -25,7 +25,6 @@ func (j *jsiiProxy_ServersTransportSpecForwardingTimeoutsDialTimeout) Value() in
 	return returns
 }
 
-
 func ServersTransportSpecForwardingTimeoutsDialTimeout_FromNumber(value *float64) ServersTransportSpecForwardingTimeoutsDialTimeout {
 	_init_.Initialize()
 
@@ -61,4 +60,3 @@ func ServersTransportSpecForwardingTimeoutsDialTimeout_FromString(value *string)
 
 	return returns
 }
-

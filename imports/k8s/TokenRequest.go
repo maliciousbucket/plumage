@@ -1,6 +1,5 @@
 package k8s
 
-
 // TokenRequest contains parameters of a service account token.
 type TokenRequest struct {
 	// audience is the intended audience of the token in "TokenRequestSpec".
@@ -12,4 +11,3 @@ type TokenRequest struct {
 	// It has the same default value of "ExpirationSeconds" in "TokenRequestSpec".
 	ExpirationSeconds *float64 `field:"optional" json:"expirationSeconds" yaml:"expirationSeconds"`
 }
-

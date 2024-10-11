@@ -1,6 +1,5 @@
 package k8s
 
-
 // JobSpec describes how the job execution will look like.
 type JobSpec struct {
 	// Describes the pod that will be created when executing a job.
@@ -87,4 +86,3 @@ type JobSpec struct {
 	// If this field is set, ttlSecondsAfterFinished after the Job finishes, it is eligible to be automatically deleted. When the Job is being deleted, its lifecycle guarantees (e.g. finalizers) will be honored. If this field is unset, the Job won't be automatically deleted. If this field is set to zero, the Job becomes eligible to be deleted immediately after it finishes.
 	TtlSecondsAfterFinished *float64 `field:"optional" json:"ttlSecondsAfterFinished" yaml:"ttlSecondsAfterFinished"`
 }
-

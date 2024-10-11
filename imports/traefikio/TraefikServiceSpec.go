@@ -1,6 +1,5 @@
 package traefikio
 
-
 // TraefikServiceSpec defines the desired state of a TraefikService.
 type TraefikServiceSpec struct {
 	// Mirroring defines the Mirroring service configuration.
@@ -8,4 +7,3 @@ type TraefikServiceSpec struct {
 	// Weighted defines the Weighted Round Robin configuration.
 	Weighted *TraefikServiceSpecWeighted `field:"optional" json:"weighted" yaml:"weighted"`
 }
-

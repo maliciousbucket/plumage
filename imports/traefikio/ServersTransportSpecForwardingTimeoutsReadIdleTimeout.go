@@ -25,7 +25,6 @@ func (j *jsiiProxy_ServersTransportSpecForwardingTimeoutsReadIdleTimeout) Value(
 	return returns
 }
 
-
 func ServersTransportSpecForwardingTimeoutsReadIdleTimeout_FromNumber(value *float64) ServersTransportSpecForwardingTimeoutsReadIdleTimeout {
 	_init_.Initialize()
 
@@ -61,4 +60,3 @@ func ServersTransportSpecForwardingTimeoutsReadIdleTimeout_FromString(value *str
 
 	return returns
 }
-

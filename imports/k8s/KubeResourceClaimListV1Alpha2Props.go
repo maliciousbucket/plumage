@@ -1,6 +1,5 @@
 package k8s
 
-
 // ResourceClaimList is a collection of claims.
 type KubeResourceClaimListV1Alpha2Props struct {
 	// Items is the list of resource claims.
@@ -8,4 +7,3 @@ type KubeResourceClaimListV1Alpha2Props struct {
 	// Standard list metadata.
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

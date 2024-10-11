@@ -1,6 +1,5 @@
 package k8s
 
-
 // CustomResourceConversion describes how to convert different versions of a CR.
 type CustomResourceConversion struct {
 	// strategy specifies how custom resources are converted between versions.
@@ -13,4 +12,3 @@ type CustomResourceConversion struct {
 	// Required when `strategy` is set to `"Webhook"`.
 	Webhook *WebhookConversion `field:"optional" json:"webhook" yaml:"webhook"`
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // IngressBackend describes all endpoints for a given service and port.
 type IngressBackend struct {
 	// resource is an ObjectRef to another Kubernetes resource in the namespace of the Ingress object.
@@ -12,4 +11,3 @@ type IngressBackend struct {
 	// This is a mutually exclusive setting with "Resource".
 	Service *IngressServiceBackend `field:"optional" json:"service" yaml:"service"`
 }
-

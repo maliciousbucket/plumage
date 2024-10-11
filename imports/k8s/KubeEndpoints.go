@@ -13,14 +13,16 @@ import (
 //
 // Name: "mysvc",
 // Subsets: [
-//  {
-//    Addresses: [{"ip": "10.10.1.1"}, {"ip": "10.10.2.2"}],
-//    Ports: [{"name": "a", "port": 8675}, {"name": "b", "port": 309}]
-//  },
-//  {
-//    Addresses: [{"ip": "10.10.3.3"}],
-//    Ports: [{"name": "a", "port": 93}, {"name": "b", "port": 76}]
-//  },
+//
+//	{
+//	  Addresses: [{"ip": "10.10.1.1"}, {"ip": "10.10.2.2"}],
+//	  Ports: [{"name": "a", "port": 8675}, {"name": "b", "port": 309}]
+//	},
+//	{
+//	  Addresses: [{"ip": "10.10.3.3"}],
+//	  Ports: [{"name": "a", "port": 93}, {"name": "b", "port": 76}]
+//	},
+//
 // ].
 type KubeEndpoints interface {
 	cdk8s.ApiObject
@@ -133,7 +135,6 @@ func (j *jsiiProxy_KubeEndpoints) Node() constructs.Node {
 	)
 	return returns
 }
-
 
 // Defines a "io.k8s.api.core.v1.Endpoints" API object.
 func NewKubeEndpoints(scope constructs.Construct, id *string, props *KubeEndpointsProps) KubeEndpoints {
@@ -326,4 +327,3 @@ func (k *jsiiProxy_KubeEndpoints) ToString() *string {
 
 	return returns
 }
-

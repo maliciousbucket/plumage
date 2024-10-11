@@ -23,4 +23,3 @@ func validateKubeRoleBindingList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeRoleBindingListParameters(scope constructs.Construct, id *string, props *KubeRoleBindingListProps) error {
 	return nil
 }
-

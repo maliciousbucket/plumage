@@ -23,4 +23,3 @@ func validateVerticalPodAutoscalerCheckpointV1Beta2_OfParameters(c constructs.IC
 func validateNewVerticalPodAutoscalerCheckpointV1Beta2Parameters(scope constructs.Construct, id *string, props *VerticalPodAutoscalerCheckpointV1Beta2Props) error {
 	return nil
 }
-

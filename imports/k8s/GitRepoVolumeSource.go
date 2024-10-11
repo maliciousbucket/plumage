@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents a volume that is populated with the contents of a git repository.
 //
 // Git repo volumes do not support ownership management. Git repo volumes support SELinux relabeling.
@@ -16,4 +15,3 @@ type GitRepoVolumeSource struct {
 	// revision is the commit hash for the specified revision.
 	Revision *string `field:"optional" json:"revision" yaml:"revision"`
 }
-

@@ -27,7 +27,6 @@ func (j *jsiiProxy_TraefikServiceSpecWeightedServicesHealthCheckTimeout) Value()
 	return returns
 }
 
-
 func TraefikServiceSpecWeightedServicesHealthCheckTimeout_FromNumber(value *float64) TraefikServiceSpecWeightedServicesHealthCheckTimeout {
 	_init_.Initialize()
 
@@ -63,4 +62,3 @@ func TraefikServiceSpecWeightedServicesHealthCheckTimeout_FromString(value *stri
 
 	return returns
 }
-

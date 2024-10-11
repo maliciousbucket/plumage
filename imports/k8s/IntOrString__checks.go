@@ -21,4 +21,3 @@ func validateIntOrString_FromStringParameters(value *string) error {
 
 	return nil
 }
-

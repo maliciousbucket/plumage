@@ -1,6 +1,5 @@
 package traefikio
 
-
 // TLSStoreSpec defines the desired state of a TLSStore.
 type TlsStoreSpec struct {
 	// Certificates is a list of secret names, each secret holding a key/certificate pair to add to the store.
@@ -10,4 +9,3 @@ type TlsStoreSpec struct {
 	// DefaultGeneratedCert defines the default generated certificate configuration.
 	DefaultGeneratedCert *TlsStoreSpecDefaultGeneratedCert `field:"optional" json:"defaultGeneratedCert" yaml:"defaultGeneratedCert"`
 }
-

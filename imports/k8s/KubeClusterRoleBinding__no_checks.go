@@ -23,4 +23,3 @@ func validateKubeClusterRoleBinding_OfParameters(c constructs.IConstruct) error 
 func validateNewKubeClusterRoleBindingParameters(scope constructs.Construct, id *string, props *KubeClusterRoleBindingProps) error {
 	return nil
 }
-

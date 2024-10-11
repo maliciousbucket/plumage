@@ -1,6 +1,5 @@
 package traefikio
 
-
 // PassTLSClientCert holds the pass TLS client cert middleware configuration.
 //
 // This middleware adds the selected data from the passed client TLS certificate to a header.
@@ -11,4 +10,3 @@ type MiddlewareSpecPassTlsClientCert struct {
 	// PEM sets the X-Forwarded-Tls-Client-Cert header with the certificate.
 	Pem *bool `field:"optional" json:"pem" yaml:"pem"`
 }
-

@@ -23,4 +23,3 @@ func validateKubeServiceCidrv1Alpha1_OfParameters(c constructs.IConstruct) error
 func validateNewKubeServiceCidrv1Alpha1Parameters(scope constructs.Construct, id *string, props *KubeServiceCidrv1Alpha1Props) error {
 	return nil
 }
-

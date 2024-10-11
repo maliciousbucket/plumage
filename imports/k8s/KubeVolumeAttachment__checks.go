@@ -63,4 +63,3 @@ func validateNewKubeVolumeAttachmentParameters(scope constructs.Construct, id *s
 
 	return nil
 }
-

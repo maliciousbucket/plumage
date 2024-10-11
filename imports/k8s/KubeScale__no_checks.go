@@ -23,4 +23,3 @@ func validateKubeScale_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeScaleParameters(scope constructs.Construct, id *string, props *KubeScaleProps) error {
 	return nil
 }
-

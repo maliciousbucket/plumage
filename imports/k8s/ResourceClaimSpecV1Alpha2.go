@@ -1,6 +1,5 @@
 package k8s
 
-
 // ResourceClaimSpec defines how a resource is to be allocated.
 type ResourceClaimSpecV1Alpha2 struct {
 	// ResourceClassName references the driver and additional parameters via the name of a ResourceClass that was created as part of the driver deployment.
@@ -14,4 +13,3 @@ type ResourceClaimSpecV1Alpha2 struct {
 	// The object must be in the same namespace as the ResourceClaim.
 	ParametersRef *ResourceClaimParametersReferenceV1Alpha2 `field:"optional" json:"parametersRef" yaml:"parametersRef"`
 }
-

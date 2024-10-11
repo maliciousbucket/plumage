@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents a cinder volume resource in Openstack.
 //
 // A Cinder volume must exist before mounting to a container. The volume must also be in the same region as the kubelet. Cinder volumes support ownership management and SELinux relabeling.
@@ -22,4 +21,3 @@ type CinderPersistentVolumeSource struct {
 	// secretRef is Optional: points to a secret object containing parameters used to connect to OpenStack.
 	SecretRef *SecretReference `field:"optional" json:"secretRef" yaml:"secretRef"`
 }
-

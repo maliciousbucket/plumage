@@ -1,6 +1,5 @@
 package k8s
 
-
 // WebhookConversion describes how to call a conversion webhook.
 type WebhookConversion struct {
 	// conversionReviewVersions is an ordered list of preferred `ConversionReview` versions the Webhook expects.
@@ -10,4 +9,3 @@ type WebhookConversion struct {
 	// clientConfig is the instructions for how to call the webhook if strategy is `Webhook`.
 	ClientConfig *WebhookClientConfig `field:"optional" json:"clientConfig" yaml:"clientConfig"`
 }
-

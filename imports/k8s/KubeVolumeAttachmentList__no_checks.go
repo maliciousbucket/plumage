@@ -23,4 +23,3 @@ func validateKubeVolumeAttachmentList_OfParameters(c constructs.IConstruct) erro
 func validateNewKubeVolumeAttachmentListParameters(scope constructs.Construct, id *string, props *KubeVolumeAttachmentListProps) error {
 	return nil
 }
-

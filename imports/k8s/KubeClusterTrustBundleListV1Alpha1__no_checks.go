@@ -23,4 +23,3 @@ func validateKubeClusterTrustBundleListV1Alpha1_OfParameters(c constructs.IConst
 func validateNewKubeClusterTrustBundleListV1Alpha1Parameters(scope constructs.Construct, id *string, props *KubeClusterTrustBundleListV1Alpha1Props) error {
 	return nil
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // CrossVersionObjectReference contains enough information to let you identify the referred resource.
 type CrossVersionObjectReferenceV2 struct {
 	// kind is the kind of the referent;
@@ -14,4 +13,3 @@ type CrossVersionObjectReferenceV2 struct {
 	// apiVersion is the API version of the referent.
 	ApiVersion *string `field:"optional" json:"apiVersion" yaml:"apiVersion"`
 }
-

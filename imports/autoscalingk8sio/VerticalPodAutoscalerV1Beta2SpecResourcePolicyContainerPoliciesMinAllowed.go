@@ -24,7 +24,6 @@ func (j *jsiiProxy_VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPolici
 	return returns
 }
 
-
 func VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMinAllowed_FromNumber(value *float64) VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMinAllowed {
 	_init_.Initialize()
 
@@ -60,4 +59,3 @@ func VerticalPodAutoscalerV1Beta2SpecResourcePolicyContainerPoliciesMinAllowed_F
 
 	return returns
 }
-

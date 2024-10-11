@@ -1,6 +1,5 @@
 package traefikio
 
-
 // StripPrefixRegex holds the strip prefix regex middleware configuration.
 //
 // This middleware removes the matching prefixes from the URL path.
@@ -9,4 +8,3 @@ type MiddlewareSpecStripPrefixRegex struct {
 	// Regex defines the regular expression to match the path prefix from the request URL.
 	Regex *[]*string `field:"optional" json:"regex" yaml:"regex"`
 }
-

@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubePriorityLevelConfigurationListV1Beta3) Node() constructs.
 	return returns
 }
 
-
 // Defines a "io.k8s.api.flowcontrol.v1beta3.PriorityLevelConfigurationList" API object.
 func NewKubePriorityLevelConfigurationListV1Beta3(scope constructs.Construct, id *string, props *KubePriorityLevelConfigurationListV1Beta3Props) KubePriorityLevelConfigurationListV1Beta3 {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubePriorityLevelConfigurationListV1Beta3) ToString() *string
 
 	return returns
 }
-

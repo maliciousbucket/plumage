@@ -27,7 +27,6 @@ func (j *jsiiProxy_IngressRouteSpecRoutesServicesHealthCheckInterval) Value() in
 	return returns
 }
 
-
 func IngressRouteSpecRoutesServicesHealthCheckInterval_FromNumber(value *float64) IngressRouteSpecRoutesServicesHealthCheckInterval {
 	_init_.Initialize()
 
@@ -63,4 +62,3 @@ func IngressRouteSpecRoutesServicesHealthCheckInterval_FromString(value *string)
 
 	return returns
 }
-

@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Healthcheck defines health checks for ExternalName services.
 type IngressRouteSpecRoutesServicesHealthCheck struct {
 	// FollowRedirects defines whether redirects should be followed during the health check calls.
@@ -35,4 +34,3 @@ type IngressRouteSpecRoutesServicesHealthCheck struct {
 	// Default: 5s.
 	Timeout IngressRouteSpecRoutesServicesHealthCheckTimeout `field:"optional" json:"timeout" yaml:"timeout"`
 }
-

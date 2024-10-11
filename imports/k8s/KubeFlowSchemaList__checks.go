@@ -63,4 +63,3 @@ func validateNewKubeFlowSchemaListParameters(scope constructs.Construct, id *str
 
 	return nil
 }
-

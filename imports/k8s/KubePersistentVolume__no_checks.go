@@ -23,4 +23,3 @@ func validateKubePersistentVolume_OfParameters(c constructs.IConstruct) error {
 func validateNewKubePersistentVolumeParameters(scope constructs.Construct, id *string, props *KubePersistentVolumeProps) error {
 	return nil
 }
-

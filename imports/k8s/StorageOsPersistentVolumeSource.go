@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents a StorageOS persistent volume resource.
 type StorageOsPersistentVolumeSource struct {
 	// fsType is the filesystem type to mount.
@@ -24,4 +23,3 @@ type StorageOsPersistentVolumeSource struct {
 	// If no namespace is specified then the Pod's namespace will be used.  This allows the Kubernetes name scoping to be mirrored within StorageOS for tighter integration. Set VolumeName to any name to override the default behaviour. Set to "default" if you are not using namespaces within StorageOS. Namespaces that do not pre-exist within StorageOS will be created.
 	VolumeNamespace *string `field:"optional" json:"volumeNamespace" yaml:"volumeNamespace"`
 }
-

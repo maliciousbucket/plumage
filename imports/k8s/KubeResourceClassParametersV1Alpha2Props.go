@@ -1,6 +1,5 @@
 package k8s
 
-
 // ResourceClassParameters defines resource requests for a ResourceClass in an in-tree format understood by Kubernetes.
 type KubeResourceClassParametersV1Alpha2Props struct {
 	// Filters describes additional contraints that must be met when using the class.
@@ -16,4 +15,3 @@ type KubeResourceClassParametersV1Alpha2Props struct {
 	// They are ignored while allocating the claim. There must not be more than one entry per driver.
 	VendorParameters *[]*VendorParametersV1Alpha2 `field:"optional" json:"vendorParameters" yaml:"vendorParameters"`
 }
-

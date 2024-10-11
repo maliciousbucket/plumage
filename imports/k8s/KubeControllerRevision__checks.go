@@ -63,4 +63,3 @@ func validateNewKubeControllerRevisionParameters(scope constructs.Construct, id 
 
 	return nil
 }
-

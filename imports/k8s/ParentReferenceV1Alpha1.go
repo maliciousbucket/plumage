@@ -1,6 +1,5 @@
 package k8s
 
-
 // ParentReference describes a reference to a parent object.
 type ParentReferenceV1Alpha1 struct {
 	// Name is the name of the object being referenced.
@@ -12,4 +11,3 @@ type ParentReferenceV1Alpha1 struct {
 	// Namespace is the namespace of the object being referenced.
 	Namespace *string `field:"optional" json:"namespace" yaml:"namespace"`
 }
-

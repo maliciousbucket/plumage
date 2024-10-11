@@ -1,6 +1,5 @@
 package k8s
 
-
 // RuntimeClassList is a list of RuntimeClass objects.
 type KubeRuntimeClassListProps struct {
 	// items is a list of schema objects.
@@ -10,4 +9,3 @@ type KubeRuntimeClassListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

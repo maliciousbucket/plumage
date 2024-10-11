@@ -1,6 +1,5 @@
 package k8s
 
-
 // FlowDistinguisherMethod specifies the method of a flow distinguisher.
 type FlowDistinguisherMethod struct {
 	// `type` is the type of flow distinguisher method The supported types are "ByUser" and "ByNamespace".
@@ -8,4 +7,3 @@ type FlowDistinguisherMethod struct {
 	// Required.
 	Type *string `field:"required" json:"type" yaml:"type"`
 }
-

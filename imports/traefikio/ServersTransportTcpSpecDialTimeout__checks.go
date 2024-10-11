@@ -21,4 +21,3 @@ func validateServersTransportTcpSpecDialTimeout_FromStringParameters(value *stri
 
 	return nil
 }
-

@@ -1,7 +1,6 @@
 // traefikio
 package traefikio
 
-
 // Domain is the domain definition for the DefaultCertificate.
 type TlsStoreSpecDefaultGeneratedCertDomain struct {
 	// Main defines the main domain name.
@@ -9,4 +8,3 @@ type TlsStoreSpecDefaultGeneratedCertDomain struct {
 	// SANs defines the subject alternative domain names.
 	Sans *[]*string `field:"optional" json:"sans" yaml:"sans"`
 }
-

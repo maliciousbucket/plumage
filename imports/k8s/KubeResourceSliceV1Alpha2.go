@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeResourceSliceV1Alpha2) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.resource.v1alpha2.ResourceSlice" API object.
 func NewKubeResourceSliceV1Alpha2(scope constructs.Construct, id *string, props *KubeResourceSliceV1Alpha2Props) KubeResourceSliceV1Alpha2 {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeResourceSliceV1Alpha2) ToString() *string {
 
 	return returns
 }
-

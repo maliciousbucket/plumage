@@ -57,4 +57,3 @@ func validateNewKubeSecretParameters(scope constructs.Construct, id *string, pro
 
 	return nil
 }
-

@@ -21,4 +21,3 @@ func validateTraefikServiceSpecMirroringMirrorsHealthCheckTimeout_FromStringPara
 
 	return nil
 }
-

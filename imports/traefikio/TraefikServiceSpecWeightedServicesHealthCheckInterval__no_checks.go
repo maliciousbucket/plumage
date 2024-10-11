@@ -11,4 +11,3 @@ func validateTraefikServiceSpecWeightedServicesHealthCheckInterval_FromNumberPar
 func validateTraefikServiceSpecWeightedServicesHealthCheckInterval_FromStringParameters(value *string) error {
 	return nil
 }
-

@@ -57,4 +57,3 @@ func validateNewKubePersistentVolumeClaimParameters(scope constructs.Construct, 
 
 	return nil
 }
-

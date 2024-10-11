@@ -23,4 +23,3 @@ func validateKubeCronJob_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeCronJobParameters(scope constructs.Construct, id *string, props *KubeCronJobProps) error {
 	return nil
 }
-

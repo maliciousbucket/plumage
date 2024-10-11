@@ -1,6 +1,5 @@
 package k8s
 
-
 // specification of a horizontal pod autoscaler.
 type HorizontalPodAutoscalerSpec struct {
 	// maxReplicas is the upper limit for the number of pods that can be set by the autoscaler;
@@ -20,4 +19,3 @@ type HorizontalPodAutoscalerSpec struct {
 	// if not specified the default autoscaling policy will be used.
 	TargetCpuUtilizationPercentage *float64 `field:"optional" json:"targetCpuUtilizationPercentage" yaml:"targetCpuUtilizationPercentage"`
 }
-

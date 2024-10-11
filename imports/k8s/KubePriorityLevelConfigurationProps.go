@@ -1,6 +1,5 @@
 package k8s
 
-
 // PriorityLevelConfiguration represents the configuration of a priority level.
 type KubePriorityLevelConfigurationProps struct {
 	// `metadata` is the standard object's metadata.
@@ -12,4 +11,3 @@ type KubePriorityLevelConfigurationProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
 	Spec *PriorityLevelConfigurationSpec `field:"optional" json:"spec" yaml:"spec"`
 }
-

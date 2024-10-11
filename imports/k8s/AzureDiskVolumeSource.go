@@ -1,6 +1,5 @@
 package k8s
 
-
 // AzureDisk represents an Azure Data Disk mount on the host and bind mount to the pod.
 type AzureDiskVolumeSource struct {
 	// diskName is the Name of the data disk in the blob storage.
@@ -24,4 +23,3 @@ type AzureDiskVolumeSource struct {
 	//
 	ReadOnly *bool `field:"optional" json:"readOnly" yaml:"readOnly"`
 }
-

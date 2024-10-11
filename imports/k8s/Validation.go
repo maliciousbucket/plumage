@@ -1,6 +1,5 @@
 package k8s
 
-
 // Validation specifies the CEL expression which is used to apply the validation.
 type Validation struct {
 	// Expression represents the expression which will be evaluated by CEL.
@@ -45,4 +44,3 @@ type Validation struct {
 	// If this is the first validation in the list to fail, this reason, as well as the corresponding HTTP response code, are used in the HTTP response to the client. The currently supported reasons are: "Unauthorized", "Forbidden", "Invalid", "RequestEntityTooLarge". If not set, StatusReasonInvalid is used in the response to the client.
 	Reason *string `field:"optional" json:"reason" yaml:"reason"`
 }
-

@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeCustomResourceDefinitionList) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1.CustomResourceDefinitionList" API object.
 func NewKubeCustomResourceDefinitionList(scope constructs.Construct, id *string, props *KubeCustomResourceDefinitionListProps) KubeCustomResourceDefinitionList {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeCustomResourceDefinitionList) ToString() *string {
 
 	return returns
 }
-

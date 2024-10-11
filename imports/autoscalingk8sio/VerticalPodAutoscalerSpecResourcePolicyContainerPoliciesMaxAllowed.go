@@ -24,7 +24,6 @@ func (j *jsiiProxy_VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMaxAl
 	return returns
 }
 
-
 func VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMaxAllowed_FromNumber(value *float64) VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMaxAllowed {
 	_init_.Initialize()
 
@@ -60,4 +59,3 @@ func VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMaxAllowed_FromStri
 
 	return returns
 }
-

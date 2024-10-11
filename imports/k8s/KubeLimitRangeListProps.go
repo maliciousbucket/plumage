@@ -1,6 +1,5 @@
 package k8s
 
-
 // LimitRangeList is a list of LimitRange items.
 type KubeLimitRangeListProps struct {
 	// Items is a list of LimitRange objects.
@@ -12,4 +11,3 @@ type KubeLimitRangeListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

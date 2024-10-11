@@ -11,4 +11,3 @@ func validateTraefikServiceSpecMirroringMirrorsPort_FromNumberParameters(value *
 func validateTraefikServiceSpecMirroringMirrorsPort_FromStringParameters(value *string) error {
 	return nil
 }
-

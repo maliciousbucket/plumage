@@ -11,4 +11,3 @@ func validateMiddlewareSpecCircuitBreakerRecoveryDuration_FromNumberParameters(v
 func validateMiddlewareSpecCircuitBreakerRecoveryDuration_FromStringParameters(value *string) error {
 	return nil
 }
-

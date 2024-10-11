@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeNodeList) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.core.v1.NodeList" API object.
 func NewKubeNodeList(scope constructs.Construct, id *string, props *KubeNodeListProps) KubeNodeList {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeNodeList) ToString() *string {
 
 	return returns
 }
-

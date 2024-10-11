@@ -63,4 +63,3 @@ func validateNewKubeStorageVersionListV1Alpha1Parameters(scope constructs.Constr
 
 	return nil
 }
-

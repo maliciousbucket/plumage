@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Headers holds the headers middleware configuration.
 //
 // This middleware manages the requests and responses headers.
@@ -93,4 +92,3 @@ type MiddlewareSpecHeaders struct {
 	// If set to 0, the header is not set.
 	StsSeconds *float64 `field:"optional" json:"stsSeconds" yaml:"stsSeconds"`
 }
-

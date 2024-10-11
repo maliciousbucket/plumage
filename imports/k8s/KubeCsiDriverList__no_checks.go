@@ -23,4 +23,3 @@ func validateKubeCsiDriverList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeCsiDriverListParameters(scope constructs.Construct, id *string, props *KubeCsiDriverListProps) error {
 	return nil
 }
-

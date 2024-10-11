@@ -11,4 +11,3 @@ func validateMiddlewareSpecRateLimitPeriod_FromNumberParameters(value *float64) 
 func validateMiddlewareSpecRateLimitPeriod_FromStringParameters(value *string) error {
 	return nil
 }
-

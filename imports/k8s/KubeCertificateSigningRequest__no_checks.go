@@ -23,4 +23,3 @@ func validateKubeCertificateSigningRequest_OfParameters(c constructs.IConstruct)
 func validateNewKubeCertificateSigningRequestParameters(scope constructs.Construct, id *string, props *KubeCertificateSigningRequestProps) error {
 	return nil
 }
-

@@ -1,6 +1,5 @@
 package traefikio
 
-
 // IPStrategy holds the IP strategy configuration used by Traefik to determine the client IP.
 //
 // More info: https://doc.traefik.io/traefik/v3.1/middlewares/http/ipallowlist/#ipstrategy
@@ -10,4 +9,3 @@ type MiddlewareSpecIpWhiteListIpStrategy struct {
 	// ExcludedIPs configures Traefik to scan the X-Forwarded-For header and select the first IP not in the list.
 	ExcludedIPs *[]*string `field:"optional" json:"excludedIPs" yaml:"excludedIPs"`
 }
-

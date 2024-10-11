@@ -1,6 +1,5 @@
 package traefikio
 
-
 // ResponseForwarding defines how Traefik forwards the response from the upstream Kubernetes Service to the client.
 type TraefikServiceSpecMirroringMirrorsResponseForwarding struct {
 	// FlushInterval defines the interval, in milliseconds, in between flushes to the client while copying the response body.
@@ -11,4 +10,3 @@ type TraefikServiceSpecMirroringMirrorsResponseForwarding struct {
 	// Default: 100ms.
 	FlushInterval *string `field:"optional" json:"flushInterval" yaml:"flushInterval"`
 }
-

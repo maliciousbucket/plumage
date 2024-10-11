@@ -124,7 +124,6 @@ func (j *jsiiProxy_MiddlewareTcp) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "MiddlewareTCP" API object.
 func NewMiddlewareTcp(scope constructs.Construct, id *string, props *MiddlewareTcpProps) MiddlewareTcp {
 	_init_.Initialize()
@@ -316,4 +315,3 @@ func (m *jsiiProxy_MiddlewareTcp) ToString() *string {
 
 	return returns
 }
-

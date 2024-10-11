@@ -23,4 +23,3 @@ func validateKubeTokenReview_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeTokenReviewParameters(scope constructs.Construct, id *string, props *KubeTokenReviewProps) error {
 	return nil
 }
-

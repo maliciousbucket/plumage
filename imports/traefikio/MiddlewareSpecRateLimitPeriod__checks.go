@@ -21,4 +21,3 @@ func validateMiddlewareSpecRateLimitPeriod_FromStringParameters(value *string) e
 
 	return nil
 }
-

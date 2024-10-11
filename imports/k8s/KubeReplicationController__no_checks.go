@@ -23,4 +23,3 @@ func validateKubeReplicationController_OfParameters(c constructs.IConstruct) err
 func validateNewKubeReplicationControllerParameters(scope constructs.Construct, id *string, props *KubeReplicationControllerProps) error {
 	return nil
 }
-

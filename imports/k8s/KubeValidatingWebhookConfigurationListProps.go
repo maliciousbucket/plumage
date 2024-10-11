@@ -1,6 +1,5 @@
 package k8s
 
-
 // ValidatingWebhookConfigurationList is a list of ValidatingWebhookConfiguration.
 type KubeValidatingWebhookConfigurationListProps struct {
 	// List of ValidatingWebhookConfiguration.
@@ -10,4 +9,3 @@ type KubeValidatingWebhookConfigurationListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

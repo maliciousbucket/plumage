@@ -21,4 +21,3 @@ func validateIngressRouteSpecRoutesServicesHealthCheckTimeout_FromStringParamete
 
 	return nil
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // Projection that may be projected along with other supported volume types.
 type VolumeProjection struct {
 	// ClusterTrustBundle allows a pod to access the `.spec.trustBundle` field of ClusterTrustBundle objects in an auto-updating file.
@@ -20,4 +19,3 @@ type VolumeProjection struct {
 	// serviceAccountToken is information about the serviceAccountToken data to project.
 	ServiceAccountToken *ServiceAccountTokenProjection `field:"optional" json:"serviceAccountToken" yaml:"serviceAccountToken"`
 }
-

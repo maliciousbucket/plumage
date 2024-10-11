@@ -23,4 +23,3 @@ func validateKubeNodeList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeNodeListParameters(scope constructs.Construct, id *string, props *KubeNodeListProps) error {
 	return nil
 }
-

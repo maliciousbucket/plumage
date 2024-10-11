@@ -1,6 +1,5 @@
 package k8s
 
-
 // CertificateSigningRequestSpec contains the certificate request.
 type CertificateSigningRequestSpec struct {
 	// request contains an x509 certificate signing request encoded in a "CERTIFICATE REQUEST" PEM block.
@@ -76,4 +75,3 @@ type CertificateSigningRequestSpec struct {
 	// Populated by the API server on creation and immutable.
 	Username *string `field:"optional" json:"username" yaml:"username"`
 }
-

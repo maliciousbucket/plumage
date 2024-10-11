@@ -1,6 +1,5 @@
 package traefikio
 
-
 // TLS defines the TLS configuration.
 //
 // More info: https://doc.traefik.io/traefik/v3.1/routing/routers/#tls
@@ -26,4 +25,3 @@ type IngressRouteSpecTls struct {
 	// Please note that only `default` TLSStore can be used.
 	Store *IngressRouteSpecTlsStore `field:"optional" json:"store" yaml:"store"`
 }
-

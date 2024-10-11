@@ -57,4 +57,3 @@ func validateNewKubeStatusParameters(scope constructs.Construct, id *string, pro
 
 	return nil
 }
-

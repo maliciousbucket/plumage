@@ -1,6 +1,5 @@
 package traefikio
 
-
 // TLS defines the TLS configuration on a layer 4 / TCP Route.
 //
 // More info: https://doc.traefik.io/traefik/v3.1/routing/routers/#tls_1
@@ -28,4 +27,3 @@ type IngressRouteTcpSpecTls struct {
 	// Please note that only `default` TLSStore can be used.
 	Store *IngressRouteTcpSpecTlsStore `field:"optional" json:"store" yaml:"store"`
 }
-

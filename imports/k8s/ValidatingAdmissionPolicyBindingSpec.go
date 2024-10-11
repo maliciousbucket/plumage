@@ -1,6 +1,5 @@
 package k8s
 
-
 // ValidatingAdmissionPolicyBindingSpec is the specification of the ValidatingAdmissionPolicyBinding.
 type ValidatingAdmissionPolicyBindingSpec struct {
 	// MatchResources declares what resources match this binding and will be validated by it.
@@ -38,4 +37,3 @@ type ValidatingAdmissionPolicyBindingSpec struct {
 	// Required.
 	ValidationActions *[]*string `field:"optional" json:"validationActions" yaml:"validationActions"`
 }
-

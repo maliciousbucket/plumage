@@ -1,6 +1,5 @@
 package k8s
 
-
 // ResourceQuotaSpec defines the desired hard limits to enforce for Quota.
 type ResourceQuotaSpec struct {
 	// hard is the set of desired hard limits for each named resource.
@@ -16,4 +15,3 @@ type ResourceQuotaSpec struct {
 	// For a resource to match, both scopes AND scopeSelector (if specified in spec), must be matched.
 	ScopeSelector *ScopeSelector `field:"optional" json:"scopeSelector" yaml:"scopeSelector"`
 }
-

@@ -63,4 +63,3 @@ func validateNewKubeEndpointsListParameters(scope constructs.Construct, id *stri
 
 	return nil
 }
-

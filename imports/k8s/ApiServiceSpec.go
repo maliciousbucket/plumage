@@ -1,6 +1,5 @@
 package k8s
 
-
 // APIServiceSpec contains information for locating and communicating with a server.
 //
 // Only https is supported, though you are able to disable certificate verification.
@@ -32,4 +31,3 @@ type ApiServiceSpec struct {
 	// For example, "v1".
 	Version *string `field:"optional" json:"version" yaml:"version"`
 }
-

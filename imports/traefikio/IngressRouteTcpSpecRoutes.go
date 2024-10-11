@@ -1,6 +1,5 @@
 package traefikio
 
-
 // RouteTCP holds the TCP route configuration.
 type IngressRouteTcpSpecRoutes struct {
 	// Match defines the router's rule.
@@ -20,4 +19,3 @@ type IngressRouteTcpSpecRoutes struct {
 	// More info: https://doc.traefik.io/traefik/v3.1/routing/routers/#rulesyntax_1
 	Syntax *string `field:"optional" json:"syntax" yaml:"syntax"`
 }
-

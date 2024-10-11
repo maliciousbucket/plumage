@@ -27,7 +27,6 @@ func (j *jsiiProxy_IngressRouteSpecRoutesServicesHealthCheckTimeout) Value() int
 	return returns
 }
 
-
 func IngressRouteSpecRoutesServicesHealthCheckTimeout_FromNumber(value *float64) IngressRouteSpecRoutesServicesHealthCheckTimeout {
 	_init_.Initialize()
 
@@ -63,4 +62,3 @@ func IngressRouteSpecRoutesServicesHealthCheckTimeout_FromString(value *string) 
 
 	return returns
 }
-

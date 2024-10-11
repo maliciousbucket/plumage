@@ -23,4 +23,3 @@ func validateKubePodSchedulingContextListV1Alpha2_OfParameters(c constructs.ICon
 func validateNewKubePodSchedulingContextListV1Alpha2Parameters(scope constructs.Construct, id *string, props *KubePodSchedulingContextListV1Alpha2Props) error {
 	return nil
 }
-

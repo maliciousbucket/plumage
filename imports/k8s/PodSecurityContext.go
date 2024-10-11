@@ -1,6 +1,5 @@
 package k8s
 
-
 // PodSecurityContext holds pod-level security attributes and common container settings.
 //
 // Some fields are also present in container.securityContext.  Field values of container.securityContext take precedence over field values of PodSecurityContext.
@@ -56,4 +55,3 @@ type PodSecurityContext struct {
 	// If unspecified, the options within a container's SecurityContext will be used. If set in both SecurityContext and PodSecurityContext, the value specified in SecurityContext takes precedence. Note that this field cannot be set when spec.os.name is linux.
 	WindowsOptions *WindowsSecurityContextOptions `field:"optional" json:"windowsOptions" yaml:"windowsOptions"`
 }
-

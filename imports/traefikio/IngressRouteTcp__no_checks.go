@@ -23,4 +23,3 @@ func validateIngressRouteTcp_OfParameters(c constructs.IConstruct) error {
 func validateNewIngressRouteTcpParameters(scope constructs.Construct, id *string, props *IngressRouteTcpProps) error {
 	return nil
 }
-

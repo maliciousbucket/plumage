@@ -12,4 +12,3 @@ type MiddlewareProps struct {
 	// MiddlewareSpec defines the desired state of a Middleware.
 	Spec *MiddlewareSpec `field:"required" json:"spec" yaml:"spec"`
 }
-

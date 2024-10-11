@@ -23,4 +23,3 @@ func validateKubeCsiNodeList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeCsiNodeListParameters(scope constructs.Construct, id *string, props *KubeCsiNodeListProps) error {
 	return nil
 }
-

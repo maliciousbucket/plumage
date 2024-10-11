@@ -1,6 +1,5 @@
 package k8s
 
-
 // PodSpec is a description of a pod.
 type PodSpec struct {
 	// List of containers belonging to the pod.
@@ -180,4 +179,3 @@ type PodSpec struct {
 	// More info: https://kubernetes.io/docs/concepts/storage/volumes
 	Volumes *[]*Volume `field:"optional" json:"volumes" yaml:"volumes"`
 }
-

@@ -122,7 +122,6 @@ func (j *jsiiProxy_KubeServiceAccount) Node() constructs.Node {
 	return returns
 }
 
-
 // Defines a "io.k8s.api.core.v1.ServiceAccount" API object.
 func NewKubeServiceAccount(scope constructs.Construct, id *string, props *KubeServiceAccountProps) KubeServiceAccount {
 	_init_.Initialize()
@@ -314,4 +313,3 @@ func (k *jsiiProxy_KubeServiceAccount) ToString() *string {
 
 	return returns
 }
-

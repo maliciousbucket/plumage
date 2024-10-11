@@ -1,6 +1,5 @@
 package traefikio
 
-
 // AddPrefix holds the add prefix middleware configuration.
 //
 // This middleware updates the path of a request before forwarding it.
@@ -11,4 +10,3 @@ type MiddlewareSpecAddPrefix struct {
 	// It should include a leading slash (/).
 	Prefix *string `field:"optional" json:"prefix" yaml:"prefix"`
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // PodList is a list of Pods.
 type KubePodListProps struct {
 	// List of pods.
@@ -12,4 +11,3 @@ type KubePodListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

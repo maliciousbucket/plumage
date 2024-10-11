@@ -1,6 +1,5 @@
 package k8s
 
-
 // HorizontalPodAutoscalerBehavior configures the scaling behavior of the target in both Up and Down directions (scaleUp and scaleDown fields respectively).
 type HorizontalPodAutoscalerBehaviorV2 struct {
 	// scaleDown is scaling policy for scaling Down.
@@ -15,4 +14,3 @@ type HorizontalPodAutoscalerBehaviorV2 struct {
 	// No stabilization is used.
 	ScaleUp *HpaScalingRulesV2 `field:"optional" json:"scaleUp" yaml:"scaleUp"`
 }
-

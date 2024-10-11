@@ -57,4 +57,3 @@ func validateNewKubeNodeParameters(scope constructs.Construct, id *string, props
 
 	return nil
 }
-

@@ -23,4 +23,3 @@ func validateKubeCsiStorageCapacity_OfParameters(c constructs.IConstruct) error 
 func validateNewKubeCsiStorageCapacityParameters(scope constructs.Construct, id *string, props *KubeCsiStorageCapacityProps) error {
 	return nil
 }
-

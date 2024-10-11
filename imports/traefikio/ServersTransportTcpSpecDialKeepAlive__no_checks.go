@@ -11,4 +11,3 @@ func validateServersTransportTcpSpecDialKeepAlive_FromNumberParameters(value *fl
 func validateServersTransportTcpSpecDialKeepAlive_FromStringParameters(value *string) error {
 	return nil
 }
-

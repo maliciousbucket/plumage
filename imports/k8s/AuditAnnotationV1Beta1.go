@@ -1,6 +1,5 @@
 package k8s
 
-
 // AuditAnnotation describes how to produce an audit annotation for an API request.
 type AuditAnnotationV1Beta1 struct {
 	// key specifies the audit annotation key.
@@ -22,4 +21,3 @@ type AuditAnnotationV1Beta1 struct {
 	// Required.
 	ValueExpression *string `field:"required" json:"valueExpression" yaml:"valueExpression"`
 }
-

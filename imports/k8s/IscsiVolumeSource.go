@@ -1,6 +1,5 @@
 package k8s
 
-
 // Represents an ISCSI disk.
 //
 // ISCSI volumes can only be mounted as read/write once. ISCSI volumes support ownership management and SELinux relabeling.
@@ -44,4 +43,3 @@ type IscsiVolumeSource struct {
 	// secretRef is the CHAP Secret for iSCSI target and initiator authentication.
 	SecretRef *LocalObjectReference `field:"optional" json:"secretRef" yaml:"secretRef"`
 }
-

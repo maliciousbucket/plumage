@@ -19,4 +19,3 @@ type LeaseSpec struct {
 	// renewTime is a time when the current holder of a lease has last updated the lease.
 	RenewTime *time.Time `field:"optional" json:"renewTime" yaml:"renewTime"`
 }
-

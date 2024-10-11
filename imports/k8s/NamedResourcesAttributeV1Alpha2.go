@@ -1,6 +1,5 @@
 package k8s
 
-
 // NamedResourcesAttribute is a combination of an attribute name and its value.
 type NamedResourcesAttributeV1Alpha2 struct {
 	// Name is unique identifier among all resource instances managed by the driver on the node.
@@ -22,4 +21,3 @@ type NamedResourcesAttributeV1Alpha2 struct {
 	// VersionValue is a semantic version according to semver.org spec 2.0.0.
 	Version *string `field:"optional" json:"version" yaml:"version"`
 }
-

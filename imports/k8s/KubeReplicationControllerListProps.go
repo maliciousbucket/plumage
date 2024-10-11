@@ -1,6 +1,5 @@
 package k8s
 
-
 // ReplicationControllerList is a collection of replication controllers.
 type KubeReplicationControllerListProps struct {
 	// List of replication controllers.
@@ -12,4 +11,3 @@ type KubeReplicationControllerListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

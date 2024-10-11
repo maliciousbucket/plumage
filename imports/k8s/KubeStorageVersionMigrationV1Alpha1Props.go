@@ -1,6 +1,5 @@
 package k8s
 
-
 // StorageVersionMigration represents a migration of stored data to the latest storage version.
 type KubeStorageVersionMigrationV1Alpha1Props struct {
 	// Standard object metadata.
@@ -10,4 +9,3 @@ type KubeStorageVersionMigrationV1Alpha1Props struct {
 	// Specification of the migration.
 	Spec *StorageVersionMigrationSpecV1Alpha1 `field:"optional" json:"spec" yaml:"spec"`
 }
-

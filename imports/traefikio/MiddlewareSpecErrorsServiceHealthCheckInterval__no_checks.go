@@ -11,4 +11,3 @@ func validateMiddlewareSpecErrorsServiceHealthCheckInterval_FromNumberParameters
 func validateMiddlewareSpecErrorsServiceHealthCheckInterval_FromStringParameters(value *string) error {
 	return nil
 }
-

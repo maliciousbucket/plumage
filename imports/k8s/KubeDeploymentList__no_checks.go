@@ -23,4 +23,3 @@ func validateKubeDeploymentList_OfParameters(c constructs.IConstruct) error {
 func validateNewKubeDeploymentListParameters(scope constructs.Construct, id *string, props *KubeDeploymentListProps) error {
 	return nil
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // The names of the group, the version, and the resource.
 type GroupVersionResourceV1Alpha1 struct {
 	// The name of the group.
@@ -10,4 +9,3 @@ type GroupVersionResourceV1Alpha1 struct {
 	// The name of the version.
 	Version *string `field:"optional" json:"version" yaml:"version"`
 }
-

@@ -1,6 +1,5 @@
 package traefikio
 
-
 // TLSOptionSpec defines the desired state of a TLSOption.
 type TlsOptionSpec struct {
 	// ALPNProtocols defines the list of supported application level protocols for the TLS handshake, in order of preference.
@@ -33,4 +32,3 @@ type TlsOptionSpec struct {
 	// SniStrict defines whether Traefik allows connections from clients connections that do not specify a server_name extension.
 	SniStrict *bool `field:"optional" json:"sniStrict" yaml:"sniStrict"`
 }
-

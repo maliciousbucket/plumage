@@ -25,7 +25,6 @@ func (j *jsiiProxy_ServersTransportTcpSpecDialTimeout) Value() interface{} {
 	return returns
 }
 
-
 func ServersTransportTcpSpecDialTimeout_FromNumber(value *float64) ServersTransportTcpSpecDialTimeout {
 	_init_.Initialize()
 
@@ -61,4 +60,3 @@ func ServersTransportTcpSpecDialTimeout_FromString(value *string) ServersTranspo
 
 	return returns
 }
-

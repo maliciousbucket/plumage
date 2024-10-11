@@ -1,6 +1,5 @@
 package k8s
 
-
 // ResourceClaimTemplateSpec contains the metadata and fields for a ResourceClaim.
 type ResourceClaimTemplateSpecV1Alpha2 struct {
 	// Spec for the ResourceClaim.
@@ -12,4 +11,3 @@ type ResourceClaimTemplateSpecV1Alpha2 struct {
 	// No other fields are allowed and will be rejected during validation.
 	Metadata *ObjectMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

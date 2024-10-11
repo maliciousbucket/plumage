@@ -63,4 +63,3 @@ func validateNewKubeVolumeAttributesClassListV1Alpha1Parameters(scope constructs
 
 	return nil
 }
-

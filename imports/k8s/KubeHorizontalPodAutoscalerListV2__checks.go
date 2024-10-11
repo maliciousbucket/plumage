@@ -63,4 +63,3 @@ func validateNewKubeHorizontalPodAutoscalerListV2Parameters(scope constructs.Con
 
 	return nil
 }
-

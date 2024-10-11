@@ -57,4 +57,3 @@ func validateNewKubeValidatingAdmissionPolicyListV1Beta1Parameters(scope constru
 
 	return nil
 }
-

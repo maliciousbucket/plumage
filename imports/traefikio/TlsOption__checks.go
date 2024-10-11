@@ -63,4 +63,3 @@ func validateNewTlsOptionParameters(scope constructs.Construct, id *string, prop
 
 	return nil
 }
-

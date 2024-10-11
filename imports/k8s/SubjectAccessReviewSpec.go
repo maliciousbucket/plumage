@@ -1,6 +1,5 @@
 package k8s
 
-
 // SubjectAccessReviewSpec is a description of the access request.
 //
 // Exactly one of ResourceAuthorizationAttributes and NonResourceAuthorizationAttributes must be set.
@@ -20,4 +19,3 @@ type SubjectAccessReviewSpec struct {
 	// If you specify "User" but not "Groups", then is it interpreted as "What if User were not a member of any groups.
 	User *string `field:"optional" json:"user" yaml:"user"`
 }
-

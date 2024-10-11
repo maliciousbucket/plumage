@@ -63,4 +63,3 @@ func validateNewKubeNetworkPolicyListParameters(scope constructs.Construct, id *
 
 	return nil
 }
-

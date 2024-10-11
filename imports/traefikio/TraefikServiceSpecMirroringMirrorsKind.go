@@ -1,6 +1,5 @@
 package traefikio
 
-
 // Kind defines the kind of the Service.
 type TraefikServiceSpecMirroringMirrorsKind string
 
@@ -10,4 +9,3 @@ const (
 	// TraefikService.
 	TraefikServiceSpecMirroringMirrorsKind_TRAEFIK_SERVICE TraefikServiceSpecMirroringMirrorsKind = "TRAEFIK_SERVICE"
 )
-

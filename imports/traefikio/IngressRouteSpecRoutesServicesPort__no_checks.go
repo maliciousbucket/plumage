@@ -11,4 +11,3 @@ func validateIngressRouteSpecRoutesServicesPort_FromNumberParameters(value *floa
 func validateIngressRouteSpecRoutesServicesPort_FromStringParameters(value *string) error {
 	return nil
 }
-

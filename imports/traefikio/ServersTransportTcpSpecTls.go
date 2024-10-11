@@ -1,6 +1,5 @@
 package traefikio
 
-
 // TLS defines the TLS configuration.
 type ServersTransportTcpSpecTls struct {
 	// CertificatesSecrets defines a list of secret storing client certificates for mTLS.
@@ -18,4 +17,3 @@ type ServersTransportTcpSpecTls struct {
 	// Spiffe defines the SPIFFE configuration.
 	Spiffe *ServersTransportTcpSpecTlsSpiffe `field:"optional" json:"spiffe" yaml:"spiffe"`
 }
-

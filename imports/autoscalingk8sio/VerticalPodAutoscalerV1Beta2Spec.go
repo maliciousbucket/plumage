@@ -1,6 +1,5 @@
 package autoscalingk8sio
 
-
 // Specification of the behavior of the autoscaler.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
@@ -16,4 +15,3 @@ type VerticalPodAutoscalerV1Beta2Spec struct {
 	// If not specified, all fields in the `PodUpdatePolicy` are set to their default values.
 	UpdatePolicy *VerticalPodAutoscalerV1Beta2SpecUpdatePolicy `field:"optional" json:"updatePolicy" yaml:"updatePolicy"`
 }
-

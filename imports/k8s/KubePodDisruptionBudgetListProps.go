@@ -1,6 +1,5 @@
 package k8s
 
-
 // PodDisruptionBudgetList is a collection of PodDisruptionBudgets.
 type KubePodDisruptionBudgetListProps struct {
 	// Items is a list of PodDisruptionBudgets.
@@ -10,4 +9,3 @@ type KubePodDisruptionBudgetListProps struct {
 	// More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
-

@@ -1,6 +1,5 @@
 package k8s
 
-
 // ResourceRequirements describes the compute resource requirements.
 type ResourceRequirements struct {
 	// Claims lists the names of resources, defined in spec.resourceClaims, that are used by this container.
@@ -18,4 +17,3 @@ type ResourceRequirements struct {
 	// If Requests is omitted for a container, it defaults to Limits if that is explicitly specified, otherwise to an implementation-defined value. Requests cannot exceed Limits. More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
 	Requests *map[string]Quantity `field:"optional" json:"requests" yaml:"requests"`
 }
-

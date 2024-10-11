@@ -33,7 +33,7 @@ type ChartConfig struct {
 	ValuesFiles  []string               `yaml:"valuesFiles"`
 	Values       map[string]interface{} `yaml:"values"`
 	valuesString []string
-	Local        bool              `yaml:"local"`
+	LocalFile    bool              `yaml:"localFile"`
 	SkipCRDs     bool              `yaml:"skipCRDs"`
 	UpgradeCRDs  bool              `yaml:"upgradeCRDs"`
 	Labels       map[string]string `yaml:"labels"`
@@ -182,8 +182,8 @@ func loadChartConfigs(configDir, file string) ([]*ChartConfig, error) {
 
 func getChartOpts(chart *ChartConfig) []chartOpts {
 	opts := []chartOpts{}
-	if chart.Local {
-		opts = append(opts, fromLocalChart(chart.Repository))
+	if chart.LocalFile {
+		opts = append(opts, fromLocalArchive(chart.Repository))
 	} else {
 		opts = append(opts, fromRemote(chart.Repository))
 	}
@@ -213,16 +213,20 @@ func (chart *ChartConfig) chartSpec(client *helmClient, opts ...chartOpts) (*hel
 	if chartConfigErr != nil {
 		return nil, chartConfigErr
 	}
-	if chart.remoteFile == false {
-		repoErr := fromRemoteRepository(client)(chart)
-		if repoErr != nil {
-			return nil, repoErr
+	if chart.LocalFile == false {
+		if chart.remoteFile == false {
+			repoErr := fromRemoteRepository(client)(chart)
+			if repoErr != nil {
+				return nil, repoErr
+			}
+		} else {
+			fileErr := fromRemoteFile()(chart)
+			if fileErr != nil {
+				return nil, fileErr
+			}
 		}
 	} else {
-		fileErr := fromRemoteFile()(chart)
-		if fileErr != nil {
-			return nil, fileErr
-		}
+		chart.Name = chart.Repository
 	}
 
 	generateNamespace := false
@@ -284,9 +288,8 @@ func withValuesFiles(files []string) chartOpts {
 	}
 }
 
-func fromLocalChart(filepath string) chartOpts {
+func fromLocalArchive(filepath string) chartOpts {
 	return func(chart *ChartConfig) error {
-
 		info, err := os.Stat(filepath)
 		if err != nil {
 			return fmt.Errorf("failed to stat %s chart file %s: %w", chart.Name, filepath, err)

@@ -21,6 +21,14 @@ K3D ?= $(LOCALBIN)/k3d
 
 K3D_VERSION ?= v5.7.3
 
+.PHONY: fmt ## Run go fmt against code
+fmt:
+	go fmt ./...
+
+.PHONY: vet ## Run go vet against code
+vet:
+	go vet ./...
+
 .PHONY: k3d ## Install K3D to the project's /bin/ directory
 k3d: $(K3D)
 $(K3D): $(LOCALBIN)
@@ -46,6 +54,9 @@ argo-ingress: ## Add an ingress pointing to the argocd server
 argo-node: ## Open a nodepoprt to the argocd server
 	$(SHELL ./tools/pf-argp.sh)
 
+.PHONY: tests-integration ## Run integration tests
+tests-integration:
+	go test ./pkg/integration-testing/
 
 
 define go-install-tool

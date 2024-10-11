@@ -38,5 +38,5 @@ func TestArgoProjects(t *testing.T) {
 }
 
 func TestArgoApps(t *testing.T) {
-	
+
 }

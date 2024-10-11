@@ -163,6 +163,10 @@ func TestInstallChart(t *testing.T) {
 		err = client.UninstallRelease(cfg.ReleaseName)
 		assert.NoError(t, err)
 	})
+
+	t.Run("Install chart with values file", func(t *testing.T) {
+
+	})
 }
 
 func TestInstallInvalidCharts(t *testing.T) {
@@ -189,19 +193,54 @@ func TestInstallInvalidCharts(t *testing.T) {
 	}
 
 	t.Run("Non-existent repository", func(t *testing.T) {
-		cfg := &helm.ChartConfig{}
+		cfg := &helm.ChartConfig{
+			Repository:  "https://github.com/maliciousbucket/helm-charts/releases/download/chart/1.0/tgz",
+			Namespace:   "default",
+			Name:        "chart",
+			ReleaseName: "chart",
+			Version:     "1.0",
+			Replace:     false,
+			LocalFile:   false,
+			SkipCRDs:    false,
+			UpgradeCRDs: false,
+			Labels:      nil,
+			Lint:        false,
+		}
 		err = client.InstallChart(ctx, cfg)
 		assert.Error(t, err)
 	})
 
-	t.Run("Remote file with incorrect extension", func(t *testing.T) {
-		cfg := &helm.ChartConfig{}
+	t.Run("Local file with incorrect extension", func(t *testing.T) {
+		repo := fmt.Sprintf("%s/ingress-nginx-%s.yaml", helmTestData, nginxVersion)
+		cfg := &helm.ChartConfig{
+			Repository:  repo,
+			Namespace:   "default",
+			Name:        "nginx",
+			ReleaseName: "ingress-nginx",
+			Version:     "4.11.3",
+			Replace:     false,
+			LocalFile:   true,
+			SkipCRDs:    true,
+			UpgradeCRDs: false,
+			Lint:        false,
+		}
 		err = client.InstallChart(ctx, cfg)
 		assert.Error(t, err)
 	})
 
 	t.Run("Remote chart with incorrect name", func(t *testing.T) {
-		cfg := &helm.ChartConfig{}
+		cfg := &helm.ChartConfig{
+			Repository:  "https://prometheus-community.github.io/helm-charts",
+			Namespace:   "default",
+			Name:        "foo",
+			ReleaseName: "bar",
+			Version:     promOperatorVersion,
+			Replace:     false,
+			LocalFile:   false,
+			SkipCRDs:    false,
+			UpgradeCRDs: true,
+			Lint:        false,
+		}
 		err = client.InstallChart(ctx, cfg)
 		assert.Error(t, err)
 	})

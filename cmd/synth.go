@@ -28,6 +28,8 @@ func synthCommand() *cobra.Command {
 	cmd.AddCommand(synthGatewayCmd(appCfg.OutputDir, appCfg.Namespace))
 	cmd.AddCommand(synthTemplateCommand("testdata/chirp/template.yaml", appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
 	cmd.AddCommand(synthServiceCmd(appCfg.OutputDir, appCfg.Namespace))
+	alloyAddress := fmt.Sprintf("%s:%d", appCfg.MonitoringConfig.AlloyAddress, appCfg.MonitoringConfig.Collectors.OtlpGRPCPort)
+	cmd.AddCommand(synthTestCommand(appCfg.OutputDir, appCfg.Namespace, alloyAddress))
 	return cmd
 
 }
@@ -110,7 +112,7 @@ func synthTestCommand(outputDir, ns, alloy string) *cobra.Command {
 			if err := cmd.ValidateRequiredFlags(); err != nil {
 				return err
 			}
-			out := outDir
+			out := outputDir
 			if outDir != "" {
 				out = outDir
 			}

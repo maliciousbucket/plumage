@@ -57,6 +57,11 @@ func NewTestRunFromTemplate(scope constructs.Construct, id string, ns, alloyAddr
 
 	ct := cdk8s.NewChart(scope, jsii.String(id), chartProps)
 
+	if script.ScriptName == "" {
+		scriptName := fmt.Sprintf("%s.js", script.Name)
+		script.ScriptName = scriptName
+	}
+
 	props := &TestRunProps{
 		Namespace:        template.Namespace,
 		ScriptDir:        template.ScriptDir,
@@ -254,7 +259,7 @@ func WithScript(scope constructs.Construct, scriptDir, libDir string, libFiles [
 		if t.ExistingScript != nil {
 			return fmt.Errorf("script already exists: %s", t.ExistingScript.Name)
 		}
-		scriptMap := newTestFileConfigMap(scope, t.Namespace, t.Name, scriptDir, libDir, t.Name, libFiles)
+		scriptMap := newTestFileConfigMap(scope, t.Namespace, t.Name, scriptDir, libDir, t.ScriptName, libFiles)
 		t.scriptMap = *scriptMap.Metadata().Name()
 
 		return nil

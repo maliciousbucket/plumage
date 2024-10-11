@@ -7,12 +7,6 @@ import (
 	"log"
 )
 
-const (
-	envFlag = "-e"
-	outFlag = "-o"
-	runCmd  = "k6 run"
-)
-
 func SynthTemplateFile(file, outDir, ns, alloy string, account string) error {
 	if outDir == "" {
 		return fmt.Errorf("no output dir specified")
@@ -33,7 +27,7 @@ func SynthTemplateFile(file, outDir, ns, alloy string, account string) error {
 	})
 	var accountName string
 	if account == "" {
-		accountChart := cdk8s.NewChart(app, jsii.String("id"), &cdk8s.ChartProps{
+		accountChart := cdk8s.NewChart(app, jsii.String("account"), &cdk8s.ChartProps{
 			DisableResourceNameHashes: jsii.Bool(true),
 			Namespace:                 jsii.String(ns),
 		})
@@ -53,12 +47,4 @@ func SynthTemplateFile(file, outDir, ns, alloy string, account string) error {
 	log.Println("Success! Files can be found at ", outPut)
 	return nil
 
-}
-
-func stringSliceToK8s(source []string) []*string {
-	res := make([]*string, len(source))
-	for i := range source {
-		res[i] = &source[i]
-	}
-	return res
 }

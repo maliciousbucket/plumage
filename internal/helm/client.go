@@ -19,6 +19,10 @@ type Client interface {
 	InstallKubeStateMetricsServerChart(ctx context.Context, version string, replace bool) error
 	InstallK6(ctx context.Context, version string, replace bool) error
 	InstallChart(ctx context.Context, chart *ChartConfig) error
+	GetRelease(name string) (*ChartRelease, error)
+	ListReleases() ([]*ReleaseMeta, error)
+	GetReleaseValues(name string, allValues bool) (map[string]interface{}, error)
+	UninstallRelease(name string) error
 }
 
 func NewClient(cfg *ClientCfg) (Client, error) {

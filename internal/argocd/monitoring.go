@@ -12,7 +12,7 @@ import (
 
 const (
 	galahMonitoringRepo = "https://github.com/maliciousbucket/galah-observability"
-	argoCDRepo          = "https://github.com/maliciousbucket/github-api-test"
+	argoCDRepo          = "https://github.com/maliciousbucket/git-ops"
 	defaultServer       = "https://kubernetes.default.svc"
 	alloyPath           = "kubernetes/alloy"
 	grafanaPath         = "kubernetes/grafana"
@@ -23,7 +23,8 @@ const (
 	tempoPath           = "kubernetes/tempo/helm"
 	userPath            = "kubernetes/user"
 
-	gatewayPath = "kubernetes/gateway"
+	gatewayPath   = "kubernetes/gateway"
+	argoFinalizer = "resources-finalizer.argocd.argoproj.io"
 )
 
 func (c *Client) CreateMonitoringProject(ctx context.Context) error {
@@ -40,11 +41,6 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 		if cluster.Info.ServerVersion != "Unknown" {
 			createCluster = false
 		}
-		fmt.Println(cluster.Name)
-		fmt.Println(cluster.Server)
-		fmt.Println(cluster.Info)
-		fmt.Println(cluster.Info.ConnectionState.Status)
-		fmt.Println(cluster.Info.ServerVersion)
 	}
 	if createCluster {
 		cluster, clusterErr := c.CreateCluster(ctx, "galah-monitoring")
@@ -224,7 +220,7 @@ func (c *Client) createMonitoringProject(ctx context.Context) (string, error) {
 
 }
 
-func (c *Client) CreateNetworkingProject(ctx context.Context) error {
+func (c *Client) CreateNetworkingProject(ctx context.Context, ns string) error {
 
 	var project string
 	existing, _ := c.GetProject(ctx, "galah-monitoring")
@@ -233,7 +229,7 @@ func (c *Client) CreateNetworkingProject(ctx context.Context) error {
 		log.Println("Galah networking project already exists")
 		project = existing.Name
 	} else {
-		newProject, err := c.createNetworkingProject(ctx)
+		newProject, err := c.createNetworkingProject(ctx, ns)
 		if err != nil {
 			return err
 		}
@@ -269,7 +265,7 @@ func (c *Client) CreateNetworkingProject(ctx context.Context) error {
 
 }
 
-func (c *Client) createNetworkingProject(ctx context.Context) (string, error) {
+func (c *Client) createNetworkingProject(ctx context.Context, ns string) (string, error) {
 	sources := []string{galahMonitoringRepo, argoCDRepo}
 	namespaces := []string{
 		"gateway",
@@ -317,60 +313,6 @@ func (c *Client) createDashboardProject(ctx context.Context) (string, error) {
 	return c.createGalahProject(ctx,
 		"galah-dashboards",
 		"kubernetes dashboards",
-		sources,
-		namespaces,
-		destinations,
-	)
-}
-
-//func (c *Client) CreateCRDProject(ctx context.Context) error {
-//	existing, _ := c.GetProject(ctx, "galah-crds")
-//	if existing != nil {
-//		return fmt.Errorf("galah-crd project already exists")
-//	}
-//
-//	appList := []string{}
-//	apps, err := c.ListApplications(ctx, nil)
-//	if err != nil {
-//		return fmt.Errorf("error listing applications: %w", err)
-//	}
-//
-//	certManager := true
-//	promCRds := true
-//
-//
-//	project, err := c.createCRDProject(ctx)
-//	if err != nil {
-//		return err
-//	}
-//	log.Printf("Successfully created CRD Project: %s", project)
-//	return nil
-//}
-
-func (c *Client) createCRDProject(ctx context.Context) (string, error) {
-	sources := []string{galahMonitoringRepo}
-	namespaces := []string{
-		"cert-manager",
-		"default",
-	}
-	destinations := []v1alpha1.ApplicationDestination{
-		{
-			Server:    defaultServer,
-			Namespace: "argocd",
-		},
-		{
-			Namespace: "default",
-			Server:    defaultServer,
-		},
-		{
-			Namespace: "cert-manager",
-			Server:    defaultServer,
-		},
-	}
-
-	return c.createGalahProject(ctx,
-		"galah-crds",
-		"custom resource definitions",
 		sources,
 		namespaces,
 		destinations,
@@ -453,7 +395,7 @@ func (c *Client) addMonitoringInfrastructureApp(ctx context.Context, name, path,
 				Name:      name,
 				Namespace: "argocd",
 				Finalizers: []string{
-					"resources-finalizer.argocd.argoproj.io",
+					argoFinalizer,
 				},
 			},
 			Spec: v1alpha1.ApplicationSpec{

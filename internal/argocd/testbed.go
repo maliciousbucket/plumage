@@ -11,11 +11,12 @@ import (
 )
 
 const (
-	traefikPath         = "dist/ingress/traefik"
-	infraDashboardsPath = "dist/ingress/dashboards"
-	chaosPath           = "dist/tests"
-	appPath             = "dist"
-	chaosProject        = "chaos"
+	traefikPath             = "dist/ingress/traefik"
+	infraDashboardsPath     = "dist/ingress/dashboards"
+	chaosPath               = "dist/tests"
+	appPath                 = "dist"
+	chaosProject            = "chaos"
+	skipReconcileAnnotation = "argocd.argoproj.io/skip-reconcile"
 )
 
 func (c *Client) CreateIngressProject(ctx context.Context) error {
@@ -58,6 +59,11 @@ func (c *Client) CreateIngressProject(ctx context.Context) error {
 	if err = c.createIngressApp(ctx, project); err != nil {
 		return err
 	}
+	spec, err := c.AddApplicationToProject(ctx, "traefik", "ingress", true)
+	if err != nil {
+		return err
+	}
+	log.Printf("\n Spec Name: %s", spec.Project)
 	log.Printf("Created Ingress app in Project %s", project)
 	return nil
 }
@@ -169,10 +175,10 @@ func (c *Client) addTestBedApp(ctx context.Context, name, path, project string) 
 				Name:      name,
 				Namespace: "argocd",
 				Finalizers: []string{
-					"resources-finalizer.argocd.argoproj.io",
+					argoFinalizer,
 				},
 				Annotations: map[string]string{
-					"argocd.argoproj.io/skip-reconcile": "true",
+					skipReconcileAnnotation: "true",
 				},
 			},
 			Spec: v1alpha1.ApplicationSpec{
@@ -203,12 +209,12 @@ func (c *Client) addTestBedApp(ctx context.Context, name, path, project string) 
 	return nil
 }
 
-func (c *Client) CreateChaosProject(ctx context.Context) error {
+func (c *Client) CreateChaosProject(ctx context.Context, ns string) error {
 	var project string
 	existing, _ := c.GetProject(ctx, chaosProject)
 
 	if existing == nil {
-		newProj, err := c.createChaosProject(ctx)
+		newProj, err := c.createChaosProject(ctx, ns)
 		if err != nil {
 			return err
 		}
@@ -219,7 +225,7 @@ func (c *Client) CreateChaosProject(ctx context.Context) error {
 	return nil
 }
 
-func (c *Client) createChaosProject(ctx context.Context) (string, error) {
+func (c *Client) createChaosProject(ctx context.Context, ns string) (string, error) {
 	sources := []string{argoCDRepo}
 	namespaces := []string{"galah-testbed"}
 	destinations := []v1alpha1.ApplicationDestination{
@@ -229,7 +235,7 @@ func (c *Client) createChaosProject(ctx context.Context) (string, error) {
 		},
 		{
 			Server:    defaultServer,
-			Namespace: "galah-testbed",
+			Namespace: ns,
 		},
 	}
 	return c.createGalahProject(ctx,

@@ -6,6 +6,7 @@ import (
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
 	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	"github.com/maliciousbucket/plumage/imports/traefikio"
+	"github.com/maliciousbucket/plumage/pkg/imports"
 )
 
 const (
@@ -310,7 +311,7 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 	newDashbaordRoute(chart, "dashboard-route", db)
 	grafanaRoute(chart, ns)
 
-	NewInclude(chart, "traefik-crds", traefikCrdUrl)
+	imports.NewInclude(chart, "traefik-crds", traefikCrdUrl)
 
 	return chart
 

@@ -9,7 +9,16 @@ import (
 
 func ProjectNamespace(scope constructs.Construct, ns string) kplus.Namespace {
 	chart := cdk8s.NewChart(scope, jsii.String("project-namespace"), &cdk8s.ChartProps{})
-	namespace := kplus.NewNamespace(chart, jsii.String(ns), nil)
+	namespace := kplus.NewNamespace(chart, jsii.String(ns), &kplus.NamespaceProps{
+		Metadata: &cdk8s.ApiObjectMetadata{
+			Annotations:     nil,
+			Finalizers:      nil,
+			Labels:          nil,
+			Name:            jsii.String(ns),
+			Namespace:       nil,
+			OwnerReferences: nil,
+		},
+	})
 	return namespace
 }
 

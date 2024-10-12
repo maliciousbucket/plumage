@@ -8,6 +8,7 @@ import (
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/maliciousbucket/plumage/pkg/kplus"
+	"log"
 	"sync"
 	"time"
 )
@@ -69,6 +70,27 @@ func deployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeCl
 	if err = prettyPrint(projects); err != nil {
 		return err
 	}
+
+	apps, err := argoClient.ListApplications(ctx, &argocd.AppQueryParams{Options: []argocd.AppQueryFunc{
+		argocd.WithProject("ingress"),
+	}})
+	if err != nil {
+		return err
+	}
+	fmt.Println("Apps?")
+	if err = prettyPrint(apps); err != nil {
+		return err
+	}
+	log.Println("Pods???")
+	pods, err := kubeClient.ListPods(ctx, ns)
+	if err != nil {
+		return err
+	}
+	log.Println(len(pods.Items))
+	if err = prettyPrint(pods); err != nil {
+		return err
+	}
+	log.Println("Deployments?")
 	deployments, err := kubeClient.ListDeployments(ctx, ns)
 	if err != nil {
 		return err
@@ -76,15 +98,9 @@ func deployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeCl
 	if err = prettyPrint(deployments); err != nil {
 		return err
 	}
-	pods, err := kubeClient.ListPods(ctx, ns)
-	if err != nil {
-		return err
-	}
-	if err = prettyPrint(pods); err != nil {
-		return err
-	}
+
 	time.Sleep(30 * time.Second)
-	err = kubeClient.WatchDeployment(ctx, ns, "traefik", false)
+	err = kubeClient.WatchDeployment(ctx, ns, "traefik", true)
 	if err != nil {
 		return err
 	}
@@ -117,6 +133,15 @@ func deployMonitoring(ctx context.Context, argoClient ArgoClient, kubeClient Kub
 		}
 	}
 
+	return nil
+
+}
+
+func WaitForMonitoringDeployment(ctx context.Context, kubeClient KubeClient) error {
+	return waitForMonitoringDeployment(ctx, kubeClient)
+}
+
+func waitForMonitoringDeployment(ctx context.Context, kubeClient KubeClient) error {
 	resources := map[string]string{
 		"alloy":    "galah-monitoring",
 		"tempo":    "galah-tracing",
@@ -129,6 +154,7 @@ func deployMonitoring(ctx context.Context, argoClient ArgoClient, kubeClient Kub
 	var watchErr error
 	errChan := make(chan error, len(resources)+1)
 	var wg sync.WaitGroup
+	time.Sleep(1 * time.Minute)
 	for res, namespace := range resources {
 		wg.Add(1)
 		go func(res, namespace string) {

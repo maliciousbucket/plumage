@@ -7,7 +7,6 @@ import (
 	"github.com/maliciousbucket/plumage/pkg/chaos"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/maliciousbucket/plumage/pkg/kplus"
-	"github.com/maliciousbucket/plumage/pkg/kubernetes"
 	"github.com/spf13/cobra"
 	"log"
 )
@@ -56,7 +55,12 @@ func synthGatewayCmd(outputDir string, namespace string) *cobra.Command {
 				YamlOutputType:          cdk8s.YamlOutputType_FILE_PER_CHART,
 			})
 
-			kubernetes.NewTraefikIngress(app, "traefik-chart", namespace)
+			err := kplus.SynthGateway(outputDir, namespace)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			//kubernetes.NewTraefikIngress(app, "traefik-chart", namespace)
 
 			app.Synth()
 		},

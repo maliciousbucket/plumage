@@ -14,7 +14,7 @@ func (k *k8sClient) GetArgoPassword(ctx context.Context, ns string) (string, err
 
 func (k *k8sClient) getArgoCDInitialPassword(ctx context.Context, ns string) (string, error) {
 	secretsClient := k.kubeClient.CoreV1().Secrets(ns)
-	pass, err := secretsClient.Get(ctx, "argocd-initial-admin-secret", v1.GetOptions{})
+	pass, err := secretsClient.Get(ctx, initialPasswordSecretName, v1.GetOptions{})
 	if err != nil {
 		return "", fmt.Errorf("error getting ArgoCD initial admin secret: %w", err)
 	}

@@ -21,7 +21,3 @@ func ProjectNamespace(scope constructs.Construct, ns string) kplus.Namespace {
 	})
 	return namespace
 }
-
-func addNamespaceDependency(namespace kplus.Namespace, chart cdk8s.Chart) {
-	chart.AddDependency(namespace)
-}

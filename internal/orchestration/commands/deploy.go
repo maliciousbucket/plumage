@@ -64,7 +64,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			}
 			m := cfg.MonitoringConfig.Collectors.ToStringMap()
 
-			if err = synthAll(templateFile, cfg.OutputDir, m); err != nil {
+			if err = synthAll(templateFile, cfg.OutputDir, cfg.Namespace, m); err != nil {
 				log.Fatal(err)
 			}
 
@@ -115,17 +115,17 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringP("file", "f", "", "Path to a file containing the template definition")
-	cmd.Flags().BoolP("gateway", "g", true, "deploy with gateway")
-	cmd.Flags().BoolP("monitoring", "m", true, "deploy with monitoring")
+	cmd.Flags().Bool("gateway", false, "Deploy with gateway")
+	cmd.Flags().Bool("monitoring", false, "Deploy with galah-observability monitoring")
 	return cmd
 }
 
-func synthAll(file, outputDir string, monitoring map[string]string) error {
+func synthAll(file, outputDir, ns string, monitoring map[string]string) error {
 	if err := kplus.SynthTemplate(file, outputDir, monitoring); err != nil {
 		log.Fatal(err)
 	}
 
-	if err := kplus.SynthGateway(outputDir, "galah-testbed"); err != nil {
+	if err := kplus.SynthGateway(outputDir, ns); err != nil {
 		log.Fatal(err)
 	}
 	return nil

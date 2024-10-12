@@ -29,12 +29,6 @@ func (k *k8sClient) getService(ctx context.Context, ns string, name string) (*v1
 		return nil, err
 	}
 
-	//a, err := k.kubeClient.AppsV1().Deployments(ns).Watch(ctx, metav1.ListOptions{})
-	//
-	//informer := informers.NewSharedInformerFactoryWithOptions(k.kubeClient, 10*time.Second, informers.WithNamespace(ns))
-	//
-	//depInfromer := informer.Apps().V1().Deployments().Informer()
-
 	return res, nil
 }
 
@@ -75,7 +69,6 @@ func (k *k8sClient) waitServicePods(ctx context.Context, ns string, pods *v1.Pod
 		wg.Add(1)
 		go func(instance string) {
 			defer wg.Done()
-			//err := k.waitPodRunning(ctx, ns, instance)
 			err := k.WaitPodNameRunning(ctx, ns, instance)
 			select {
 			case errChan <- err:
@@ -147,7 +140,6 @@ func (k *k8sClient) exposeService(ctx context.Context, ns string, name string, p
 		for i, p := range service.Spec.Ports {
 			if p.Port == int32(port) {
 				service.Spec.Ports[i].NodePort = int32(nodePort)
-				//service.Spec.Ports[i].Name = "nodeport"
 				foundNodePort = true
 				break
 			}

@@ -147,7 +147,7 @@ func (k *k8sClient) exposeService(ctx context.Context, ns string, name string, p
 		for i, p := range service.Spec.Ports {
 			if p.Port == int32(port) {
 				service.Spec.Ports[i].NodePort = int32(nodePort)
-				service.Spec.Ports[i].Name = "nodeport"
+				//service.Spec.Ports[i].Name = "nodeport"
 				foundNodePort = true
 				break
 			}

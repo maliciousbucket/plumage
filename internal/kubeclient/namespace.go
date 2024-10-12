@@ -3,6 +3,7 @@ package kubeclient
 import (
 	"context"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -14,7 +15,10 @@ const (
 func (k *k8sClient) CreateNamespace(ctx context.Context, ns string) (*NameSpaceInfo, error) {
 	namespace, err := k.kubeClient.CoreV1().Namespaces().Get(ctx, ns, metav1.GetOptions{})
 	if err != nil {
-		return nil, err
+		if !errors.IsNotFound(err) {
+			return nil, err
+		}
+		
 	}
 	if namespace != nil {
 		return &NameSpaceInfo{

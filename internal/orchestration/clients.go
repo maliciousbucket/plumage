@@ -5,6 +5,8 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
+	appsV1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	"time"
 )
 
@@ -52,6 +54,8 @@ type KubeClient interface {
 	GetArgoPassword(ctx context.Context, ns string) (string, error)
 	CheckServiceExists(ctx context.Context, ns string, name string) (bool, error)
 	ExposeService(ctx context.Context, ns string, name string, port int, nodePort int) error
+	ListDeployments(ctx context.Context, ns string) ([]appsV1.Deployment, error)
+	ListPods(ctx context.Context, namespace string) (*v1.PodList, error)
 }
 
 type HelmClient interface {

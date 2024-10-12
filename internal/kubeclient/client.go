@@ -2,6 +2,8 @@ package kubeclient
 
 import (
 	"context"
+	appsv1 "k8s.io/api/apps/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
@@ -28,6 +30,10 @@ type Client interface {
 	GetArgoPassword(ctx context.Context, ns string) (string, error)
 	CheckServiceExists(ctx context.Context, ns string, name string) (bool, error)
 	ExposeService(ctx context.Context, ns string, name string, port int, nodePort int) error
+
+	ListDeployments(ctx context.Context, ns string) ([]appsv1.Deployment, error)
+
+	ListPods(ctx context.Context, namespace string) (*v1.PodList, error)
 }
 
 type k8sClient struct {
@@ -62,5 +68,29 @@ func newClientset() (*kubernetes.Clientset, error) {
 	if err != nil {
 		return nil, err
 	}
+	return client, nil
+}
+
+func NewClientFromConfig(config []byte) (Client, error) {
+	kubeClient, err := newClientSetFromConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	client := k8sClient{
+		kubeClient: kubeClient,
+	}
+	return &client, nil
+}
+
+func newClientSetFromConfig(cfg []byte) (*kubernetes.Clientset, error) {
+	config, err := clientcmd.NewClientConfigFromBytes(cfg)
+	if err != nil {
+		return nil, err
+	}
+	rest, err := config.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+	client, err := kubernetes.NewForConfig(rest)
 	return client, nil
 }

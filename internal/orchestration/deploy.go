@@ -2,14 +2,41 @@ package orchestration
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
+	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"sync"
 	"time"
 )
 
 func DeployTemplate() {}
+
+func DeployApp(ctx context.Context, argoClient ArgoClient, path string) (string, error) {
+	return deployApp(ctx, argoClient, path)
+}
+
+func deployApp(ctx context.Context, argoClient ArgoClient, path string) (string, error) {
+	if err := AddRepoCredentials(ctx, argoClient); err != nil {
+		return "", err
+	}
+
+	services, _, appName, err := kplus.GetServices(path)
+	if err != nil {
+		return "", err
+	}
+	if len(services) == 0 {
+		return "", fmt.Errorf("no services found in %s", path)
+	}
+
+	if err = argoClient.CreateServiceApplications(ctx, appName, services); err != nil {
+		return "", err
+	}
+	return appName, nil
+
+}
 
 func DeployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, ns string) error {
 	return deployGateway(ctx, argoClient, kubeClient, ns)
@@ -31,11 +58,36 @@ func deployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeCl
 			}
 		}
 
-		if err := argoClient.SyncProject(ctx, "ingress"); err != nil {
-			return err
-		}
 	}
-	time.Sleep(10 * time.Second)
+	if err := argoClient.SyncProject(ctx, "ingress"); err != nil {
+		return err
+	}
+	projects, err := argoClient.ListProjects(ctx)
+	if err != nil {
+		return err
+	}
+	if err = prettyPrint(projects); err != nil {
+		return err
+	}
+	deployments, err := kubeClient.ListDeployments(ctx, ns)
+	if err != nil {
+		return err
+	}
+	if err = prettyPrint(deployments); err != nil {
+		return err
+	}
+	pods, err := kubeClient.ListPods(ctx, ns)
+	if err != nil {
+		return err
+	}
+	if err = prettyPrint(pods); err != nil {
+		return err
+	}
+	time.Sleep(30 * time.Second)
+	err = kubeClient.WatchDeployment(ctx, ns, "traefik", false)
+	if err != nil {
+		return err
+	}
 	errChan := make(chan error)
 	go func() {
 
@@ -43,8 +95,8 @@ func deployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeCl
 		close(errChan)
 	}()
 	select {
-	case err := <-errChan:
-		return err
+	case watchErr := <-errChan:
+		return watchErr
 	case <-ctx.Done():
 		return ctx.Err()
 	}
@@ -138,5 +190,14 @@ func watchInfrastructure(ctx context.Context, client kubeclient.Client, ns, name
 	if err := client.WaitAppPods(ctx, ns, name, 1, 2*time.Minute); err != nil {
 		return err
 	}
+	return nil
+}
+
+func prettyPrint(v any) error {
+	jsonData, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(jsonData))
 	return nil
 }

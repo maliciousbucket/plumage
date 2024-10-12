@@ -1,22 +1,17 @@
 package commands
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/joho/godotenv"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
-	"github.com/maliciousbucket/plumage/pkg/kplus"
+	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/spf13/cobra"
 	"io"
 	"log"
-	"net/http"
-	"os"
 	"os/exec"
 	"sync"
 	"syscall"
@@ -57,8 +52,12 @@ func SetArgoTokenCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-argo-token",
 		Short: "set argo token",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return newKubeClient()
+		},
 		Run: func(cmd *cobra.Command, args []string) {
-			err := GetHttpToken()
+			ctx := context.Background()
+			err := orchestration.SetArgoToken(ctx, kubernetesClient)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -158,137 +157,6 @@ func setArgoToken() {
 	}
 
 	wg.Wait()
-}
-
-func GetHttpToken() error {
-	k8sClient, err := kubeclient.NewClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx := context.Background()
-
-	err = k8sClient.CreateGalahArgoAccount(ctx, "argocd")
-	if err != nil {
-		log.Fatal(err)
-	}
-	secret, err := k8sClient.GetArgoPassword(ctx, "argocd")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	address := os.Getenv("ARGOCD_ADDRESS")
-	if address == "" {
-		return errors.New("ARGO_ADDRESS environment variable not set")
-	}
-	token, err := getArgoAuthToken(address, secret)
-	if err != nil {
-		return err
-	}
-	if token == "" {
-		return errors.New("token empty")
-	}
-	myEnv, err := godotenv.Read(".env")
-	if err != nil {
-		return err
-	}
-	myEnv["ARGOCD_TOKEN"] = token
-	err = godotenv.Write(myEnv, ".env")
-	log.Println("Argo Token Set")
-	if err != nil {
-		return nil
-	}
-	return nil
-
-}
-
-func getArgoAuthToken(url, secret string) (string, error) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	httpClient := &http.Client{Transport: tr}
-
-	body := struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}{
-		Username: "admin",
-		Password: secret,
-	}
-	address := fmt.Sprintf("https://%s/api/v1/session", url)
-	jsonData, err := json.Marshal(body)
-	if err != nil {
-		return "", err
-	}
-	req, err := http.NewRequest(http.MethodPost, address, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", err
-
-	}
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	token := struct {
-		Token string `json:"token"`
-	}{}
-	defer resp.Body.Close()
-	respData, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	err = json.Unmarshal(respData, &token)
-	if err != nil {
-		return "", err
-	}
-	key, err := getAccountAPIKey(httpClient, token.Token, url)
-	if err != nil {
-		return "", err
-	}
-	return key, nil
-}
-
-func getAccountAPIKey(client *http.Client, token, url string) (string, error) {
-	path := fmt.Sprintf("https://%s/api/v1/account/galah/token", url)
-	body := struct {
-		Name string `json:"name"`
-	}{
-		Name: "galah",
-	}
-	jsonData, err := json.Marshal(body)
-	if err != nil {
-		return "", err
-	}
-	req, err := http.NewRequest(http.MethodPost, path, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return "", err
-	}
-	req.Header.Add("Authorization", "Bearer "+token)
-	req.Header.Add("Content-Type", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	key := struct {
-		Token string `json:"token"`
-	}{}
-	defer resp.Body.Close()
-	respData, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	err = json.Unmarshal(respData, &key)
-	if err != nil {
-		return "", err
-	}
-	return key.Token, nil
-}
-
-func actionsCmd() *cobra.Command {
-	cmd := &cobra.Command{
-		Use: "actions",
-	}
-	return cmd
 }
 
 func createAppsCmd() *cobra.Command {
@@ -460,22 +328,14 @@ func DeployAppCmd(filePath string) *cobra.Command {
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
-			if err := argoClient.AddRepoCredentials(ctx); err != nil {
-				return fmt.Errorf("error adding GitHub repo credentials: %w", err)
-			}
 
-			services, _, appName, err := kplus.GetServices(filePath)
+			appName, err := orchestration.DeployApp(ctx, argoClient, filePath)
 			if err != nil {
-				return err
-			}
-			if len(services) == 0 {
-				return errors.New("no services found in template")
+				log.Fatal(err)
+			} else {
+				log.Printf("\nApplication %s deployed successfully", appName)
 			}
 
-			if err = argoClient.CreateServiceApplications(ctx, appName, services); err != nil {
-				return err
-			}
-			log.Printf("\nApplication %s deployed successfully", appName)
 			return nil
 		},
 	}

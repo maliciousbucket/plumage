@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	argoVersion         = "argo-cd-7.6.1"
+	argoVersion         = "argo-cd-7.6.8"
 	promOperatorVersion = "14.0.0"
 
 	kubeStateMetricsVersion = "5.25.1"
@@ -18,6 +18,7 @@ var (
 	k6OperatorVersion       = "3.9.0"
 	nginxVersion            = "4.11.3"
 	helmTestData            = "./testdata/helm"
+	kubePrometheusVersion   = "65.2.0"
 )
 
 type helmClient interface {
@@ -27,6 +28,7 @@ type helmClient interface {
 	InstallPromOperatorCRDs(ctx context.Context, version string, replace bool) error
 	InstallBaseCharts(ctx context.Context, opts *helm.BaseChartOpts, replace bool) error
 	InstallK6(ctx context.Context, version string, replace bool) error
+	InstallKubePrometheusStack(ctx context.Context, version, valuesFile string, replace bool) error
 	InstallChart(ctx context.Context, chart *helm.ChartConfig) error
 	UninstallRelease(name string) error
 	GetRelease(name string) (*helm.ChartRelease, error)
@@ -74,6 +76,13 @@ func TestInstallBaseCharts(t *testing.T) {
 
 	t.Run("Install K6 Operator", func(t *testing.T) {
 		err = client.InstallK6(ctx, k6OperatorVersion, false)
+		assert.NoError(t, err)
+	})
+
+	t.Run("Install Kube Prometheus Stack", func(t *testing.T) {
+		err = client.InstallKubePrometheusStack(ctx, kubePrometheusVersion, "", false)
+		assert.NoError(t, err)
+
 	})
 
 }

@@ -82,6 +82,10 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 					log.Fatal(err)
 				}
 
+				if err = orchestration.WaitForMonitoringDeployment(ctx, kubernetesClient); err != nil {
+					log.Fatal(err)
+				}
+
 			}
 
 			if gateway {

@@ -6,12 +6,15 @@ import (
 )
 
 type BaseChartOpts struct {
-	KubeStateMetrics string
-	CertManager      string
-	MetricsServer    string
-	PromOperatorCRDs string
-	ArgoCD           string
-	ArgoValues       string
+	KubeStateMetrics          string
+	CertManager               string
+	MetricsServer             string
+	PromOperatorCRDs          string
+	ArgoCD                    string
+	ArgoValues                string
+	KubePrometheusStack       string
+	KubePrometheusStackValues string
+	K6Operator                string
 }
 
 func (c *helmClient) InstallBaseCharts(ctx context.Context, opts *BaseChartOpts, replace bool) error {
@@ -78,6 +81,14 @@ func (c *helmClient) InstallPromOperatorCRDs(ctx context.Context, version string
 	err := c.installPromOperatorCrds(ctx, version, replace)
 	if err != nil {
 		return fmt.Errorf("installing prometheus operator crds: %w", err)
+	}
+	return nil
+}
+
+func (c *helmClient) InstallKubePrometheusStack(ctx context.Context, version, valuesFile string, replace bool) error {
+	err := c.installKubePrometheusStack(ctx, version, valuesFile, replace)
+	if err != nil {
+		return fmt.Errorf("installing kube-prometheus stack: %w", err)
 	}
 	return nil
 }
@@ -241,6 +252,26 @@ func (c *helmClient) installK6(ctx context.Context, version string, replace bool
 		UpgradeCRDs:  true,
 		Labels:       nil,
 		Lint:         false,
+	}
+	return c.installChart(ctx, config)
+}
+
+func (c *helmClient) installKubePrometheusStack(ctx context.Context, version, valuesFile string, replace bool) error {
+	path := fmt.Sprintf("https://prometheus-community.github.io/helm-charts")
+
+	config := &ChartConfig{
+		Repository:  path,
+		Namespace:   "default",
+		Name:        "prometheus-community",
+		ReleaseName: "kube-prometheus-stack",
+		Version:     version,
+		Replace:     replace,
+		ValuesFiles: []string{valuesFile},
+		LocalFile:   false,
+		SkipCRDs:    false,
+		UpgradeCRDs: true,
+		Labels:      nil,
+		Lint:        false,
 	}
 	return c.installChart(ctx, config)
 }

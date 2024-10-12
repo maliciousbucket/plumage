@@ -18,6 +18,7 @@ type Client interface {
 	InstallPromOperatorCRDs(ctx context.Context, version string, replace bool) error
 	InstallKubeStateMetricsServerChart(ctx context.Context, version string, replace bool) error
 	InstallK6(ctx context.Context, version string, replace bool) error
+	InstallKubePrometheusStack(ctx context.Context, version, valuesFile string, replace bool) error
 	InstallChart(ctx context.Context, chart *ChartConfig) error
 	GetRelease(name string) (*ChartRelease, error)
 	ListReleases() ([]*ReleaseMeta, error)

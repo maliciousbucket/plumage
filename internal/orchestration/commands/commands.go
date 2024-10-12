@@ -179,6 +179,7 @@ func ArgoAuthCmd() *cobra.Command {
 			}
 			repo, _ := cmd.Flags().GetBool("repo")
 			password, _ := cmd.Flags().GetBool("password")
+			token, _ := cmd.Flags().GetBool("token")
 
 			if repo {
 				ctx := context.Background()
@@ -201,13 +202,26 @@ func ArgoAuthCmd() *cobra.Command {
 				fmt.Println(pass)
 				return nil
 			}
+
+			if token {
+				ctx := context.Background()
+				if err := newKubeClient(); err != nil {
+					log.Fatal(err)
+				}
+				err := orchestration.SetArgoToken(ctx, kubernetesClient)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+			}
 			return nil
 		},
 	}
 	cmd.Flags().BoolP("repo", "r", false, "Add GitHub credentials to ArgoCD")
 	cmd.Flags().BoolP("password", "p", false, "Get the ArgoCD Admin Password")
+	cmd.Flags().BoolP("token", "t", false, "Get the ArgoCD API Token")
 	cmd.MarkFlagsOneRequired("password", "repo")
-	cmd.MarkFlagsMutuallyExclusive("password", "repo")
+	cmd.MarkFlagsMutuallyExclusive("password", "repo", "token")
 	return cmd
 }
 

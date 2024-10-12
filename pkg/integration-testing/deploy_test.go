@@ -142,6 +142,16 @@ func TestDeployMonitoring(t *testing.T) {
 			t.Fatalf("error deploying gateway: %v", err)
 		}
 	})
+	time.Sleep(1 * time.Minute)
+	DescribeResource(t, ctx, kubeContainer, "pods", "galah-monitoring")
+	DescribeResource(t, ctx, kubeContainer, "pods", "galah-logging")
+	DescribeResource(t, ctx, kubeContainer, "deployment", "galah-monitoring")
+	DescribeResource(t, ctx, kubeContainer, "deployment", "galah-logging")
+
+	t.Run("wait for monitoring deployment", func(t *testing.T) {
+		err = orchestration.WaitForMonitoringDeployment(ctx, kube)
+		assert.NoErrorf(t, err, "error waiting for monitoring deployment: %v", err)
+	})
 
 	log.Println("yay")
 }

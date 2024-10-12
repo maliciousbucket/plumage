@@ -9,26 +9,47 @@ import (
 	"path/filepath"
 )
 
-func InstallArgoCmd() *cobra.Command {
+func InstallArgoCmd(argoVersion string) *cobra.Command {
+	var client *helmClient
+	var chartVersion string
 	cmd := &cobra.Command{
 		Use:   "install-argo",
 		Short: "Install Argo CD",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			cfg := &ClientCfg{}
+			helm, err := newClient(cfg)
+			if err != nil {
+				return err
+			}
+			client = helm
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := cmd.ParseFlags(args)
 			if err != nil {
 				return err
 			}
 			file := cmd.Flag("file").Value.String()
-			//namespace := cmd.Flag("namespace").Value.String()
-
-			chart := cmd.Flag("chart").Value.String()
+			////namespace := cmd.Flag("namespace").Value.String()
+			//
+			//chart := cmd.Flag("chart").Value.String()
+			chartVersion = argoVersion
 			version := cmd.Flag("version").Value.String()
-			repo := cmd.Flag("remote").Value.String()
-
-			err = installArgo("argocd", file, version, chart, repo)
-			if err != nil {
-				return err
+			if version != "" {
+				chartVersion = version
 			}
+			//repo := cmd.Flag("remote").Value.String()
+			ctx := context.Background()
+
+			err = client.InstallArgoChart(ctx, chartVersion, file)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			//err = installArgo("argocd", file, version, chart, repo)
+			//if err != nil {
+			//	return err
+			//}
 
 			return nil
 		},

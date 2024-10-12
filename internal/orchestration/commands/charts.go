@@ -24,14 +24,16 @@ func ChartsCmd(cfg *config.ChartConfig) *cobra.Command {
 
 func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 	var (
-		installArgo              bool
-		argoValuesFile           string
-		installPromOperatorCrds  bool
-		installCertManager       bool
-		installKubeStateMetrics  bool
-		installKubeMetricsServer bool
-		replace                  bool
-		version                  string
+		installArgo                bool
+		valuesFile                 string
+		installPromOperatorCrds    bool
+		installCertManager         bool
+		installKubeStateMetrics    bool
+		installKubeMetricsServer   bool
+		installK6Operator          bool
+		installKubePrometheusStack bool
+		replace                    bool
+		version                    string
 	)
 	cmd := &cobra.Command{
 		Use:   "install",
@@ -52,7 +54,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					argoVersion = version
 				}
-				if err := helmClient.InstallArgoChart(ctx, argoVersion, argoValuesFile); err != nil {
+				if err := helmClient.InstallArgoChart(ctx, argoVersion, valuesFile); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -102,19 +104,42 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				return nil
 			}
 
+			if installK6Operator {
+				k6Version := opts.K6Operator
+				if version != "" {
+					k6Version = version
+				}
+				if err := helmClient.InstallK6(ctx, k6Version, replace); err != nil {
+					log.Fatal(err)
+				}
+			}
+
+			if installKubePrometheusStack {
+				stackVersion := opts.KubePrometheusStack
+				if version != "" {
+					stackVersion = version
+				}
+				if err := helmClient.InstallKubePrometheusStack(ctx, stackVersion, valuesFile, replace); err != nil {
+					log.Fatal(err)
+				}
+			}
+
 			return nil
 		},
 	}
 	cmd.Flags().BoolVar(&installArgo, "argo", false, "Install Argo")
-	cmd.Flags().StringVar(&argoValuesFile, "argo-values-file", "", "Argo CD values.yaml file")
+	cmd.Flags().StringVar(&valuesFile, "values-file", "", "Argo CD values.yaml file")
 	cmd.Flags().BoolVar(&installPromOperatorCrds, "prom-operator-crds", false, "Install Prometheus Operator CRDs")
 	cmd.Flags().BoolVar(&installCertManager, "cert-manager", false, "Install Certificate Manager")
 	cmd.Flags().BoolVar(&installKubeStateMetrics, "kube-state-metrics", false, "Install KubeState Metrics")
 	cmd.Flags().BoolVar(&installKubeMetricsServer, "kube-metrics-server", false, "Install Metrics Server")
+	cmd.Flags().BoolVar(&installK6Operator, "k6-operator", false, "Install K6 Operator")
+	cmd.Flags().BoolVar(&installKubePrometheusStack, "kube-prometheus-stack", false, "Install Prometheus Stack")
 	cmd.Flags().BoolVarP(&replace, "replace", "r", false, "Replace existing Helm Charts")
 	cmd.Flags().StringVarP(&version, "version", "v", "", "Version")
 
-	cmd.MarkFlagsMutuallyExclusive("argo", "prom-operator-crds", "cert-manager", "kube-state-metrics", "kube-metrics-server")
+	cmd.MarkFlagsMutuallyExclusive("argo", "prom-operator-crds", "cert-manager", "kube-state-metrics",
+		"kube-metrics-server", "k6-operator", "kube-prometheus-stack")
 	_ = cmd.MarkFlagFilename("argo-values-file", "yaml", "yml")
 
 	return cmd

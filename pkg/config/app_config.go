@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	argoVersion             = "argo-cd-7.6.1"
+	argoVersion             = "argo-cd-7.6.8"
 	promOperatorVersion     = "14.0.0"
 	kubeStateMetricsVersion = "5.25.1"
 	certManagerVersion      = "v1.15.3"
@@ -93,13 +93,14 @@ func getDefaultUserConfig() UserConfig {
 		},
 		TraefikConfig: getDefaultTraefikConfig(),
 		ChartConfig: ChartConfig{
-			ArgoVersion:             "argo-cd-7.6.1",
-			ArgoValuesFile:          "",
-			KubeStateMetricsVersion: "5.25.1",
-			MetricsVersion:          "3.12.1",
-			PromOperatorVersion:     "14.0.0",
-			CertManagerVersion:      "v1.15.3",
-			Charts:                  nil,
+			ArgoVersion:                "argo-cd-7.6.1",
+			ArgoValuesFile:             "",
+			KubeStateMetricsVersion:    "5.25.1",
+			MetricsVersion:             "3.12.1",
+			PromOperatorVersion:        "14.0.0",
+			CertManagerVersion:         "v1.15.3",
+			KubePrometheusStackVersion: "65.2.0",
+			Charts:                     nil,
 		},
 	}
 }
@@ -196,13 +197,14 @@ type AlloyConfig struct {
 }
 
 type ChartConfig struct {
-	ArgoVersion             string             `yaml:"argoVersion,omitempty"`
-	ArgoValuesFile          string             `yaml:"argoValuesFile,omitempty"`
-	KubeStateMetricsVersion string             `yaml:"stateMetricsVersion,omitempty"`
-	MetricsVersion          string             `yaml:"metricsVersion,omitempty"`
-	PromOperatorVersion     string             `yaml:"promOperatorVersion,omitempty"`
-	CertManagerVersion      string             `yaml:"certManagerVersion,omitempty"`
-	Charts                  *helm.ChartsConfig `yaml:"charts,omitempty"`
+	ArgoVersion                string             `yaml:"argoVersion,omitempty"`
+	ArgoValuesFile             string             `yaml:"argoValuesFile,omitempty"`
+	KubeStateMetricsVersion    string             `yaml:"stateMetricsVersion,omitempty"`
+	MetricsVersion             string             `yaml:"metricsVersion,omitempty"`
+	PromOperatorVersion        string             `yaml:"promOperatorVersion,omitempty"`
+	CertManagerVersion         string             `yaml:"certManagerVersion,omitempty"`
+	KubePrometheusStackVersion string             `yaml:"kubePrometheusStackVersion,omitempty"`
+	Charts                     *helm.ChartsConfig `yaml:"charts,omitempty"`
 }
 
 func (c *ChartConfig) ToBaseOpts() *helm.BaseChartOpts {

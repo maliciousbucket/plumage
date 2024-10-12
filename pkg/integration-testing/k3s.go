@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/docker/docker/api/types/container"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/k3s"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"log"
 	"time"
 )
 
@@ -25,7 +27,24 @@ func NewKubernetesContainer() *KubernetesContainer {
 
 func SetupKubernetesContainer(ctx context.Context, c *KubernetesContainer) error {
 
-	k3sContainer, err := k3s.Run(ctx, "docker.io/rancher/k3s:v1.27.1-k3s1", c.Options...)
+	log.Println(c.Options)
+	k3sContainer, err := k3s.Run(ctx, "rancher/k3s:v1.30.5-k3s1", k3s.WithManifest("./testdata/cert-manager/config.yaml"), testcontainers.CustomizeRequest(testcontainers.GenericContainerRequest{
+		ContainerRequest: testcontainers.ContainerRequest{
+			ExposedPorts:    []string{"30443:30443/tcp"},
+			HostAccessPorts: []int{30443},
+			HostConfigModifier: func(config *container.HostConfig) {
+				config.Resources = container.Resources{
+					CPUShares:         2048,
+					Memory:            4 * 1024 * 1024 * 1024,
+					NanoCPUs:          4 * 1000000000,
+					MemoryReservation: 2 * 1024 * 1024 * 1024,
+				}
+			},
+		},
+		Started: false,
+		Logger:  nil,
+		Reuse:   false,
+	}))
 	if err != nil {
 		return fmt.Errorf("error creating k3s container: %w", err)
 	}
@@ -104,6 +123,13 @@ func WithWaitStrategy(condition *WaitCondition) KubeContainerOption {
 		timeout := fmt.Sprintf("--timeout=%s", condition.Timeout)
 		strategy = append(strategy, timeout)
 		c.Options = append(c.Options, testcontainers.WithWaitStrategy(wait.ForExec(strategy)))
+		return nil
+	}
+}
+
+func WithHostPorts(hostPorts ...int) KubeContainerOption {
+	return func(c *KubernetesContainer) error {
+		c.Options = append(c.Options, testcontainers.WithHostPortAccess(hostPorts...))
 		return nil
 	}
 }

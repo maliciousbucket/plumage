@@ -22,14 +22,7 @@ func grafanaRoute(scope constructs.Construct, ns string) traefikio.IngressRoute 
 				{
 					Kind:        traefikio.IngressRouteSpecRoutesKind_RULE,
 					Match:       jsii.String(rule),
-					Middlewares: &[]*traefikio.IngressRouteSpecRoutesMiddlewares{
-						//{
-						//	Name: jsii.String("strip-testbed"),
-						//},
-						//{
-						//	Name: jsii.String("strip-infra-prefix"),
-						//},
-					},
+					Middlewares: &[]*traefikio.IngressRouteSpecRoutesMiddlewares{},
 					Services: &[]*traefikio.IngressRouteSpecRoutesServices{
 						{
 							Name:      jsii.String("grafana"),
@@ -41,58 +34,4 @@ func grafanaRoute(scope constructs.Construct, ns string) traefikio.IngressRoute 
 			},
 		},
 	})
-}
-
-func newInfraRoute(scope constructs.Construct, id string, name, service, ns string, port int) traefikio.IngressRoute {
-	rule := fmt.Sprintf("PathPrefix(`/%s`)", name)
-	return traefikio.NewIngressRoute(scope, jsii.String(id), &traefikio.IngressRouteProps{
-		Metadata: &cdk8s.ApiObjectMetadata{
-			Name: jsii.String(id),
-			//Namespace: jsii.String(ns),
-		},
-		Spec: &traefikio.IngressRouteSpec{
-			EntryPoints: &[]*string{
-				jsii.String("web"),
-			},
-			Routes: &[]*traefikio.IngressRouteSpecRoutes{
-				{
-					Kind:  traefikio.IngressRouteSpecRoutesKind_RULE,
-					Match: jsii.String(rule),
-					Middlewares: &[]*traefikio.IngressRouteSpecRoutesMiddlewares{
-						//{
-						//	Name: jsii.String("strip-testbed"),
-						//},
-						{
-							Name: jsii.String("strip-infra-prefix"),
-						},
-					},
-					Services: &[]*traefikio.IngressRouteSpecRoutesServices{
-						{
-							Name:      jsii.String(service),
-							Port:      traefikio.IngressRouteSpecRoutesServicesPort_FromNumber(jsii.Number(port)),
-							Namespace: jsii.String(ns),
-						},
-					},
-				},
-			},
-		},
-	})
-}
-
-func stripInfraRoutesMiddleware(scope constructs.Construct) traefikio.Middleware {
-	middleware := traefikio.NewMiddleware(scope, jsii.String("strip-infra-prefix"), &traefikio.MiddlewareProps{
-		Metadata: &cdk8s.ApiObjectMetadata{
-			Name: jsii.String("strip-infra-prefix"),
-		},
-		Spec: &traefikio.MiddlewareSpec{
-			StripPrefix: &traefikio.MiddlewareSpecStripPrefix{
-				Prefixes: &[]*string{
-					jsii.String("/testbed"),
-					jsii.String("/argo"),
-					//jsii.String("/alloy"),
-				},
-			},
-		},
-	})
-	return middleware
 }

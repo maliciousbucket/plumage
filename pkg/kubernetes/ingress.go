@@ -16,20 +16,6 @@ const (
 	traefikCrdUrl        = "https://raw.githubusercontent.com/traefik/traefik/refs/heads/master/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
 )
 
-func defaultIngressLabels() *map[string]*string {
-	labels := map[string]*string{
-		"app": jsii.String("traefik"),
-	}
-	return &labels
-}
-
-func defaultIngressServiceAccountProps(namespace string) kplus.ServiceAccountProps {
-	metadata := defaultIngressServiceAccountMetadata(namespace)
-	return kplus.ServiceAccountProps{
-		Metadata: &metadata,
-	}
-}
-
 func defaultIngressServiceAccountMetadata(namespace string) cdk8s.ApiObjectMetadata {
 	return cdk8s.ApiObjectMetadata{
 		Name:      jsii.String(defaultIngressName),
@@ -37,124 +23,11 @@ func defaultIngressServiceAccountMetadata(namespace string) cdk8s.ApiObjectMetad
 	}
 }
 
-func NewIngressServiceAccount(scope constructs.Construct, namespace string) kplus.ServiceAccount {
-	props := defaultIngressServiceAccountProps(namespace)
-	account := kplus.NewServiceAccount(scope, jsii.String(defaultIngressName), &props)
-	return account
-}
-
-func defaultIngressServiceMetadata(namespace string) cdk8s.ApiObjectMetadata {
-
-	return cdk8s.ApiObjectMetadata{
-		Name:      jsii.String(defaultIngressName),
-		Namespace: jsii.String(namespace),
-	}
-}
-
-func defaultIngressServiceProps(namespace string) *kplus.ServiceProps {
-	metadata := defaultIngressServiceMetadata(namespace)
-
-	props := &kplus.ServiceProps{
-		Metadata: &metadata,
-
-		Ports: &[]*kplus.ServicePort{
-			&kplus.ServicePort{
-				Name:       jsii.String("web"),
-				Protocol:   "TCP",
-				TargetPort: jsii.Number(8000),
-				Port:       jsii.Number(8000),
-			},
-			&kplus.ServicePort{
-				Name:       jsii.String("admin"),
-				Protocol:   "TCP",
-				TargetPort: jsii.Number(8080),
-				Port:       jsii.Number(8080),
-			},
-		},
-		//Selector: &podSelector,
-	}
-	return props
-}
-
-func DefaultIngressService(scope constructs.Construct, namespace string) kplus.Service {
-
-	props := defaultIngressServiceProps(namespace)
-	service := kplus.NewService(scope, jsii.String("traefik"), props)
-	service.SelectLabel(jsii.String("app"), jsii.String("traefik"))
-	return service
-}
-
-func defaultIngressDeploymentMetadata(namespace string) cdk8s.ApiObjectMetadata {
-	labels := defaultIngressLabels()
-
-	return cdk8s.ApiObjectMetadata{
-		Name:      jsii.String(defaultIngressName),
-		Namespace: jsii.String(namespace),
-		Labels:    labels,
-	}
-}
-
-func defaultIngressDeploymentContainers() *kplus.ContainerProps {
-	args := &[]*string{
-		jsii.String("--api.insecure"),
-		jsii.String("--entryPoints.web.Address=:8000"),
-		jsii.String("--providers.kubernetescrd"),
-	}
-
-	return &kplus.ContainerProps{
-		Args:            args,
-		ImagePullPolicy: kplus.ImagePullPolicy_IF_NOT_PRESENT,
-		Name:            nil,
-		Ports: &[]*kplus.ContainerPort{
-			&kplus.ContainerPort{
-				Number:   jsii.Number(8000),
-				Name:     jsii.String("web"),
-				Protocol: "TCP",
-			},
-			&kplus.ContainerPort{
-				Number:   jsii.Number(8080),
-				Name:     jsii.String("admin"),
-				Protocol: "TCP",
-			},
-		},
-		Image: jsii.String(defaultTraefikImage),
-	}
-}
-
-func defaultIngressDeploymentProps(scope constructs.Construct, namespace string) *kplus.DeploymentProps {
-	metadata := defaultIngressDeploymentMetadata(namespace)
-	defaultContainer := defaultIngressDeploymentContainers()
-	containers := &[]*kplus.ContainerProps{
-		defaultContainer,
-	}
-	serviceAccount := NewIngressServiceAccount(scope, namespace)
-
-	return &kplus.DeploymentProps{
-		Metadata:                     &metadata,
-		AutomountServiceAccountToken: nil,
-		Containers:                   containers,
-		ServiceAccount:               serviceAccount,
-		Replicas:                     jsii.Number(1),
-	}
-}
-
-func DefaultIngressDeployment(scope constructs.Construct, id string, namespace string) kplus.Deployment {
-
-	props := defaultIngressDeploymentProps(scope, namespace)
-	return kplus.NewDeployment(scope, jsii.String(id), props)
-}
-
 func NewTraefikIngress(scope constructs.Construct, id string, ns string) constructs.Construct {
 	chart := cdk8s.NewChart(scope, jsii.String(id), &cdk8s.ChartProps{
 		DisableResourceNameHashes: jsii.Bool(true),
 		Namespace:                 jsii.String(ns),
 	})
-
-	//kplus.NewNamespace(chart, jsii.String("traefik-namespace"), &kplus.NamespaceProps{
-	//	Metadata: &cdk8s.ApiObjectMetadata{
-	//		Name: jsii.String("galah-testbed"),
-	//	},
-	//})
 
 	roleImp := cdk8s.NewInclude(chart, jsii.String("traefik-import-role"), &cdk8s.IncludeProps{
 		Url: jsii.String("dist/include/traefik-cluster-role.yaml"),
@@ -218,39 +91,25 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 
 				Name:   jsii.String("web"),
 				Number: jsii.Number(8000),
-				//HostPort: jsii.Number(80),
 			},
 			{
 
 				Name:   jsii.String("admin"),
 				Number: jsii.Number(8080),
-				//HostPort: jsii.Number(8080),
 			},
 			{
 
 				Name:   jsii.String("websecure"),
 				Number: jsii.Number(4443),
-				//HostPort: jsii.Number(4443),
 			},
 		},
 		SecurityContext: &kplus.ContainerSecurityContextProps{
-			AllowPrivilegeEscalation: nil,
-			Capabilities:             nil,
-			EnsureNonRoot:            jsii.Bool(false),
-			Group:                    nil,
-			Privileged:               nil,
-			ReadOnlyRootFilesystem:   nil,
-			SeccompProfile:           nil,
-			User:                     nil,
+			EnsureNonRoot: jsii.Bool(false),
 		},
-		Startup:      nil,
-		VolumeMounts: nil,
-		WorkingDir:   nil,
-		Image:        jsii.String(defaultTraefikImage),
+		Image: jsii.String(defaultTraefikImage),
 	})
 	selector := kplus.LabelSelector_Of(&kplus.LabelSelectorOptions{
-		Expressions: nil,
-		Labels:      &labels,
+		Labels: &labels,
 	})
 	deployment.Select(selector)
 

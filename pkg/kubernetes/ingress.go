@@ -12,6 +12,7 @@ const (
 	defaultIngressName   = "traefik-ingress-controller"
 	defaultTraefikImage  = "traefik:v3.1"
 	entrypointAnnotation = "traefik.ingress.kubernetes.io/router-entrypoints"
+	traefikCrdUrl        = "https://raw.githubusercontent.com/traefik/traefik/refs/heads/master/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
 )
 
 func defaultIngressLabels() *map[string]*string {
@@ -197,44 +198,18 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 			Annotations: &annotations,
 		},
 		AutomountServiceAccountToken: jsii.Bool(true),
-		Containers:                   nil,
-		Dns:                          nil,
-		DockerRegistryAuth:           nil,
-		HostAliases:                  nil,
-		HostNetwork:                  nil,
-		InitContainers:               nil,
-		Isolate:                      nil,
-		RestartPolicy:                "",
 		SecurityContext: &kplus.PodSecurityContextProps{
-			EnsureNonRoot:       jsii.Bool(false),
-			FsGroup:             nil,
-			FsGroupChangePolicy: "",
-			Group:               nil,
-			Sysctls:             nil,
-			User:                nil,
+			EnsureNonRoot: jsii.Bool(false),
 		},
-		ServiceAccount:         acc,
-		TerminationGracePeriod: nil,
-		Volumes:                nil,
+		ServiceAccount: acc,
 		PodMetadata: &cdk8s.ApiObjectMetadata{
-			Annotations:     nil,
-			Finalizers:      nil,
-			Labels:          &labels,
-			Name:            nil,
-			Namespace:       nil,
-			OwnerReferences: nil,
+			Labels: &labels,
 		},
-		Select:           nil,
-		Spread:           nil,
-		MinReady:         nil,
-		ProgressDeadline: nil,
-		Replicas:         jsii.Number(1),
-		Strategy:         nil,
+		Replicas: jsii.Number(1),
+		Strategy: nil,
 	})
 	deployment.AddContainer(&kplus.ContainerProps{
 		Args:            &args,
-		EnvFrom:         nil,
-		EnvVariables:    nil,
 		ImagePullPolicy: kplus.ImagePullPolicy_IF_NOT_PRESENT,
 		Name:            jsii.String("traefik"),
 		Ports: &[]*kplus.ContainerPort{
@@ -307,12 +282,6 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 				Port:       jsii.Number(4443),
 				Name:       jsii.String("web-secure"),
 			},
-			//{
-			//	Protocol:   kplus.Protocol_TCP,
-			//	TargetPort: jsii.Number(80),
-			//	Port:       jsii.Number(80),
-			//	Name:       jsii.String("web"),
-			//},
 		},
 		ServiceType: kplus.ServiceType_LOAD_BALANCER,
 	})
@@ -340,6 +309,8 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 	stripTestBedMiddleware(chart, "strip-testbed")
 	newDashbaordRoute(chart, "dashboard-route", db)
 	grafanaRoute(chart, ns)
+
+	NewInclude(chart, "traefik-crds", traefikCrdUrl)
 
 	return chart
 

@@ -13,7 +13,9 @@ import (
 const (
 	traefikPath         = "dist/ingress/traefik"
 	infraDashboardsPath = "dist/ingress/dashboards"
+	chaosPath           = "dist/tests"
 	appPath             = "dist"
+	chaosProject        = "chaos"
 )
 
 func (c *Client) CreateIngressProject(ctx context.Context) error {
@@ -170,7 +172,7 @@ func (c *Client) addTestBedApp(ctx context.Context, name, path, project string) 
 					"resources-finalizer.argocd.argoproj.io",
 				},
 				Annotations: map[string]string{
-					" argocd.argoproj.io/skip-reconcile": "true",
+					"argocd.argoproj.io/skip-reconcile": "true",
 				},
 			},
 			Spec: v1alpha1.ApplicationSpec{
@@ -199,4 +201,51 @@ func (c *Client) addTestBedApp(ctx context.Context, name, path, project string) 
 	}
 	log.Printf("Created application %s/%s", app.GetNamespace(), app.GetName())
 	return nil
+}
+
+func (c *Client) CreateChaosProject(ctx context.Context) error {
+	var project string
+	existing, _ := c.GetProject(ctx, chaosProject)
+
+	if existing == nil {
+		newProj, err := c.createChaosProject(ctx)
+		if err != nil {
+			return err
+		}
+		project = newProj
+	}
+	log.Printf("Created Chaos Project: %s", project)
+
+	return nil
+}
+
+func (c *Client) createChaosProject(ctx context.Context) (string, error) {
+	sources := []string{argoCDRepo}
+	namespaces := []string{"galah-testbed"}
+	destinations := []v1alpha1.ApplicationDestination{
+		{
+			Server:    defaultServer,
+			Namespace: "argocd",
+		},
+		{
+			Server:    defaultServer,
+			Namespace: "galah-testbed",
+		},
+	}
+	return c.createGalahProject(ctx,
+		"chaos",
+		"Chaos tests for the Galah Testbed",
+		sources,
+		namespaces,
+		destinations,
+	)
+}
+
+func (c *Client) createChaosApp(ctx context.Context, project string) error {
+	proj, err := c.GetProject(ctx, project)
+	if err != nil {
+		return fmt.Errorf("failed to get project: %w", err)
+	}
+
+	return c.addTestBedApp(ctx, "traefik", chaosPath, proj.Name)
 }

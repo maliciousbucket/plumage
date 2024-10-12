@@ -48,6 +48,32 @@ func GetConnection() (Connection, error) {
 
 }
 
+func GetConnectionFromEnv(envFile string) (Connection, error) {
+	var con Connection
+
+	env, err := godotenv.Read(envFile)
+	if err != nil {
+		return con, err
+	}
+	address, ok := env["ARGOCD_ADDRESS"]
+	if !ok {
+		return con, fmt.Errorf("ARGOCD_ADDRESS environment variable not set")
+	}
+	token, ok := env["ARGOCD_TOKEN"]
+	if !ok {
+		return con, fmt.Errorf("ARGOCD_TOKEN environment variable not set")
+	}
+	if address == "" {
+		return con, fmt.Errorf("ARGOCD_ADDRESS environment variable not set")
+	}
+	if token == "" {
+		return con, fmt.Errorf("ARGOCD_TOKEN environment variable not set")
+	}
+	con.Address = address
+	con.Token = token
+	return con, nil
+}
+
 func NewClient(c Connection) (*Client, error) {
 	apiClient, err := apiclient.NewClient(&apiclient.ClientOptions{
 		ServerAddr: fmt.Sprintf(c.Address),

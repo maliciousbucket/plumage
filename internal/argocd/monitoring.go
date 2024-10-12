@@ -398,7 +398,6 @@ func (c *Client) createGalahProject(ctx context.Context, name, description strin
 	projectWithSourceNamespaces(namespaces)(&proj)
 	projectWithDestinations(destinations)(&proj)
 	projectWithNamespace("argocd")(&proj)
-	fmt.Println(proj)
 
 	project, err := c.createProject(ctx, &proj)
 	if err != nil {

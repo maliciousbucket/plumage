@@ -55,3 +55,7 @@ func (c *Client) getToken(ctx context.Context) (string, error) {
 	}
 	return token.Token, nil
 }
+
+func (c *Client) funny(ctx context.Context) {
+
+}

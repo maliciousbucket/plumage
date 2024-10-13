@@ -15,11 +15,15 @@ import (
 
 func DeployTemplate() {}
 
-func DeployApp(ctx context.Context, argoClient ArgoClient, path string) (string, error) {
-	return deployApp(ctx, argoClient, path)
+func deployTemplate() {
+
 }
 
-func deployApp(ctx context.Context, argoClient ArgoClient, path string) (string, error) {
+func DeployApp(ctx context.Context, argoClient ArgoClient, ns, path string) (string, error) {
+	return deployApp(ctx, argoClient, ns, path)
+}
+
+func deployApp(ctx context.Context, argoClient ArgoClient, ns, path string) (string, error) {
 	if err := AddRepoCredentials(ctx, argoClient); err != nil {
 		return "", err
 	}
@@ -32,7 +36,7 @@ func deployApp(ctx context.Context, argoClient ArgoClient, path string) (string,
 		return "", fmt.Errorf("no services found in %s", path)
 	}
 
-	if err = argoClient.CreateServiceApplications(ctx, appName, services); err != nil {
+	if err = argoClient.CreateServiceApplications(ctx, ns, appName, services); err != nil {
 		return "", err
 	}
 	return appName, nil
@@ -45,7 +49,7 @@ func DeployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeCl
 
 func deployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, ns string) error {
 	if gatewayProj, _ := argoClient.GetProject(ctx, "ingress"); gatewayProj == nil {
-		if err := argoClient.CreateIngressProject(ctx); err != nil {
+		if err := argoClient.CreateIngressProject(ctx, ns); err != nil {
 			return err
 		}
 	} else {
@@ -54,7 +58,7 @@ func deployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeCl
 		}}
 		apps, _ := argoClient.ListApplications(ctx, params)
 		if apps == nil || len(apps.Items) == 0 {
-			if err := argoClient.CreateIngressApp(ctx); err != nil {
+			if err := argoClient.CreateIngressApp(ctx, ns); err != nil {
 				return err
 			}
 		}
@@ -99,8 +103,15 @@ func deployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeCl
 		return err
 	}
 
-	time.Sleep(30 * time.Second)
-	err = kubeClient.WatchDeployment(ctx, ns, "traefik", true)
+	return nil
+}
+
+func WaitForGatewayDeployment(ctx context.Context, kubeClient KubeClient, ns string) error {
+	return waitForGatewayDeployment(ctx, kubeClient, ns)
+}
+
+func waitForGatewayDeployment(ctx context.Context, kubeClient KubeClient, ns string) error {
+	err := kubeClient.WatchDeployment(ctx, ns, "traefik", true)
 	if err != nil {
 		return err
 	}
@@ -199,7 +210,7 @@ func CreateNamespace(ctx context.Context, kubeClient KubeClient, ns string) erro
 }
 
 func DeployAndWaitForApp(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, ns, app string, services []string) error {
-	if err := argoClient.CreateServiceApplications(ctx, app, services); err != nil {
+	if err := argoClient.CreateServiceApplications(ctx, app, ns, services); err != nil {
 		return err
 	}
 

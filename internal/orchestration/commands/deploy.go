@@ -11,6 +11,12 @@ import (
 )
 
 func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
+	var gateway bool
+	var monitoring bool
+	var synthApp bool
+	var synthGateway bool
+	var synthAllManifests bool
+	var template string
 	cmd := &cobra.Command{
 		Use:   "template",
 		Short: "Deploy a template",
@@ -36,9 +42,6 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 				return fmt.Errorf("app name is required")
 			}
 
-			file, _ := cmd.Flags().GetString("file")
-			gateway, _ := cmd.Flags().GetBool("gateway")
-			monitoring, _ := cmd.Flags().GetBool("monitoring")
 			ctx := context.Background()
 			if err := kubernetesClient.WatchDeployment(ctx, "argocd", "argo-helm-argocd-server", false); err != nil {
 				log.Fatal(fmt.Errorf("failed to watch argocd deployment: %w", err))
@@ -55,16 +58,24 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			if cfg == nil {
 				log.Fatal("config is required")
 			}
-			fmt.Println(cfg.UserConfig)
-			fmt.Println(cfg.UserConfig.TemplateConfig)
 
 			templateFile := cfg.UserConfig.TemplateConfig.TemplateFile
-			if file != "" {
-				templateFile = file
+			if template != "" {
+				templateFile = template
 			}
 			m := cfg.MonitoringConfig.Collectors.ToStringMap()
 
-			if err = synthAll(templateFile, cfg.OutputDir, cfg.Namespace, m); err != nil {
+			synthOpts := &orchestration.SynthOpts{
+				SynthTemplate: synthApp,
+				SynthGateway:  synthGateway,
+				SynthTests:    false,
+				TemplateFile:  templateFile,
+				OutputDir:     cfg.OutputDir,
+				Namespace:     cfg.Namespace,
+				Monitoring:    m,
+			}
+
+			if err = orchestration.SynthDeployment(synthOpts); err != nil {
 				log.Fatal(err)
 			}
 
@@ -85,11 +96,14 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 				if err = orchestration.WaitForMonitoringDeployment(ctx, kubernetesClient); err != nil {
 					log.Fatal(err)
 				}
-
 			}
 
 			if gateway {
 				if err = orchestration.DeployGateway(ctx, argoClient, kubernetesClient, ns); err != nil {
+					log.Fatal(err)
+				}
+
+				if err = orchestration.WaitForGatewayDeployment(ctx, kubernetesClient, ns); err != nil {
 					log.Fatal(err)
 				}
 
@@ -114,21 +128,17 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringP("file", "f", "", "Path to a file containing the template definition")
-	cmd.Flags().Bool("gateway", false, "Deploy with gateway")
-	cmd.Flags().Bool("monitoring", false, "Deploy with galah-observability monitoring")
+	cmd.Flags().StringVar(&template, "template", "", "Path to a file containing the template definition")
+	cmd.Flags().BoolVar(&gateway, "gateway", false, "Deploy with gateway")
+	cmd.Flags().BoolVar(&monitoring, "monitoring", false, "Deploy with galah-observability monitoring")
+	cmd.Flags().BoolVar(&synthApp, "synth-app", false, "Synth app manifests")
+	cmd.Flags().BoolVar(&synthGateway, "synth-gateway", false, "Synth gateway manifests")
+	cmd.Flags().BoolVar(&synthAllManifests, "synth-all", false, "Synth all manifests")
+
+	cmd.MarkFlagsMutuallyExclusive("synth-all", "synth-gateway")
+	cmd.MarkFlagsMutuallyExclusive("synth-all", "synth-app")
+
 	return cmd
-}
-
-func synthAll(file, outputDir, ns string, monitoring map[string]string) error {
-	if err := kplus.SynthTemplate(file, outputDir, monitoring); err != nil {
-		log.Fatal(err)
-	}
-
-	if err := kplus.SynthGateway(outputDir, ns); err != nil {
-		log.Fatal(err)
-	}
-	return nil
 }
 
 func commitAndPushAll(ctx context.Context, cfg *config.AppConfig, app string) error {
@@ -177,6 +187,7 @@ func DeployMonitoringCommand() *cobra.Command {
 }
 
 func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
+	var synthGateway bool
 	cmd := &cobra.Command{
 		Use:   "gateway",
 		Short: "Deploy traefik gateway",
@@ -190,9 +201,8 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
-			synth, _ := cmd.Flags().GetBool("synth")
 
-			if synth {
+			if synthGateway {
 				if err := kplus.SynthGateway(outDir, ns); err != nil {
 					fmt.Println("hmm")
 					log.Fatal(err)
@@ -214,7 +224,7 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 			if err = orchestration.AddRepoCredentials(ctx, argoClient); err != nil {
 				log.Fatal("Adding Repo Credentials", err)
 			}
-			if synth {
+			if synthGateway {
 				res, err := orchestration.CommitAndPushGateway(ctx, ghCfg, outDir)
 
 				if err != nil {
@@ -233,6 +243,6 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 			log.Println("Gateway has been deployed")
 		},
 	}
-	cmd.Flags().BoolP("synth", "s", false, "synth gateway manifests")
+	cmd.Flags().BoolVar(&synthGateway, "synth", false, "synth gateway manifests")
 	return cmd
 }

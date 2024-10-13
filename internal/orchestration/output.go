@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/google/go-github/v64/github"
 	"github.com/maliciousbucket/plumage/pkg/config"
+	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"io"
 	"os"
 	"path/filepath"
@@ -232,4 +233,53 @@ func CommitAndPushGateway(ctx context.Context, cfg *config.GitHubConfig, dir str
 	msg := fmt.Sprintf("plumage manifests - gateway - %s", time.Now().String())
 
 	return CommitAndPushService(ctx, cfg, ingressDir, "traefik", msg)
+}
+
+type SynthOpts struct {
+	SynthTemplate bool
+	SynthGateway  bool
+	SynthTests    bool
+	TemplateFile  string
+	OutputDir     string
+	Namespace     string
+	Monitoring    map[string]string
+}
+
+func (s *SynthOpts) validate() error {
+	var err error
+	if s.Namespace == "" {
+		err = errors.New("namespace is required")
+	}
+	if s.OutputDir == "" {
+		err = errors.Join(err, errors.New("output directory is required"))
+	}
+
+	return err
+}
+
+// TODO: Move?=
+func SynthDeployment(opts *SynthOpts) error {
+	if !opts.SynthTemplate && !opts.SynthGateway {
+		return nil
+	}
+	validateErr := opts.validate()
+	if validateErr != nil {
+		return validateErr
+	}
+	if opts.SynthTemplate {
+		err := kplus.SynthTemplate(opts.TemplateFile, opts.OutputDir, opts.Monitoring)
+		if err != nil {
+			return err
+		}
+	}
+
+	if opts.SynthGateway {
+		err := kplus.SynthGateway(opts.OutputDir, opts.Namespace)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
 }

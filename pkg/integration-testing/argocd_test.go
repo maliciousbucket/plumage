@@ -23,7 +23,7 @@ type argoClient interface {
 	ListProjects(ctx context.Context) (*v1alpha1.AppProjectList, error)
 	GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error)
 	ListApplications(ctx context.Context, params *argocd.AppQueryParams) (*v1alpha1.ApplicationList, error)
-	CreateIngressApp(ctx context.Context) error
+	CreateIngressApp(ctx context.Context, ns string) error
 	CreateApplication(ctx context.Context) (*v1alpha1.Application, error)
 	AddApplicationToProject(ctx context.Context, appName string, project string, validate bool) (*v1alpha1.ApplicationSpec, error)
 	UpdateApplication(ctx context.Context, appName string) (*v1alpha1.Application, error)
@@ -32,10 +32,9 @@ type argoClient interface {
 	SyncProject(ctx context.Context, name string) error
 
 	CreateMonitoringProject(ctx context.Context) error
-	CreateNetworkingProject(ctx context.Context) error
-	CreateIngressProject(ctx context.Context) error
+	CreateIngressProject(ctx context.Context, ns string) error
 	CreateApplicationProject(ctx context.Context, app string) error
-	CreateServiceApplications(ctx context.Context, app string, services []string) error
+	CreateServiceApplications(ctx context.Context, ns, app string, services []string) error
 }
 
 func newArgoClient() (argoClient, error) {
@@ -52,7 +51,7 @@ func newArgoClient() (argoClient, error) {
 }
 
 func newArgoClientWithEnv() (*argocd.Client, error) {
-	conn, err := argocd.GetConnectionFromEnv(".env")
+	conn, err := argocd.GetConnectionFromEnv(".env.test")
 	if err != nil {
 		return nil, err
 	}
@@ -122,19 +121,19 @@ func setArgoEnv(ctx context.Context, kubeContainer *KubernetesContainer, port in
 	if err != nil {
 		return err
 	}
-	err = godotenv.Load(".env")
+	err = godotenv.Load(".env.test")
 	if err != nil {
 		return err
 	}
 	log.Println(ctrPort)
 
-	env, err := godotenv.Read(".env")
+	env, err := godotenv.Read(".env.test")
 	if err != nil {
 		return err
 	}
 	log.Println(ip)
 	env["ARGO_ADDRESS"] = "127.0.0.1:30443"
-	err = godotenv.Write(env, ".env")
+	err = godotenv.Write(env, ".env.test")
 	if err != nil {
 		return err
 	}

@@ -11,8 +11,6 @@ import (
 )
 
 type ArgoClient interface {
-	GetClusters(ctx context.Context) ([]v1alpha1.Cluster, error)
-	CreateCluster(ctx context.Context, name string) (*v1alpha1.Cluster, error)
 	AddProjectDestination(ctx context.Context, projectName string, server string, namespace string, name string) error
 	AddApplicationDestination(ctx context.Context, appName string, server string, namespace string, name string) error
 	CreateProject(ctx context.Context, name string) (*v1alpha1.AppProject, error)
@@ -22,7 +20,7 @@ type ArgoClient interface {
 	ListProjects(ctx context.Context) (*v1alpha1.AppProjectList, error)
 	GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error)
 	ListApplications(ctx context.Context, params *argocd.AppQueryParams) (*v1alpha1.ApplicationList, error)
-	CreateIngressApp(ctx context.Context) error
+	CreateIngressApp(ctx context.Context, ns string) error
 	CreateApplication(ctx context.Context) (*v1alpha1.Application, error)
 	AddApplicationToProject(ctx context.Context, appName string, project string, validate bool) (*v1alpha1.ApplicationSpec, error)
 	UpdateApplication(ctx context.Context, appName string) (*v1alpha1.Application, error)
@@ -31,10 +29,9 @@ type ArgoClient interface {
 	SyncProject(ctx context.Context, name string) error
 
 	CreateMonitoringProject(ctx context.Context) error
-	CreateNetworkingProject(ctx context.Context) error
-	CreateIngressProject(ctx context.Context) error
+	CreateIngressProject(ctx context.Context, ns string) error
 	CreateApplicationProject(ctx context.Context, app string) error
-	CreateServiceApplications(ctx context.Context, app string, services []string) error
+	CreateServiceApplications(ctx context.Context, ns, app string, services []string) error
 }
 
 type KubeClient interface {

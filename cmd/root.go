@@ -29,13 +29,11 @@ func newRootCommand(cfg *config.AppConfig) *rootCommand {
 	c := &rootCommand{}
 	rt := rootCmd
 
-	rt.AddCommand(testComand(cfg))
 	rt.AddCommand(configCmd(cfg))
 	rt.AddCommand(synthCommand())
 	rt.AddCommand(deployCmd(cfg))
 	rt.AddCommand(orchestrationCmds.CommitPushCmd(cfg.ConfigDir, "github.yaml", cfg))
-	//rt.AddCommand(commands.ArgoProjectCmd())
-	rt.AddCommand(orchestrationCmds.ProjectCmd())
+	rt.AddCommand(orchestrationCmds.ProjectCmd(cfg.Namespace))
 	rt.AddCommand(commands.ArgoApplicationCmd())
 
 	rt.AddCommand(kubeCmd.ServiceCmd())

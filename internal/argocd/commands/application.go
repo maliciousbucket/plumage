@@ -110,8 +110,8 @@ func createAppCmd(client ArgoAppClient) *cobra.Command {
 	}
 	cmd.Flags().StringVarP(&createAppNamespace, "namespace", "n", "", "Namespace for application")
 	cmd.Flags().StringVarP(&createAppName, "name", "a", "", "Name for application")
-	cmd.MarkFlagRequired("namespace")
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("namespace")
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }
 

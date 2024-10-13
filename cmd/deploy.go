@@ -17,11 +17,10 @@ func deployCmd(cfg *config.AppConfig) *cobra.Command {
 			fmt.Println(cmd.UsageString())
 		},
 	}
-	cmd.AddCommand(createArgoTK())
-	cmd.AddCommand(helm.InstallArgoCmd())
+	cmd.AddCommand(helm.InstallArgoCmd(cfg.UserConfig.ChartConfig.ArgoVersion))
 	cmd.AddCommand(orchestrationCmds.SyncCommand())
 	cmd.AddCommand(argoCmds.ClusterCommand())
-	cmd.AddCommand(orchestrationCmds.DeployAppCmd("testdata/chirp/template.yaml"))
+	cmd.AddCommand(orchestrationCmds.DeployAppCmd("testdata/chirp/template.yaml", cfg.Namespace))
 	cmd.AddCommand(orchestrationCmds.ArgoAuthCmd())
 	cmd.AddCommand(orchestrationCmds.DeployMonitoringCommand())
 	cmd.AddCommand(orchestrationCmds.DeployTemplateCommand(cfg))

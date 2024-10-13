@@ -218,8 +218,8 @@ func (c *ChartConfig) ToBaseOpts() *helm.BaseChartOpts {
 	}
 }
 
-func configDir(envfile string) (string, error) {
-	err := godotenv.Load(envfile)
+func configDir(envFile string) (string, error) {
+	err := godotenv.Load(envFile)
 	if err != nil {
 		return "", err
 	}

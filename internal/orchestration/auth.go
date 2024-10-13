@@ -39,12 +39,12 @@ func SetArgoToken(ctx context.Context, kubeClient KubeClient) error {
 	if token == "" {
 		return errors.New("token empty")
 	}
-	env, err := godotenv.Read(".env")
+	env, err := godotenv.Read(".env.test")
 	if err != nil {
 		return err
 	}
 	env["ARGOCD_TOKEN"] = token
-	err = godotenv.Write(env, ".env")
+	err = godotenv.Write(env, ".env.test")
 	if err != nil {
 		return nil
 	}

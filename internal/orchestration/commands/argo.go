@@ -34,7 +34,7 @@ type ArgoClient interface {
 	ListProjects(ctx context.Context) (*v1alpha1.AppProjectList, error)
 	GetApplication(ctx context.Context, name string) (*v1alpha1.Application, error)
 	ListApplications(ctx context.Context, params *argocd.AppQueryParams) (*v1alpha1.ApplicationList, error)
-	CreateIngressApp(ctx context.Context) error
+	CreateIngressApp(ctx context.Context, ns string) error
 	CreateApplication(ctx context.Context) (*v1alpha1.Application, error)
 	AddApplicationToProject(ctx context.Context, appName string, project string, validate bool) (*v1alpha1.ApplicationSpec, error)
 	UpdateApplication(ctx context.Context, appName string) (*v1alpha1.Application, error)
@@ -43,8 +43,7 @@ type ArgoClient interface {
 	SyncProject(ctx context.Context, name string) error
 
 	CreateMonitoringProject(ctx context.Context) error
-	CreateNetworkingProject(ctx context.Context) error
-	CreateIngressProject(ctx context.Context) error
+	CreateIngressProject(ctx context.Context, ns string) error
 	CreateApplicationProject(ctx context.Context, app string) error
 }
 
@@ -142,12 +141,12 @@ func setArgoToken() {
 	}
 	fmt.Printf("Token: %s\n", string(data))
 
-	myEnv, err := godotenv.Read(".env")
+	myEnv, err := godotenv.Read(".env.test")
 	if err != nil {
 		log.Fatal(err)
 	}
 	myEnv["ARGOCD_TOKEN"] = string(data)
-	err = godotenv.Write(myEnv, ".env")
+	err = godotenv.Write(myEnv, ".env.test")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -166,7 +165,7 @@ func createAppsCmd() *cobra.Command {
 	return cmd
 }
 
-func ProjectCmd() *cobra.Command {
+func ProjectCmd(ns string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "project",
 		Short: "Manage ArgoCD projects",
@@ -177,7 +176,7 @@ func ProjectCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.AddCommand(createProjectCmd())
+	cmd.AddCommand(createProjectCmd(ns))
 	cmd.AddCommand(createAppsCmd())
 	cmd.AddCommand(getProjectCmd())
 	cmd.AddCommand(addAppToProjectCmd())
@@ -185,7 +184,7 @@ func ProjectCmd() *cobra.Command {
 	return cmd
 }
 
-func createProjectCmd() *cobra.Command {
+func createProjectCmd(ns string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "Create ArgoCD projects",
@@ -194,7 +193,6 @@ func createProjectCmd() *cobra.Command {
 				return err
 			}
 			monitoring, _ := cmd.Flags().GetBool("monitoring")
-			networking, _ := cmd.Flags().GetBool("networking")
 			crd, _ := cmd.Flags().GetBool("crd")
 			gateway, _ := cmd.Flags().GetBool("gateway")
 			appName, _ := cmd.Flags().GetBool("app")
@@ -204,16 +202,12 @@ func createProjectCmd() *cobra.Command {
 				return argoClient.CreateMonitoringProject(ctx)
 			}
 
-			if networking {
-				return argoClient.CreateNetworkingProject(ctx)
-			}
-
 			if crd {
 
 			}
 
 			if gateway {
-				return argoClient.CreateIngressProject(ctx)
+				return argoClient.CreateIngressProject(ctx, ns)
 			}
 
 			if appName {
@@ -226,7 +220,6 @@ func createProjectCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolP("monitoring", "m", false, "Create monitoring project")
-	cmd.Flags().BoolP("networking", "n", false, "create networking project")
 	cmd.Flags().BoolP("crd", "c", false, "create CRD project")
 	cmd.Flags().BoolP("gateway", "g", false, "Create gateway project")
 	cmd.Flags().BoolP("app", "p", false, "Create app project")
@@ -319,7 +312,7 @@ func getProjectCmd() *cobra.Command {
 	return cmd
 }
 
-func DeployAppCmd(filePath string) *cobra.Command {
+func DeployAppCmd(filePath, ns string) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "app",
 		Short: "Deploy synthesised applications",
@@ -329,7 +322,7 @@ func DeployAppCmd(filePath string) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
 
-			appName, err := orchestration.DeployApp(ctx, argoClient, filePath)
+			appName, err := orchestration.DeployApp(ctx, argoClient, ns, filePath)
 			if err != nil {
 				log.Fatal(err)
 			} else {

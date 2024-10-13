@@ -25,8 +25,8 @@ func SynthTemplateFile(file, outDir, ns, alloy string, account string) error {
 		Outdir:         jsii.String(outPut),
 		YamlOutputType: cdk8s.YamlOutputType_FOLDER_PER_CHART_FILE_PER_RESOURCE,
 	})
-	var accountName string
-	if account == "" {
+	accountName := account
+	if accountName == "" {
 		accountChart := cdk8s.NewChart(app, jsii.String("account"), &cdk8s.ChartProps{
 			DisableResourceNameHashes: jsii.Bool(true),
 			Namespace:                 jsii.String(ns),

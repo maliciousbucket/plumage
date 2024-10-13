@@ -6,7 +6,6 @@ import (
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 	"github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2"
-	kplus "github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2"
 	chaos "github.com/maliciousbucket/plumage/imports/chaosgalahmonitoringio"
 	"strings"
 )
@@ -39,8 +38,7 @@ type TestRunProps struct {
 	envMap           string
 	ExistingScript   *ExistingResource
 	scriptMap        string
-	ExistingAccount  *ExistingResource
-	account          string
+	Account          string
 }
 
 type ExistingResource struct {
@@ -75,6 +73,7 @@ func NewTestRunFromTemplate(scope constructs.Construct, id string, ns, alloyAddr
 		RunOnce:          script.RunOnce,
 		Labels:           script.Labels,
 		Annotations:      script.Annotations,
+		Account:          template.ServiceAccount,
 	}
 	opts := []TestRunOpt{
 		WithOtelOutput(alloyAddr, defaultMetricPrefix),
@@ -84,14 +83,15 @@ func NewTestRunFromTemplate(scope constructs.Construct, id string, ns, alloyAddr
 		account := &ExistingResource{
 			Name: template.ServiceAccount,
 		}
+		fmt.Println(template.ServiceAccount)
 		script.ExistingAccount = account.Name
 	}
 
-	if script.ExistingAccount != "" {
-		opts = append(opts, WithExistingAccount(script.ExistingAccount))
-	} else {
-		opts = append(opts, WithNewAccount(ct))
-	}
+	//if script.ExistingAccount != "" {
+	//	opts = append(opts, WithExistingAccount(script.ExistingAccount))
+	//} else {
+	//	opts = append(opts, WithNewAccount(ct))
+	//}
 
 	if script.ExistingScript != "" {
 		opts = append(opts, WithExistingScriptMap(script.ExistingScript))
@@ -142,11 +142,6 @@ func newTestRun(scope constructs.Construct, id string, props *TestRunProps, opts
 		env = envToK8s(props.Env)
 	}
 
-	if props.ExistingAccount != nil {
-		account := props.ExistingAccount.Name
-		props.account = account
-	}
-
 	if props.ExistingScript != nil {
 		props.scriptMap = props.ExistingScript.Name
 	}
@@ -169,7 +164,7 @@ func newTestRun(scope constructs.Construct, id string, props *TestRunProps, opts
 				Minute:     jsii.String(props.Schedule.Minute),
 				Month:      jsii.String(props.Schedule.Month),
 			},
-			ServiceAccount:             jsii.String(props.account),
+			ServiceAccount:             jsii.String(props.Account),
 			TestName:                   jsii.String(props.Name),
 			Env:                        &env,
 			EnvConfigMap:               jsii.String(props.envMap),
@@ -184,17 +179,6 @@ func newTestRun(scope constructs.Construct, id string, props *TestRunProps, opts
 		},
 	})
 	return job, nil
-}
-
-func (t *TestRunProps) setNewJobServiceAccount(account kplus.ServiceAccount) error {
-
-	if account == nil {
-		return fmt.Errorf("account is nil")
-	}
-
-	t.account = *account.Metadata().Name()
-	return nil
-
 }
 
 type TestRunOpt func(t *TestRunProps) error
@@ -237,16 +221,16 @@ func WithNewEnv(scope constructs.Construct) TestRunOpt {
 	}
 }
 
-func WithExistingAccount(account string) TestRunOpt {
-	return func(t *TestRunProps) error {
-		if account == "" {
-			return fmt.Errorf("account name is empty")
-		}
-		resource := &ExistingResource{Name: account}
-		t.ExistingAccount = &ExistingResource{Name: resource.Name}
-		return nil
-	}
-}
+//func WithExistingAccount(account string) TestRunOpt {
+//	return func(t *TestRunProps) error {
+//		if account == "" {
+//			return fmt.Errorf("account name is empty")
+//		}
+//		resource := &ExistingResource{Name: account}
+//		t.ExistingAccount = &ExistingResource{Name: resource.Name}
+//		return nil
+//	}
+//}
 
 func WithScript(scope constructs.Construct, scriptDir, libDir string, libFiles []string) TestRunOpt {
 	return func(t *TestRunProps) error {
@@ -266,16 +250,16 @@ func WithScript(scope constructs.Construct, scriptDir, libDir string, libFiles [
 	}
 }
 
-func WithNewAccount(scope constructs.Construct) TestRunOpt {
-	return func(t *TestRunProps) error {
-		if t.ExistingAccount != nil {
-			return fmt.Errorf("a service account has already been specified")
-		}
-		_, account := NewTestRunRBAC(scope, t.Namespace)
-		t.account = account
-		return nil
-	}
-}
+//func WithNewAccount(scope constructs.Construct) TestRunOpt {
+//	return func(t *TestRunProps) error {
+//		if t.ExistingAccount != nil {
+//			return fmt.Errorf("a service account has already been specified")
+//		}
+//		_, account := NewTestRunRBAC(scope, t.Namespace)
+//		t.account = account
+//		return nil
+//	}
+//}
 
 func WithSchedule(schedule *JobSchedule) TestRunOpt {
 	return func(t *TestRunProps) error {

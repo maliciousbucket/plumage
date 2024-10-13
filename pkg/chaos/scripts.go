@@ -64,7 +64,7 @@ func addLibFiles(configMap kplus.ConfigMap, libDir, scriptDir string, libFiles [
 
 func newEnvConfigMap(scope constructs.Construct, name, ns string, env map[string]string) kplus.ConfigMap {
 	mapName := fmt.Sprintf("%s-env", name)
-	configMap := kplus.NewConfigMap(scope, jsii.String(name), &kplus.ConfigMapProps{
+	configMap := kplus.NewConfigMap(scope, jsii.String(mapName), &kplus.ConfigMapProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
 			Name:      jsii.String(mapName),
 			Namespace: jsii.String(ns),

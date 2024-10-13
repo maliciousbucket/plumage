@@ -128,9 +128,9 @@ func synthTestCommand(outputDir, ns, alloy string) *cobra.Command {
 
 		},
 	}
-	cmd.Flags().StringVar(&fileName, "file", "tests/tests.yaml", "path to the template file")
-	cmd.Flags().StringVar(&outDir, "output-dir", outDir, "directory where the output is stored")
-	cmd.Flags().StringVar(&account, "account", "", "service account name")
+	cmd.Flags().StringVar(&fileName, "file", "tests/tests.yaml", "Path to the template file")
+	cmd.Flags().StringVar(&outDir, "output-dir", outDir, "Directory where the output is stored")
+	cmd.Flags().StringVar(&account, "account", "", "Existing service account name")
 	cmd.MarkFlagsOneRequired("file")
 	return cmd
 }

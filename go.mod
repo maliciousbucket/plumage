@@ -12,6 +12,7 @@ require (
 	github.com/cdk8s-team/cdk8s-core-go/cdk8s/v2 v2.68.98
 	github.com/cdk8s-team/cdk8s-plus-go/cdk8splus30/v2 v2.2.0
 	github.com/compose-spec/compose-go/v2 v2.1.6
+	github.com/docker/docker v27.1.1+incompatible
 	github.com/fatih/color v1.17.0
 	github.com/google/go-github/v64 v64.0.0
 	github.com/joho/godotenv v1.5.1
@@ -68,7 +69,6 @@ require (
 	github.com/dlclark/regexp2 v1.11.2 // indirect
 	github.com/docker/cli v25.0.1+incompatible // indirect
 	github.com/docker/distribution v2.8.3+incompatible // indirect
-	github.com/docker/docker v27.1.1+incompatible // indirect
 	github.com/docker/docker-credential-helpers v0.8.0 // indirect
 	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-metrics v0.0.1 // indirect

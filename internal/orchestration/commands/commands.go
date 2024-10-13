@@ -183,7 +183,7 @@ func ArgoAuthCmd() *cobra.Command {
 
 			if repo {
 				ctx := context.Background()
-				if err := argoClient.AddRepoCredentials(ctx); err != nil {
+				if err := argoClient.AddRepoCredentials(ctx, ""); err != nil {
 					return fmt.Errorf("failed to add repo credentials: %w", err)
 				}
 				log.Println("Added repo credentials")

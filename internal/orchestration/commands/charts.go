@@ -65,7 +65,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					promVersion = version
 				}
-				if err := helmClient.InstallPromOperatorCRDs(ctx, promVersion, replace); err != nil {
+				if err := helmClient.InstallPromOperatorCRDs(ctx, promVersion, valuesFile, replace); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -76,7 +76,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					certVersion = version
 				}
-				if err := helmClient.InstallCertManagerChart(ctx, certVersion, replace); err != nil {
+				if err := helmClient.InstallCertManagerChart(ctx, certVersion, valuesFile, replace); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -87,7 +87,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					stateMetricsVersion = version
 				}
-				if err := helmClient.InstallKubeStateMetricsServerChart(ctx, stateMetricsVersion, replace); err != nil {
+				if err := helmClient.InstallKubeStateMetricsServerChart(ctx, stateMetricsVersion, valuesFile, replace); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -98,7 +98,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					metricsVersion = version
 				}
-				if err := helmClient.InstallKubeMetricsServerChart(ctx, metricsVersion, replace); err != nil {
+				if err := helmClient.InstallKubeMetricsServerChart(ctx, metricsVersion, valuesFile, replace); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -109,7 +109,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					k6Version = version
 				}
-				if err := helmClient.InstallK6(ctx, k6Version, replace); err != nil {
+				if err := helmClient.InstallK6(ctx, k6Version, valuesFile, replace); err != nil {
 					log.Fatal(err)
 				}
 			}
@@ -128,7 +128,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&installArgo, "argo", false, "Install Argo")
-	cmd.Flags().StringVar(&valuesFile, "values-file", "", "Argo CD values.yaml file")
+	cmd.Flags().StringVar(&valuesFile, "values-file", "", "Chart values.yaml file")
 	cmd.Flags().BoolVar(&installPromOperatorCrds, "prom-operator-crds", false, "Install Prometheus Operator CRDs")
 	cmd.Flags().BoolVar(&installCertManager, "cert-manager", false, "Install Certificate Manager")
 	cmd.Flags().BoolVar(&installKubeStateMetrics, "kube-state-metrics", false, "Install KubeState Metrics")
@@ -140,7 +140,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 
 	cmd.MarkFlagsMutuallyExclusive("argo", "prom-operator-crds", "cert-manager", "kube-state-metrics",
 		"kube-metrics-server", "k6-operator", "kube-prometheus-stack")
-	_ = cmd.MarkFlagFilename("argo-values-file", "yaml", "yml")
+	_ = cmd.MarkFlagFilename("values-file", "yaml", "yml")
 
 	return cmd
 }

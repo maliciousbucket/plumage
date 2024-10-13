@@ -18,21 +18,21 @@ type BaseChartOpts struct {
 }
 
 func (c *helmClient) InstallBaseCharts(ctx context.Context, opts *BaseChartOpts, replace bool) error {
-	metricsErr := c.installKubeMetricsServer(ctx, opts.MetricsServer, replace)
+	metricsErr := c.installKubeMetricsServer(ctx, opts.MetricsServer, "", replace)
 	if metricsErr != nil {
 		return fmt.Errorf("installing metrics server: %w", metricsErr)
 	}
 
-	certManagerErr := c.installCertManager(ctx, opts.CertManager, replace)
+	certManagerErr := c.installCertManager(ctx, opts.CertManager, "", replace)
 	if certManagerErr != nil {
 		return fmt.Errorf("installing cert manager: %w", certManagerErr)
 	}
 
-	kubeStateErr := c.installKubeStateMetrics(ctx, opts.KubeStateMetrics, replace)
+	kubeStateErr := c.installKubeStateMetrics(ctx, opts.KubeStateMetrics, "", replace)
 	if kubeStateErr != nil {
 		return fmt.Errorf("installing kube-state: %w", kubeStateErr)
 	}
-	promOperatorErr := c.installPromOperatorCrds(ctx, opts.PromOperatorCRDs, replace)
+	promOperatorErr := c.installPromOperatorCrds(ctx, opts.PromOperatorCRDs, "", replace)
 	if promOperatorErr != nil {
 		return fmt.Errorf("installing prometheus operator: %w", promOperatorErr)
 	}
@@ -53,32 +53,32 @@ func (c *helmClient) InstallArgoChart(ctx context.Context, version, valuesFile s
 	return nil
 }
 
-func (c *helmClient) InstallKubeMetricsServerChart(ctx context.Context, version string, replace bool) error {
-	err := c.installKubeMetricsServer(ctx, version, replace)
+func (c *helmClient) InstallKubeMetricsServerChart(ctx context.Context, version, valuesFile string, replace bool) error {
+	err := c.installKubeMetricsServer(ctx, version, valuesFile, replace)
 	if err != nil {
 		return fmt.Errorf("installing kube-metrics server chart: %w", err)
 	}
 	return nil
 }
 
-func (c *helmClient) InstallKubeStateMetricsServerChart(ctx context.Context, version string, replace bool) error {
-	err := c.installKubeStateMetrics(ctx, version, replace)
+func (c *helmClient) InstallKubeStateMetricsServerChart(ctx context.Context, version, valuesFile string, replace bool) error {
+	err := c.installKubeStateMetrics(ctx, version, valuesFile, replace)
 	if err != nil {
 		return fmt.Errorf("installing kube-state-metrics server chart: %w", err)
 	}
 	return nil
 }
 
-func (c *helmClient) InstallCertManagerChart(ctx context.Context, version string, replace bool) error {
-	err := c.installCertManager(ctx, version, replace)
+func (c *helmClient) InstallCertManagerChart(ctx context.Context, version, valuesFile string, replace bool) error {
+	err := c.installCertManager(ctx, version, valuesFile, replace)
 	if err != nil {
 		return fmt.Errorf("installing cert manager chart: %w", err)
 	}
 	return nil
 }
 
-func (c *helmClient) InstallPromOperatorCRDs(ctx context.Context, version string, replace bool) error {
-	err := c.installPromOperatorCrds(ctx, version, replace)
+func (c *helmClient) InstallPromOperatorCRDs(ctx context.Context, version, valuesFile string, replace bool) error {
+	err := c.installPromOperatorCrds(ctx, version, valuesFile, replace)
 	if err != nil {
 		return fmt.Errorf("installing prometheus operator crds: %w", err)
 	}
@@ -93,15 +93,15 @@ func (c *helmClient) InstallKubePrometheusStack(ctx context.Context, version, va
 	return nil
 }
 
-func (c *helmClient) InstallK6(ctx context.Context, version string, replace bool) error {
-	err := c.installK6(ctx, version, replace)
+func (c *helmClient) InstallK6(ctx context.Context, version, valuesFile string, replace bool) error {
+	err := c.installK6(ctx, version, valuesFile, replace)
 	if err != nil {
 		return fmt.Errorf("installing k6 chart: %w", err)
 	}
 	return nil
 }
 
-func (c *helmClient) installKubeMetricsServer(ctx context.Context, version string, replace bool) error {
+func (c *helmClient) installKubeMetricsServer(ctx context.Context, version, valuesFile string, replace bool) error {
 	config := &ChartConfig{
 		Repository:  "https://kubernetes-sigs.github.io/metrics-server/",
 		Namespace:   "",
@@ -109,7 +109,7 @@ func (c *helmClient) installKubeMetricsServer(ctx context.Context, version strin
 		ReleaseName: "metrics-server",
 		Version:     version,
 		Replace:     replace,
-		ValuesFiles: nil,
+		ValuesFiles: []string{valuesFile},
 		LocalFile:   false,
 		SkipCRDs:    false,
 		UpgradeCRDs: true,
@@ -126,7 +126,7 @@ func (c *helmClient) installKubeMetricsServer(ctx context.Context, version strin
 	return nil
 }
 
-func (c *helmClient) installCertManager(ctx context.Context, version string, replace bool) error {
+func (c *helmClient) installCertManager(ctx context.Context, version, valuesFile string, replace bool) error {
 	config := &ChartConfig{
 		Repository:  "https://charts.jetstack.io",
 		Namespace:   "cert-manager",
@@ -134,7 +134,7 @@ func (c *helmClient) installCertManager(ctx context.Context, version string, rep
 		ReleaseName: "cert-manager",
 		Version:     version,
 		Replace:     replace,
-		ValuesFiles: nil,
+		ValuesFiles: []string{valuesFile},
 		LocalFile:   false,
 		SkipCRDs:    false,
 		UpgradeCRDs: false,
@@ -149,7 +149,7 @@ func (c *helmClient) installCertManager(ctx context.Context, version string, rep
 	return nil
 }
 
-func (c *helmClient) installKubeStateMetrics(ctx context.Context, version string, replace bool) error {
+func (c *helmClient) installKubeStateMetrics(ctx context.Context, version, valuesFile string, replace bool) error {
 	config := &ChartConfig{
 		Repository:  "https://prometheus-community.github.io/helm-charts",
 		Namespace:   "galah-monitoring",
@@ -157,7 +157,7 @@ func (c *helmClient) installKubeStateMetrics(ctx context.Context, version string
 		ReleaseName: "kube-state-metrics",
 		Version:     version,
 		Replace:     replace,
-		ValuesFiles: nil,
+		ValuesFiles: []string{valuesFile},
 		LocalFile:   false,
 		SkipCRDs:    false,
 		UpgradeCRDs: true,
@@ -174,15 +174,15 @@ func (c *helmClient) installKubeStateMetrics(ctx context.Context, version string
 	return nil
 }
 
-func (c *helmClient) installPromOperatorCrds(ctx context.Context, version string, replace bool) error {
+func (c *helmClient) installPromOperatorCrds(ctx context.Context, version, valuesFile string, replace bool) error {
 	config := &ChartConfig{
 		Repository:  "https://prometheus-community.github.io/helm-charts",
 		Namespace:   "default",
 		Name:        "prometheus-community",
 		ReleaseName: "prometheus-operator-crds",
 		Version:     version,
-		Replace:     true,
-		ValuesFiles: nil,
+		Replace:     replace,
+		ValuesFiles: []string{valuesFile},
 		LocalFile:   false,
 		SkipCRDs:    false,
 		UpgradeCRDs: true,
@@ -235,7 +235,7 @@ func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string
 	return c.installChart(ctx, config)
 }
 
-func (c *helmClient) installK6(ctx context.Context, version string, replace bool) error {
+func (c *helmClient) installK6(ctx context.Context, version, valuesFile string, replace bool) error {
 	config := &ChartConfig{
 		Repository:   "https://grafana.github.io/helm-charts",
 		remoteFile:   false,
@@ -243,8 +243,8 @@ func (c *helmClient) installK6(ctx context.Context, version string, replace bool
 		Name:         "grafana",
 		ReleaseName:  "k6-operator",
 		Version:      version,
-		Replace:      false,
-		ValuesFiles:  nil,
+		Replace:      replace,
+		ValuesFiles:  []string{valuesFile},
 		Values:       nil,
 		valuesString: nil,
 		LocalFile:    false,

@@ -38,7 +38,7 @@ type ArgoClient interface {
 	CreateApplication(ctx context.Context) (*v1alpha1.Application, error)
 	AddApplicationToProject(ctx context.Context, appName string, project string, validate bool) (*v1alpha1.ApplicationSpec, error)
 	UpdateApplication(ctx context.Context, appName string) (*v1alpha1.Application, error)
-	AddRepoCredentials(ctx context.Context) error
+	AddRepoCredentials(ctx context.Context, envFile string) error
 	SyncApplicationResources(ctx context.Context, name string) error
 	SyncProject(ctx context.Context, name string) error
 

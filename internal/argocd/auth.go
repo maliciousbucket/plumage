@@ -6,25 +6,34 @@ import (
 	account "github.com/argoproj/argo-cd/v2/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
+	"github.com/joho/godotenv"
 	"os"
 )
 
-func (c *Client) AddRepoCredentials(ctx context.Context) error {
+func (c *Client) AddRepoCredentials(ctx context.Context, envFile string) error {
+	if envFile != "" {
+		if err := godotenv.Load(envFile); err != nil {
+			return err
+		}
+	} else {
+		if err := godotenv.Load(); err != nil {
+			return err
+		}
+	}
+
 	username := os.Getenv("GITHUB_USERNAME")
-	password := os.Getenv("GITHUB_TOKEN")
-	repository := os.Getenv("ARGOCD_REPOSITORY")
-
 	if username == "" {
-		return fmt.Errorf("username not set")
+		return fmt.Errorf("GITHUB_USERNAME environment variable not set")
 	}
-
+	password := os.Getenv("GITHUB_TOKEN")
 	if password == "" {
-		return fmt.Errorf("password not set")
-	}
-	if repository == "" {
-		return fmt.Errorf("repository not set")
+		return fmt.Errorf("GITHUB_TOKEN environment variable not set")
 	}
 
+	repository := os.Getenv("ARGOCD_REPOSITORY")
+	if repository == "" {
+		return fmt.Errorf("ARGOCD_REPOSITORY environment variable not set")
+	}
 	_, err := c.credsClient.CreateRepositoryCredentials(ctx, &repocreds.RepoCredsCreateRequest{
 		Creds: &v1alpha1.RepoCreds{
 			URL:      repository,

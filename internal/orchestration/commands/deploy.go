@@ -52,7 +52,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 				log.Fatal(fmt.Errorf("failed to create namespace: %w", err))
 			}
 
-			if err = orchestration.AddRepoCredentials(ctx, argoClient); err != nil {
+			if err = orchestration.AddRepoCredentials(ctx, argoClient, ""); err != nil {
 				log.Fatal(err)
 			}
 			if cfg == nil {
@@ -175,7 +175,7 @@ func DeployMonitoringCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.Background()
 
-			if err := orchestration.AddRepoCredentials(ctx, argoClient); err != nil {
+			if err := orchestration.AddRepoCredentials(ctx, argoClient, ""); err != nil {
 				log.Fatal(err)
 			}
 			if err := orchestration.DeployMonitoring(ctx, argoClient, kubernetesClient); err != nil {
@@ -221,7 +221,7 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 				log.Fatal("creating GitHub Config", err)
 			}
 
-			if err = orchestration.AddRepoCredentials(ctx, argoClient); err != nil {
+			if err = orchestration.AddRepoCredentials(ctx, argoClient, ""); err != nil {
 				log.Fatal("Adding Repo Credentials", err)
 			}
 			if synthGateway {

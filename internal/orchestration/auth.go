@@ -13,8 +13,8 @@ import (
 	"os"
 )
 
-func AddRepoCredentials(ctx context.Context, argoClient ArgoClient) error {
-	return argoClient.AddRepoCredentials(ctx)
+func AddRepoCredentials(ctx context.Context, argoClient ArgoClient, envFile string) error {
+	return argoClient.AddRepoCredentials(ctx, envFile)
 }
 
 func SetArgoToken(ctx context.Context, kubeClient KubeClient) error {

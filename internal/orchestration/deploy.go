@@ -24,7 +24,7 @@ func DeployApp(ctx context.Context, argoClient ArgoClient, ns, path string) (str
 }
 
 func deployApp(ctx context.Context, argoClient ArgoClient, ns, path string) (string, error) {
-	if err := AddRepoCredentials(ctx, argoClient); err != nil {
+	if err := AddRepoCredentials(ctx, argoClient, ""); err != nil {
 		return "", err
 	}
 
@@ -228,6 +228,43 @@ func watchInfrastructure(ctx context.Context, client kubeclient.Client, ns, name
 		return err
 	}
 	return nil
+}
+
+var (
+	argoServer        = "argo-helm-argocd-server"
+	argoAppController = "argo-helm-argocd-applicationset-controller"
+	argoDexServer     = "argo-helm-argocd-dex-server"
+	argoRepoServer    = "argo-helm-argocd-repo-server"
+)
+
+func WatchArgoDeployment(ctx context.Context, kubeClient KubeClient) error {
+	var wg sync.WaitGroup
+	errChan := make(chan error, 4)
+
+	waitArgoResource := func(resource string) {
+		err := kubeClient.WatchDeployment(ctx, "argocd", resource, false)
+		errChan <- err
+		wg.Done()
+	}
+	wg.Add(4)
+	go waitArgoResource(argoServer)
+	go waitArgoResource(argoAppController)
+	go waitArgoResource(argoDexServer)
+	go waitArgoResource(argoRepoServer)
+
+	go func() {
+		wg.Wait()
+		close(errChan)
+	}()
+	var watchErr error
+
+	for err := range errChan {
+		if err != nil {
+			watchErr = errors.Join(watchErr, err)
+		}
+	}
+	return watchErr
+
 }
 
 func prettyPrint(v any) error {

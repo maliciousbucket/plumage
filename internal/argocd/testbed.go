@@ -19,7 +19,7 @@ const (
 	skipReconcileAnnotation = "argocd.argoproj.io/skip-reconcile"
 )
 
-func (c *Client) CreateIngressProject(ctx context.Context) error {
+func (c *Client) CreateIngressProject(ctx context.Context, ns string) error {
 	var project string
 	existing, _ := c.GetProject(ctx, "ingress")
 
@@ -56,7 +56,7 @@ func (c *Client) CreateIngressProject(ctx context.Context) error {
 		}
 	}
 
-	if err = c.createIngressApp(ctx, project); err != nil {
+	if err = c.createIngressApp(ctx, ns, project); err != nil {
 		return err
 	}
 	spec, err := c.AddApplicationToProject(ctx, "traefik", "ingress", true)
@@ -90,18 +90,18 @@ func (c *Client) createIngressProject(ctx context.Context) (string, error) {
 	)
 }
 
-func (c *Client) CreateIngressApp(ctx context.Context) error {
-	return c.createIngressApp(ctx, "ingress")
+func (c *Client) CreateIngressApp(ctx context.Context, ns string) error {
+	return c.createIngressApp(ctx, ns, "ingress")
 }
 
-func (c *Client) createIngressApp(ctx context.Context, project string) error {
+func (c *Client) createIngressApp(ctx context.Context, ns, project string) error {
 
 	proj, err := c.GetProject(ctx, project)
 	if err != nil {
 		return fmt.Errorf("failed to get project: %w", err)
 	}
 
-	return c.addTestBedApp(ctx, "traefik", traefikPath, proj.Name)
+	return c.addTestBedApp(ctx, ns, "traefik", traefikPath, proj.Name)
 }
 
 func (c *Client) CreateApplicationProject(ctx context.Context, app string) error {
@@ -138,7 +138,7 @@ func (c *Client) createApplicationProject(ctx context.Context, app string) (stri
 
 }
 
-func (c *Client) CreateServiceApplications(ctx context.Context, app string, services []string) error {
+func (c *Client) CreateServiceApplications(ctx context.Context, ns, app string, services []string) error {
 	if app == "" {
 		return errors.New("app cannot be empty")
 	}
@@ -154,7 +154,7 @@ func (c *Client) CreateServiceApplications(ctx context.Context, app string, serv
 
 	for _, service := range services {
 		path := fmt.Sprintf("%s/%s/%s/", appPath, app, service)
-		appErr := c.addTestBedApp(ctx, service, path, project.Name)
+		appErr := c.addTestBedApp(ctx, ns, service, path, project.Name)
 		if appErr != nil {
 			return fmt.Errorf("add test bed app %s failed: %v", service, appErr)
 		}
@@ -165,7 +165,7 @@ func (c *Client) CreateServiceApplications(ctx context.Context, app string, serv
 	return nil
 }
 
-func (c *Client) addTestBedApp(ctx context.Context, name, path, project string) error {
+func (c *Client) addTestBedApp(ctx context.Context, ns, name, path, project string) error {
 	upsert := true
 	validate := true
 
@@ -190,7 +190,7 @@ func (c *Client) addTestBedApp(ctx context.Context, name, path, project string) 
 				},
 				Destination: v1alpha1.ApplicationDestination{
 					Server:    defaultServer,
-					Namespace: "galah-testbed",
+					Namespace: ns,
 				},
 				SyncPolicy: &v1alpha1.SyncPolicy{
 					Automated: &v1alpha1.SyncPolicyAutomated{
@@ -247,11 +247,11 @@ func (c *Client) createChaosProject(ctx context.Context, ns string) (string, err
 	)
 }
 
-func (c *Client) createChaosApp(ctx context.Context, project string) error {
+func (c *Client) createChaosApp(ctx context.Context, ns, project string) error {
 	proj, err := c.GetProject(ctx, project)
 	if err != nil {
 		return fmt.Errorf("failed to get project: %w", err)
 	}
 
-	return c.addTestBedApp(ctx, "traefik", chaosPath, proj.Name)
+	return c.addTestBedApp(ctx, ns, "traefik", chaosPath, proj.Name)
 }

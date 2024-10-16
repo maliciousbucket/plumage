@@ -50,7 +50,7 @@ type ArgoClient interface {
 func SetArgoTokenCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "set-argo-token",
-		Short: "set argo token",
+		Short: "Set argo-cd token for interacting with the API",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			return newKubeClient()
 		},

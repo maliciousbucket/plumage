@@ -162,8 +162,6 @@ func getDirectoryFiles(dir string, denyList []string) ([]string, error) {
 	}
 	var files []string
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
-		fmt.Println(dir)
-		fmt.Println(path)
 		if err != nil {
 			return err
 		}
@@ -194,10 +192,6 @@ func getRef(ctx context.Context, client *github.Client, cfg *config.GitHubConfig
 	if ref, _, err := client.Git.GetRef(ctx, cfg.SourceOwner, cfg.SourceRepo, cmtBranch); err == nil {
 		return ref, nil
 	}
-
-	//if cfg.CommitBranch == cfg.BaseBranch {
-	//	return nil, errors.New("no commit branch found")
-	//}
 
 	if cfg.BaseBranch == "" {
 		return nil, errors.New("the base branch should not be empty when the commit branch does not exist")

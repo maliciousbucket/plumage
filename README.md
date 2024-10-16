@@ -1,5 +1,18 @@
 # Plumage
 
+## TODO
+
+- [ ] Fix probe configuration
+- [ ] Re-implement resource requests/limits
+- [ ] Add examples
+- [ ] Complete Documentation
+- [ ] Argo Integration Tests
+- [ ] Unit Tests
+- [ ] Refactor Packages
+- [ ] Refactor CLI
+- [ ] Update Makefile
+- [ ] Update argo to use repo from config
+
 ## Configuration
 
 ### User Config
@@ -111,4 +124,108 @@ The following environment variables must be set:
 | CONFIG_DIR        | string | The directory which holds the configuration files for Plumage. Default: system config dir                          |
 
 
+## Commands
 
+
+
+```console
+Usage:
+  plumage [command]
+
+Available Commands:
+  app               Manage applications
+  charts            Manage Helm Charts
+  commit            Commit and Push synthesised manifests
+  completion        Generate the autocompletion script for the specified shell
+  config            configuration
+  deploy            Deployment commands
+  expose            Expose as service for testing
+  help              Help about any command
+  project           Manage ArgoCD projects
+  service           Watch Kubernetes services
+  set-argo-token    Set argo-cd token for interacting with the API
+  synth             Synth Kubernetes manifests
+  wait-related-pods Wait for related pods to be ready
+  watch             Watch Kubernetes resources
+
+Flags:
+      --config string   config file (default is $HOME/.plumage.yaml)
+  -h, --help            help for plumage
+
+Use "plumage [command] --help" for more information about a command.
+
+```
+
+### Deployment
+
+```console
+Deployment commands
+
+Usage:
+  plumage deploy [flags]
+  plumage deploy [command]
+
+Available Commands:
+  app           Deploy synthesised applications
+  argo-auth     Add GitHub credentials to ArgoCD
+  cluster       manage argo's clusters
+  gateway       Deploy traefik gateway
+  install-argo  Install Argo CD
+  install-chart Install Helm Charts
+  monitoring    Deploy monitoring infrastructure
+  sync          Sync ArgoCD resources
+  template      Deploy a template
+
+Flags:
+  -h, --help   help for deploy
+
+Global Flags:
+      --config string   config file (default is $HOME/.plumage.yaml)
+
+Use "plumage deploy [command] --help" for more information about a command.
+
+```
+
+### Charts
+
+```console
+Manage Helm Charts
+
+Usage:
+  plumage charts [flags]
+  plumage charts [command]
+
+Available Commands:
+  install     Install Helm Charts
+
+Flags:
+  -h, --help   help for charts
+
+Global Flags:
+      --config string   config file (default is $HOME/.plumage.yaml)
+
+```
+
+```console
+Install Helm Charts
+
+Usage:
+  plumage charts install [flags]
+
+Flags:
+      --argo                    Install Argo
+      --cert-manager            Install Certificate Manager
+  -h, --help                    help for install
+      --k6-operator             Install K6 Operator
+      --kube-metrics-server     Install Metrics Server
+      --kube-prometheus-stack   Install Prometheus Stack
+      --kube-state-metrics      Install KubeState Metrics
+      --prom-operator-crds      Install Prometheus Operator CRDs
+  -r, --replace                 Replace existing Helm Charts
+      --values-file string      Chart values.yaml file
+  -v, --version string          Version
+
+Global Flags:
+      --config string   config file (default is $HOME/.plumage.yaml)
+
+```

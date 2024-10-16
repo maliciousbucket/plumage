@@ -27,7 +27,7 @@ var (
 func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "commit",
-		Short: "commit push",
+		Short: "Commit and Push synthesised manifests",
 		Run: func(cmd *cobra.Command, args []string) {
 			ghCfg, err := config.NewGithubConfig(configDir, fileName)
 			if err != nil {

@@ -62,14 +62,8 @@ func CommitAndPushService(ctx context.Context, cfg *config.GitHubConfig, dir str
 
 func getServiceChartTree(ctx context.Context, ref *github.Reference, client *github.Client, cfg *config.GitHubConfig,
 	dir, chart string) (*github.Tree, error) {
-	//chartOutput, err := getObjectMetaFile(dir)
-	//if err != nil {
-	//	return nil, err
-	//}
+
 	chartPath := filepath.Join(dir, chart)
-	//if !strings.HasSuffix(chartPath, "-chart") {
-	//	chartPath += "-chart"
-	//}
 
 	files, err := getDirectoryFiles(chartPath, nil)
 	if len(files) == 0 {
@@ -128,9 +122,6 @@ func getResourceTree(ctx context.Context, ref *github.Reference, client *github.
 	dir, chart, resource string) (*github.Tree, error) {
 
 	chartPath := filepath.Join(dir, chart)
-	//if !strings.HasSuffix(chartPath, "-chart") {
-	//	chartPath += "-chart"
-	//}
 
 	files, err := getDirectoryFiles(chartPath, nil)
 	if len(files) == 0 {

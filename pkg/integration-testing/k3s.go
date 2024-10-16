@@ -34,17 +34,12 @@ func SetupKubernetesContainer(ctx context.Context, c *KubernetesContainer) error
 			HostAccessPorts: []int{30443},
 			HostConfigModifier: func(config *container.HostConfig) {
 				config.Resources = container.Resources{
-					//NanoCPUs:          4 * 1000000000,
 					Memory:            16 * 1024 * 1024 * 1024,
 					MemoryReservation: 8 * 1024 * 1024 * 1024,
 					MemorySwap:        20 * 1024 * 1024 * 1024,
 					CPUShares:         2048,
 					CPUPeriod:         100000,
 					CPUQuota:          400000,
-					//CPUShares:         1024,
-					//Memory:            6 * 1024 * 1024 * 1024,
-					//NanoCPUs:          8 * 1000000000,
-					//MemoryReservation: 4 * 1024 * 1024 * 1024,
 				}
 			},
 		},

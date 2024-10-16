@@ -20,20 +20,19 @@ const (
 type Protocol string
 
 type MonitoringConfig struct {
-	AlloyAddress string           `json:"alloyAddress"`
-	Collectors   *CollectorConfig `yaml:"collectors"`
-	EnvFile      string           `json:"envFile"`
+	AlloyAddress string           `json:"alloyAddress" yaml:"alloyAddress"`
+	Collectors   *CollectorConfig `yaml:"collectors" json:"collectors"`
+	EnvFile      string           `json:"envFile" yaml:"envFile"`
 }
 
 type CollectorConfig struct {
-	AlloyAddress            string `yaml:"alloyAddress"`
-	DefaultProtocol         string `yaml:"defaultProtocol"`
-	LokiWriteEndpoint       string `json:"loki_write_endpoint" yaml:"lokiWriteEndpoint"`
-	LokiWritePort           int    `json:"loki_write_port" yaml:"lokiWritePort"`
-	PrometheusWriteEndpoint string `json:"prometheus_write_endpoint" yaml:"prometheusWriteEndpoint"`
-	PrometheusWritePort     int    `json:"prometheus_write_port" yaml:"prometheusWritePort"`
-	ZipkinEndpoint          string `json:"zipkin_endpoint" yaml:"zipkinEndpoint"`
-	//TODO: Check if necessary
+	AlloyAddress              string `yaml:"alloyAddress"`
+	DefaultProtocol           string `yaml:"defaultProtocol"`
+	LokiWriteEndpoint         string `json:"loki_write_endpoint" yaml:"lokiWriteEndpoint"`
+	LokiWritePort             int    `json:"loki_write_port" yaml:"lokiWritePort"`
+	PrometheusWriteEndpoint   string `json:"prometheus_write_endpoint" yaml:"prometheusWriteEndpoint"`
+	PrometheusWritePort       int    `json:"prometheus_write_port" yaml:"prometheusWritePort"`
+	ZipkinEndpoint            string `json:"zipkin_endpoint" yaml:"zipkinEndpoint"`
 	ZipkinPort                int    `json:"zipkin_port" yaml:"zipkinPort"`
 	OtlpExportProtocol        string `json:"otlp_export_protocol" yaml:"otlpExportProtocol"`
 	OtlpMetricsExportProtocol string `json:"otlp_metrics_export_protocol" yaml:"otlpMetricsExportProtocol"`
@@ -46,13 +45,12 @@ type CollectorConfig struct {
 	OtlpMetricsEndpoint       string `json:"otlp_metrics_endpoint" yaml:"otlpMetricsEndpoint"`
 	OtlpLogsEndpoint          string `json:"otlp_logs_endpoint" yaml:"otlpLogsEndpoint"`
 	OtlpTracesEndpoint        string `json:"otlp_traces_endpoint" yaml:"otlpTracesEndpoint"`
-
-	OtlpMetricsPath     string `json:"otlp_metrics_path" yaml:"otlpMetricsPath"`
-	OtlpLogsPath        string `json:"otlp_logs_path" yaml:"otlpLogsPath"`
-	OtlpTracesPath      string `json:"otlp_traces_path" yaml:"otlpTracesPath"`
-	OtlpMetricsExporter string `json:"otlp_metrics_exporter" yaml:"otlpMetricsExporter"`
-	OtlpLogsExporter    string `json:"otlp_logs_exporter" yaml:"otlpLogsExporter"`
-	OtlpTracesExporter  string `json:"otlp_traces_exporter" yaml:"otlpTracesExporter"`
+	OtlpMetricsPath           string `json:"otlp_metrics_path" yaml:"otlpMetricsPath"`
+	OtlpLogsPath              string `json:"otlp_logs_path" yaml:"otlpLogsPath"`
+	OtlpTracesPath            string `json:"otlp_traces_path" yaml:"otlpTracesPath"`
+	OtlpMetricsExporter       string `json:"otlp_metrics_exporter" yaml:"otlpMetricsExporter"`
+	OtlpLogsExporter          string `json:"otlp_logs_exporter" yaml:"otlpLogsExporter"`
+	OtlpTracesExporter        string `json:"otlp_traces_exporter" yaml:"otlpTracesExporter"`
 }
 
 //TODO: Add switch between http and grpc

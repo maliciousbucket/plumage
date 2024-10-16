@@ -22,7 +22,7 @@ const (
 
 type AppConfig struct {
 	ProjectName      string            `yaml:"project"`
-	ConfigDir        string            `yaml:"configDir"`
+	ConfigDir        string            `yaml:"getConfigDir"`
 	ProjectDir       string            `yaml:"projectDir"`
 	OutputDir        string            `yaml:"outputDir"`
 	Namespace        string            `yaml:"namespace"`
@@ -240,7 +240,7 @@ func (c *ChartConfig) ToBaseOpts() *helm.BaseChartOpts {
 	}
 }
 
-func configDir(envFile string) (string, error) {
+func getConfigDir(envFile string) (string, error) {
 	err := godotenv.Load(envFile)
 	if err != nil {
 		return "", err
@@ -259,7 +259,7 @@ func configDir(envFile string) (string, error) {
 }
 
 func findOrCreateConfigDir(projectName string, envFile string) (string, error) {
-	dir, err := configDir(envFile)
+	dir, err := getConfigDir(envFile)
 	if err != nil {
 		return "", err
 	}

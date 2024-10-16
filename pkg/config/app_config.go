@@ -57,6 +57,7 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 		MonitoringConfig: monitoringConfig,
 		OutputDir:        outDir,
 	}
+	log.Println(len(userConfig.ChartConfig.Charts.Charts))
 	appConfig.OutputDir = userConfig.OutputDir
 	appConfig.Namespace = userConfig.Namespace
 	return appConfig, nil
@@ -67,7 +68,7 @@ type UserConfig struct {
 	Namespace      string         `yaml:"namespace"`
 	ComposeConfig  ComposeConfig  `yaml:"compose"`
 	TemplateConfig TemplateConfig `yaml:"template"`
-	ChartConfig    ChartConfig    `yaml:"charts"`
+	ChartConfig    ChartConfig    `yaml:"helmConfig"`
 }
 
 func getDefaultUserConfig() UserConfig {
@@ -128,7 +129,7 @@ func loadUserConfig(configDir string, base *UserConfig) (*UserConfig, error) {
 			return nil, err
 		}
 	}
-
+	fmt.Println(fileName)
 	content, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, err
@@ -136,6 +137,7 @@ func loadUserConfig(configDir string, base *UserConfig) (*UserConfig, error) {
 	if err = yaml.Unmarshal(content, base); err != nil {
 		return nil, err
 	}
+
 	return base, nil
 }
 
@@ -176,7 +178,7 @@ type ChartConfig struct {
 	KubePrometheusStackValuesFile string             `yaml:"KubePrometheusStackValuesFile,omitempty"`
 	K6Version                     string             `yaml:"k6Version,omitempty"`
 	K6ValuesFile                  string             `yaml:"k6ValuesFile,omitempty"`
-	Charts                        *helm.ChartsConfig `yaml:"charts,omitempty"`
+	Charts                        *helm.ChartsConfig `yaml:"chartsConfig,omitempty"`
 }
 
 func (c *ChartConfig) ToBaseOpts() *helm.BaseChartOpts {

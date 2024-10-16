@@ -58,9 +58,13 @@ func InstallArgoCmd(argoVersion string) *cobra.Command {
 	return cmd
 }
 
-func InstallChartCmd(cfg *ChartsConfig, configDir string) *cobra.Command {
+func InstallChartFromConfigCmd(cfg *ChartsConfig, configDir string) *cobra.Command {
+	var appConfig bool
+	var helmConfig string
+	var dir string
+
 	cmd := &cobra.Command{
-		Use:   "install-chart",
+		Use:   "install-chart-cfg",
 		Short: "Install Helm Charts",
 		Long:  "Install helm charts from config files, local helm charts, or remote repositories",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -68,7 +72,7 @@ func InstallChartCmd(cfg *ChartsConfig, configDir string) *cobra.Command {
 				return err
 			}
 			ctx := context.Background()
-			appConfig, _ := cmd.Flags().GetBool("appConfig")
+
 			if appConfig {
 				if cfg != nil {
 					err := InstallCRDChartsFromConfig(ctx, nil, cfg)
@@ -87,8 +91,7 @@ func InstallChartCmd(cfg *ChartsConfig, configDir string) *cobra.Command {
 				}
 				return fmt.Errorf("unable to build helm config from given app config")
 			}
-			dir, _ := cmd.Flags().GetString("dir")
-			helmConfig, _ := cmd.Flags().GetString("helmConfig")
+
 			if helmConfig != "" {
 				if dir != "" {
 
@@ -104,13 +107,14 @@ func InstallChartCmd(cfg *ChartsConfig, configDir string) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().BoolP("appConfig", "a", false, "Install charts from the AppConfig")
-	cmd.Flags().StringP("helmConfig", "h", "", "Specify a file with Helm Chart Configs")
-	cmd.Flags().StringP("dir", "d", "", "Specify a directory with Helm Configs")
+	cmd.Flags().BoolVarP(&appConfig, "appConfig", "a", false, "Install charts from the AppConfig")
+	cmd.Flags().StringVarP(&helmConfig, "helmConfig", "f", "", "Specify a file with Helm Chart Configs")
+	cmd.Flags().StringVarP(&dir, "dir", "d", "", "Specify a directory with Helm Configs")
 
 	cmd.MarkFlagsRequiredTogether("helmConfig", "dir")
 	cmd.MarkFlagsMutuallyExclusive("helmConfig", "appConfig")
 	_ = cmd.MarkPersistentFlagFilename("helmConfig", ".yaml", ".yml")
 	_ = cmd.MarkFlagDirname("dir")
+	cmd.MarkFlagsOneRequired("appConfig", "helmConfig")
 	return cmd
 }

@@ -425,6 +425,9 @@ func (c *helmClient) addChartRepo(name, repository string) error {
 	if err := c.Client.AddOrUpdateChartRepo(chartRepo); err != nil {
 		return fmt.Errorf("failed to add chart repo %s: %w", chartRepo.Name, err)
 	}
+	if err := c.Client.UpdateChartRepos(); err != nil {
+		return fmt.Errorf("failed to update chart repos: %w", err)
+	}
 
 	log.Printf("\nchart repo added %s\n", chartRepo.Name)
 	return nil

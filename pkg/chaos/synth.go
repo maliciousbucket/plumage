@@ -29,15 +29,14 @@ func SynthTemplateFile(file, outDir, ns, alloy string, account string) error {
 	if accountName == "" {
 		accountChart := cdk8s.NewChart(app, jsii.String("account"), &cdk8s.ChartProps{
 			DisableResourceNameHashes: jsii.Bool(true),
-			Namespace:                 jsii.String(ns),
 		})
-		_, newAccount := NewTestRunRBAC(accountChart, ns)
+		_, newAccount := NewTestRunRBAC(accountChart, "default")
 		accountName = newAccount
 	}
 	template.ServiceAccount = accountName
 
 	for _, test := range template.Scripts {
-		_, err = NewTestRunFromTemplate(app, test.Name, ns, alloy, template, &test)
+		_, err = NewTestRunFromTemplate(app, test.Name, "default", alloy, template, &test)
 		if err != nil {
 			return err
 		}

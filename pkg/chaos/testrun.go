@@ -75,9 +75,7 @@ func NewTestRunFromTemplate(scope constructs.Construct, id string, ns, alloyAddr
 		Annotations:      script.Annotations,
 		Account:          template.ServiceAccount,
 	}
-	opts := []TestRunOpt{
-		WithOtelOutput(alloyAddr, defaultMetricPrefix),
-	}
+	opts := []TestRunOpt{}
 
 	if template.ServiceAccount != "" {
 		account := &ExistingResource{
@@ -86,12 +84,6 @@ func NewTestRunFromTemplate(scope constructs.Construct, id string, ns, alloyAddr
 		fmt.Println(template.ServiceAccount)
 		script.ExistingAccount = account.Name
 	}
-
-	//if script.ExistingAccount != "" {
-	//	opts = append(opts, WithExistingAccount(script.ExistingAccount))
-	//} else {
-	//	opts = append(opts, WithNewAccount(ct))
-	//}
 
 	if script.ExistingScript != "" {
 		opts = append(opts, WithExistingScriptMap(script.ExistingScript))
@@ -116,6 +108,8 @@ func NewTestRunFromTemplate(scope constructs.Construct, id string, ns, alloyAddr
 	if script.Args != nil {
 		opts = append(opts, WithArgs(script.Args))
 	}
+
+	opts = append(opts, WithOtelOutput(alloyAddr, defaultMetricPrefix))
 
 	testId := fmt.Sprintf("%s-%s", script.Name, "testrun")
 
@@ -149,6 +143,8 @@ func newTestRun(scope constructs.Construct, id string, props *TestRunProps, opts
 	if props.ExistingEnv != nil {
 		props.envMap = props.ExistingEnv.Name
 	}
+
+	fmt.Println("DEBUG _ ARGS: ", props.Args)
 
 	jobTemplate := newJobTemplate(props.Labels, props.Annotations)
 
@@ -221,17 +217,6 @@ func WithNewEnv(scope constructs.Construct) TestRunOpt {
 	}
 }
 
-//func WithExistingAccount(account string) TestRunOpt {
-//	return func(t *TestRunProps) error {
-//		if account == "" {
-//			return fmt.Errorf("account name is empty")
-//		}
-//		resource := &ExistingResource{Name: account}
-//		t.ExistingAccount = &ExistingResource{Name: resource.Name}
-//		return nil
-//	}
-//}
-
 func WithScript(scope constructs.Construct, scriptDir, libDir string, libFiles []string) TestRunOpt {
 	return func(t *TestRunProps) error {
 		if scriptDir == "" {
@@ -250,23 +235,35 @@ func WithScript(scope constructs.Construct, scriptDir, libDir string, libFiles [
 	}
 }
 
-//func WithNewAccount(scope constructs.Construct) TestRunOpt {
-//	return func(t *TestRunProps) error {
-//		if t.ExistingAccount != nil {
-//			return fmt.Errorf("a service account has already been specified")
-//		}
-//		_, account := NewTestRunRBAC(scope, t.Namespace)
-//		t.account = account
-//		return nil
-//	}
-//}
-
 func WithSchedule(schedule *JobSchedule) TestRunOpt {
 	return func(t *TestRunProps) error {
+		newSchedule := &JobSchedule{
+			Minute:     "*",
+			Hour:       "*",
+			DayOfMonth: "*",
+			Month:      "*",
+			DayOfWeek:  "*",
+		}
 		if schedule == nil {
 			return fmt.Errorf("schedule is nil")
 		}
-		t.Schedule = schedule
+
+		if schedule.Minute != "" {
+			newSchedule.Minute = schedule.Minute
+		}
+		if schedule.Hour != "" {
+			newSchedule.Hour = schedule.Hour
+		}
+		if schedule.DayOfWeek != "" {
+			newSchedule.DayOfWeek = schedule.DayOfWeek
+		}
+		if schedule.DayOfMonth != "" {
+			newSchedule.DayOfMonth = schedule.DayOfMonth
+		}
+		if schedule.Month != "" {
+			newSchedule.Month = schedule.Month
+		}
+		t.Schedule = newSchedule
 		return nil
 	}
 }
@@ -333,8 +330,9 @@ func WithArgs(args []string) TestRunOpt {
 			return fmt.Errorf("args is nil")
 		}
 		var result string
+		fmt.Println("DEBUG _ H - :", t.Args)
 		for _, arg := range args {
-			result = strings.Join(strings.Fields(arg), " ")
+			result = strings.Join([]string{result, arg}, " ")
 		}
 		result = strings.TrimSpace(result)
 		t.Args = result
@@ -356,27 +354,35 @@ func WithOutput(output string) TestRunOpt {
 
 func WithOtelOutput(addr string, prefix string) TestRunOpt {
 	return func(t *TestRunProps) error {
+		fmt.Println("OK _ DEBUG")
 		if addr == "" {
 			return fmt.Errorf("output address is empty")
 		}
 		addOtel := true
-		for _, arg := range strings.Split(t.Args, "") {
-			if strings.Contains(arg, "-o") {
-			}
-			addOtel = false
-		}
+		//for _, arg := range strings.Split(t.Args, " ") {
+		//	if strings.carg, "-o") {
+		//	}
+		//	addOtel = false
+		//	fmt.Println("Output??")
+		//	fmt.Println(arg)
+		//}
 		if addOtel {
+			fmt.Println("OK _ DEBUG _ ADD OTEL")
 			metricPrefix := defaultMetricPrefix
 			if prefix != "" {
 				metricPrefix = prefix
 			}
 			result := t.Args
+			fmt.Println(result)
 			result = strings.Join([]string{result, k6OtelInsecure}, " ")
+			fmt.Println(result)
 			prefixStr := fmt.Sprintf("%s=%s", k6MetricPrefixArg, metricPrefix)
 			exportStr := fmt.Sprintf("%s=%s", otelGrpcEndpoint, addr)
 			outputStr := fmt.Sprintf("-o %s", otelOutput)
 			result = strings.Join([]string{result, prefixStr, exportStr, outputStr}, " ")
 			t.Args = strings.TrimSpace(result)
+
+			fmt.Println("DEBUG _ RESULT - ", result)
 			return nil
 		}
 		if prefix != "" {

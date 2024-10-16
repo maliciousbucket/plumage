@@ -36,7 +36,7 @@ func newJobRole(scope constructs.Construct, id string, ns string) kplus.Role {
 				Resources: &[]kplus.IApiResource{
 					kplus.ApiResource_Custom(&kplus.ApiResourceOptions{
 						ApiGroup:     jsii.String("k6.io"),
-						ResourceType: jsii.String("testrun"),
+						ResourceType: jsii.String("testruns"),
 					}),
 				},
 				Verbs: &[]*string{

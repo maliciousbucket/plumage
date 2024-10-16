@@ -9,8 +9,10 @@ import (
 )
 
 var (
-	testAnnotation    = "galah-monitoring.io/test"
-	testEnvAnnotation = "galah-monitoring.io/test-env"
+	testAnnotation    = "chaos.galah-monitoring.io/test"
+	testEnvAnnotation = "chaos.galah-monitoring.io/test-env"
+	testLabel         = "galah-monitoring.io/test-name"
+	testEnvLabel      = "galah-monitoring.io/test-env"
 )
 
 func newTestFileConfigMap(scope constructs.Construct, ns, name, scriptDir, libDir, scriptName string, libFiles []string) kplus.ConfigMap {
@@ -23,6 +25,7 @@ func newTestFileConfigMap(scope constructs.Construct, ns, name, scriptDir, libDi
 	addScript(configMap, scriptDir, scriptName)
 	addLibFiles(configMap, libDir, scriptDir, libFiles)
 	configMap.Metadata().AddAnnotation(jsii.String(testAnnotation), jsii.String(name))
+	configMap.Metadata().AddLabel(jsii.String(testLabel), jsii.String(name))
 	return configMap
 }
 
@@ -75,5 +78,6 @@ func newEnvConfigMap(scope constructs.Construct, name, ns string, env map[string
 		configMap.AddData(jsii.String(k), jsii.String(v))
 	}
 	configMap.Metadata().AddAnnotation(jsii.String(testEnvAnnotation), jsii.String(name))
+	configMap.Metadata().AddLabel(jsii.String(testEnvLabel), jsii.String(name))
 	return configMap
 }

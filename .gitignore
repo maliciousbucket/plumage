@@ -23,6 +23,12 @@ go.work.sum
 # env file
 .env
 
-imports
-/imports
+
+
+imports/traefik
+imports/autoscaler
+
+
+/docs
 /testdata/
+/bin

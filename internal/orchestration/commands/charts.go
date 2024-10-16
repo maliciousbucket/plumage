@@ -54,7 +54,11 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					argoVersion = version
 				}
-				if err := helmClient.InstallArgoChart(ctx, argoVersion, valuesFile); err != nil {
+				values := opts.ArgoValues
+				if valuesFile != "" {
+					values = valuesFile
+				}
+				if err := helmClient.InstallArgoChart(ctx, argoVersion, values); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -65,7 +69,11 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					promVersion = version
 				}
-				if err := helmClient.InstallPromOperatorCRDs(ctx, promVersion, valuesFile, replace); err != nil {
+				values := opts.PromOperatorValues
+				if valuesFile != "" {
+					values = valuesFile
+				}
+				if err := helmClient.InstallPromOperatorCRDs(ctx, promVersion, values, replace); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -76,7 +84,11 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					certVersion = version
 				}
-				if err := helmClient.InstallCertManagerChart(ctx, certVersion, valuesFile, replace); err != nil {
+				values := opts.CertManagerValues
+				if valuesFile != "" {
+					values = valuesFile
+				}
+				if err := helmClient.InstallCertManagerChart(ctx, certVersion, values, replace); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -87,7 +99,12 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					stateMetricsVersion = version
 				}
-				if err := helmClient.InstallKubeStateMetricsServerChart(ctx, stateMetricsVersion, valuesFile, replace); err != nil {
+				values := opts.StateMetricsValues
+				if valuesFile != "" {
+					values = valuesFile
+				}
+
+				if err := helmClient.InstallKubeStateMetricsServerChart(ctx, stateMetricsVersion, values, replace); err != nil {
 					log.Fatal(err)
 				}
 				return nil
@@ -98,6 +115,7 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					metricsVersion = version
 				}
+
 				if err := helmClient.InstallKubeMetricsServerChart(ctx, metricsVersion, valuesFile, replace); err != nil {
 					log.Fatal(err)
 				}
@@ -109,7 +127,11 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					k6Version = version
 				}
-				if err := helmClient.InstallK6(ctx, k6Version, valuesFile, replace); err != nil {
+				values := opts.K6Values
+				if valuesFile != "" {
+					values = valuesFile
+				}
+				if err := helmClient.InstallK6(ctx, k6Version, values, replace); err != nil {
 					log.Fatal(err)
 				}
 			}
@@ -119,7 +141,11 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 				if version != "" {
 					stackVersion = version
 				}
-				if err := helmClient.InstallKubePrometheusStack(ctx, stackVersion, valuesFile, replace); err != nil {
+				values := opts.KubePrometheusStackValues
+				if valuesFile != "" {
+					values = valuesFile
+				}
+				if err := helmClient.InstallKubePrometheusStack(ctx, stackVersion, values, replace); err != nil {
 					log.Fatal(err)
 				}
 			}

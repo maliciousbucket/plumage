@@ -224,7 +224,7 @@ func createProjectCmd(ns string) *cobra.Command {
 	cmd.Flags().BoolP("gateway", "g", false, "Create gateway project")
 	cmd.Flags().BoolP("app", "p", false, "Create app project")
 	cmd.Flags().StringP("name", "a", "", "App name")
-	cmd.MarkFlagsMutuallyExclusive("monitoring", "networking", "crd", "gateway", "app")
+	cmd.MarkFlagsMutuallyExclusive("monitoring", "crd", "gateway", "app")
 	cmd.MarkFlagsRequiredTogether("name", "app")
 	return cmd
 }

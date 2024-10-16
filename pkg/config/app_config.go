@@ -16,6 +16,8 @@ const (
 	kubeStateMetricsVersion = "5.25.1"
 	certManagerVersion      = "v1.15.3"
 	k6OperatorVersion       = "3.9.0"
+	metricsVersion          = "3.12.2"
+	kubePromStackVersion    = "65.2.0"
 )
 
 type AppConfig struct {
@@ -93,14 +95,21 @@ func getDefaultUserConfig() UserConfig {
 		},
 		TraefikConfig: getDefaultTraefikConfig(),
 		ChartConfig: ChartConfig{
-			ArgoVersion:                "argo-cd-7.6.1",
-			ArgoValuesFile:             "",
-			KubeStateMetricsVersion:    "5.25.1",
-			MetricsVersion:             "3.12.1",
-			PromOperatorVersion:        "14.0.0",
-			CertManagerVersion:         "v1.15.3",
-			KubePrometheusStackVersion: "65.2.0",
-			Charts:                     nil,
+			ArgoVersion:                   argoVersion,
+			ArgoValuesFile:                "",
+			KubeStateMetricsVersion:       kubeStateMetricsVersion,
+			KubeStateMetricsValuesFile:    "",
+			MetricsVersion:                metricsVersion,
+			MetricsValuesFile:             "",
+			PromOperatorVersion:           promOperatorVersion,
+			PromOperatorValuesFile:        "",
+			CertManagerVersion:            certManagerVersion,
+			CertManagerValuesFile:         "",
+			KubePrometheusStackVersion:    kubePromStackVersion,
+			KubePrometheusStackValuesFile: "",
+			K6Version:                     k6OperatorVersion,
+			K6ValuesFile:                  "",
+			Charts:                        nil,
 		},
 	}
 }
@@ -197,24 +206,37 @@ type AlloyConfig struct {
 }
 
 type ChartConfig struct {
-	ArgoVersion                string             `yaml:"argoVersion,omitempty"`
-	ArgoValuesFile             string             `yaml:"argoValuesFile,omitempty"`
-	KubeStateMetricsVersion    string             `yaml:"stateMetricsVersion,omitempty"`
-	MetricsVersion             string             `yaml:"metricsVersion,omitempty"`
-	PromOperatorVersion        string             `yaml:"promOperatorVersion,omitempty"`
-	CertManagerVersion         string             `yaml:"certManagerVersion,omitempty"`
-	KubePrometheusStackVersion string             `yaml:"kubePrometheusStackVersion,omitempty"`
-	Charts                     *helm.ChartsConfig `yaml:"charts,omitempty"`
+	ArgoVersion                   string             `yaml:"argoVersion,omitempty"`
+	ArgoValuesFile                string             `yaml:"argoValuesFile,omitempty"`
+	KubeStateMetricsVersion       string             `yaml:"stateMetricsVersion,omitempty"`
+	KubeStateMetricsValuesFile    string             `yaml:"stateMetricsValuesFile,omitempty"`
+	MetricsVersion                string             `yaml:"metricsVersion,omitempty"`
+	MetricsValuesFile             string             `yaml:"metricsValuesFile,omitempty"`
+	PromOperatorVersion           string             `yaml:"promOperatorVersion,omitempty"`
+	PromOperatorValuesFile        string             `yaml:"promOperatorValuesFile,omitempty"`
+	CertManagerVersion            string             `yaml:"certManagerVersion,omitempty"`
+	CertManagerValuesFile         string             `yaml:"certManagerValuesFile,omitempty"`
+	KubePrometheusStackVersion    string             `yaml:"kubePrometheusStackVersion,omitempty"`
+	KubePrometheusStackValuesFile string             `yaml:"KubePrometheusStackValuesFile,omitempty"`
+	K6Version                     string             `yaml:"k6Version,omitempty"`
+	K6ValuesFile                  string             `yaml:"k6ValuesFile,omitempty"`
+	Charts                        *helm.ChartsConfig `yaml:"charts,omitempty"`
 }
 
 func (c *ChartConfig) ToBaseOpts() *helm.BaseChartOpts {
 	return &helm.BaseChartOpts{
-		KubeStateMetrics: c.KubeStateMetricsVersion,
-		CertManager:      c.CertManagerVersion,
-		MetricsServer:    c.MetricsVersion,
-		PromOperatorCRDs: c.PromOperatorVersion,
-		ArgoCD:           c.ArgoVersion,
-		ArgoValues:       c.ArgoValuesFile,
+		KubeStateMetrics:    c.KubeStateMetricsVersion,
+		StateMetricsValues:  c.KubeStateMetricsValuesFile,
+		CertManager:         c.CertManagerVersion,
+		CertManagerValues:   c.CertManagerValuesFile,
+		MetricsServer:       c.MetricsVersion,
+		MetricsServerValues: c.MetricsValuesFile,
+		PromOperatorCRDs:    c.PromOperatorVersion,
+		PromOperatorValues:  c.PromOperatorValuesFile,
+		ArgoCD:              c.ArgoVersion,
+		ArgoValues:          c.ArgoValuesFile,
+		K6Operator:          c.K6Version,
+		K6Values:            c.K6ValuesFile,
 	}
 }
 

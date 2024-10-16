@@ -7,14 +7,19 @@ import (
 
 type BaseChartOpts struct {
 	KubeStateMetrics          string
+	StateMetricsValues        string
 	CertManager               string
+	CertManagerValues         string
 	MetricsServer             string
+	MetricsServerValues       string
 	PromOperatorCRDs          string
+	PromOperatorValues        string
 	ArgoCD                    string
 	ArgoValues                string
 	KubePrometheusStack       string
 	KubePrometheusStackValues string
 	K6Operator                string
+	K6Values                  string
 }
 
 func (c *helmClient) InstallBaseCharts(ctx context.Context, opts *BaseChartOpts, replace bool) error {

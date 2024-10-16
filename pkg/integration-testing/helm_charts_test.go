@@ -23,11 +23,11 @@ var (
 
 type helmClient interface {
 	InstallArgoChart(ctx context.Context, version, valuesFile string) error
-	InstallKubeMetricsServerChart(ctx context.Context, version string, replace bool) error
-	InstallCertManagerChart(ctx context.Context, version string, replace bool) error
-	InstallPromOperatorCRDs(ctx context.Context, version string, replace bool) error
+	InstallKubeMetricsServerChart(ctx context.Context, version, valuesFile string, replace bool) error
+	InstallCertManagerChart(ctx context.Context, version, valuesFile string, replace bool) error
+	InstallPromOperatorCRDs(ctx context.Context, version, valuesFile string, replace bool) error
 	InstallBaseCharts(ctx context.Context, opts *helm.BaseChartOpts, replace bool) error
-	InstallK6(ctx context.Context, version string, replace bool) error
+	InstallK6(ctx context.Context, version, valuesFile string, replace bool) error
 	InstallKubePrometheusStack(ctx context.Context, version, valuesFile string, replace bool) error
 	InstallChart(ctx context.Context, chart *helm.ChartConfig) error
 	UninstallRelease(name string) error
@@ -67,20 +67,36 @@ func TestInstallBaseCharts(t *testing.T) {
 	t.Run("Install ArgoCD Chart", func(t *testing.T) {
 		err = client.InstallArgoChart(ctx, argoVersion, "")
 		assert.NoError(t, err)
+		_, err = client.GetRelease("argo-helm")
+		assert.NoError(t, err)
+		err = client.UninstallRelease("argo-helm")
+		assert.NoError(t, err)
 	})
 
 	t.Run("Install Prometheus Operator CRDs", func(t *testing.T) {
-		err = client.InstallPromOperatorCRDs(ctx, promOperatorVersion, false)
+		err = client.InstallPromOperatorCRDs(ctx, promOperatorVersion, "", false)
+		assert.NoError(t, err)
+		_, err = client.GetRelease("prometheus-operator-crds")
+		assert.NoError(t, err)
+		err = client.UninstallRelease("prometheus-operator-crds")
 		assert.NoError(t, err)
 	})
 
 	t.Run("Install K6 Operator", func(t *testing.T) {
-		err = client.InstallK6(ctx, k6OperatorVersion, false)
+		err = client.InstallK6(ctx, k6OperatorVersion, "", false)
+		assert.NoError(t, err)
+		_, err = client.GetRelease("k6-operator")
+		assert.NoError(t, err)
+		err = client.UninstallRelease("k6-operator")
 		assert.NoError(t, err)
 	})
 
 	t.Run("Install Kube Prometheus Stack", func(t *testing.T) {
 		err = client.InstallKubePrometheusStack(ctx, kubePrometheusVersion, "", false)
+		assert.NoError(t, err)
+		_, err = client.GetRelease("kube-prometheus-stack")
+		assert.NoError(t, err)
+		err = client.UninstallRelease("kube-prometheus-stack")
 		assert.NoError(t, err)
 
 	})

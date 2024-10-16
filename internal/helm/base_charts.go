@@ -239,7 +239,7 @@ func (c *helmClient) installK6(ctx context.Context, version, valuesFile string, 
 	config := &ChartConfig{
 		Repository:   "https://grafana.github.io/helm-charts",
 		remoteFile:   false,
-		Namespace:    "",
+		Namespace:    "k6-operator-system",
 		Name:         "grafana",
 		ReleaseName:  "k6-operator",
 		Version:      version,

@@ -12,8 +12,6 @@ import (
 )
 
 type argoClient interface {
-	GetClusters(ctx context.Context) ([]v1alpha1.Cluster, error)
-	CreateCluster(ctx context.Context, name string) (*v1alpha1.Cluster, error)
 	AddProjectDestination(ctx context.Context, projectName string, server string, namespace string, name string) error
 	AddApplicationDestination(ctx context.Context, appName string, server string, namespace string, name string) error
 	CreateProject(ctx context.Context, name string) (*v1alpha1.AppProject, error)
@@ -27,7 +25,7 @@ type argoClient interface {
 	CreateApplication(ctx context.Context) (*v1alpha1.Application, error)
 	AddApplicationToProject(ctx context.Context, appName string, project string, validate bool) (*v1alpha1.ApplicationSpec, error)
 	UpdateApplication(ctx context.Context, appName string) (*v1alpha1.Application, error)
-	AddRepoCredentials(ctx context.Context) error
+	AddRepoCredentials(ctx context.Context, envFile string) error
 	SyncApplicationResources(ctx context.Context, name string) error
 	SyncProject(ctx context.Context, name string) error
 
@@ -78,17 +76,7 @@ func installArgo(t *testing.T, ctx context.Context, helm helmClient, kube kubeCl
 	log.Println("Waiting for argocd deployments....")
 	time.Sleep(30 * time.Second)
 
-	if err = kube.WatchDeployment(ctx, "argocd", "argo-helm-argocd-server", false); err != nil {
-		return err
-	}
-
-	if err = kube.WatchDeployment(ctx, "argocd", "argo-helm-argocd-applicationset-controller", false); err != nil {
-		return err
-	}
-	if err = kube.WatchDeployment(ctx, "argocd", "argo-helm-argocd-dex-server", false); err != nil {
-		return err
-	}
-	if err = kube.WatchDeployment(ctx, "argocd", "argo-helm-argocd-repo-server", false); err != nil {
+	if err = orchestration.WatchArgoDeployment(ctx, kube); err != nil {
 		return err
 	}
 
@@ -105,7 +93,7 @@ func setArgoToken(ctx context.Context, kube kubeClient) error {
 }
 
 func setArgoCreds(ctx context.Context, argo argoClient) error {
-	if err := orchestration.AddRepoCredentials(ctx, argo); err != nil {
+	if err := orchestration.AddRepoCredentials(ctx, argo, ".env.test"); err != nil {
 		return err
 	}
 	return nil

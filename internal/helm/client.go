@@ -4,13 +4,11 @@ import (
 	"context"
 	"fmt"
 	helmc "github.com/mittwald/go-helm-client"
-	"helm.sh/helm/v3/pkg/release"
 	"os"
 	"path/filepath"
 )
 
 type Client interface {
-	InstallArgo(ctx context.Context, argo *ArgoConfig, opts ...ArgoOpts) (*release.Release, error)
 	InstallBaseCharts(ctx context.Context, opts *BaseChartOpts, replace bool) error
 	InstallArgoChart(ctx context.Context, version, valuesFile string) error
 	InstallKubeMetricsServerChart(ctx context.Context, version, valuesFile string, replace bool) error
@@ -143,27 +141,4 @@ func getKubeConfig(configPath string) ([]byte, error) {
 
 func (c *helmClient) setNamespace(namespace string) {
 	c.Client.GetSettings().SetNamespace(namespace)
-}
-
-func (c *helmClient) InstallArgo(ctx context.Context, argo *ArgoConfig, opts ...ArgoOpts) (*release.Release, error) {
-
-	for _, opt := range opts {
-		err := opt(argo)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	chartSpec := argo.ChartSpec()
-
-	helmOpts := &helmc.GenericHelmOptions{
-		RollBack: c.Client,
-	}
-
-	res, err := c.Client.InstallOrUpgradeChart(ctx, chartSpec, helmOpts)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
 }

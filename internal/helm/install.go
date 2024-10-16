@@ -252,7 +252,7 @@ func (chart *ChartConfig) chartSpec(client *helmClient, opts ...chartOpts) (*hel
 		Replace:         chart.Replace,
 		CleanupOnFail:   true,
 		Labels:          chart.Labels,
-		CreateNamespace: true,
+		CreateNamespace: false,
 		GenerateName:    generateNamespace,
 		ValuesOptions:   valuesOpts,
 	}

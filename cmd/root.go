@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/maliciousbucket/plumage/internal/argocd/commands"
+	"github.com/maliciousbucket/plumage/internal/helm"
 	kubeCmd "github.com/maliciousbucket/plumage/internal/kubeclient/commands"
 	orchestrationCmds "github.com/maliciousbucket/plumage/internal/orchestration/commands"
 	"github.com/maliciousbucket/plumage/pkg/config"
@@ -15,7 +16,8 @@ var (
 		Use:   "plumage",
 		Short: "A tool for parsing templates for the Galah Testing Suite",
 		Long: `Plumage is a tool for parsing templates for the Galah Testing Suite.
-It generates the necessary Kubernetes manifests and chaos test configurations.`,
+It generates the necessary Kubernetes manifests and chaos test configurations for 
+testing the resilience of microservice applications.`,
 	}
 	appCfg *config.AppConfig
 )
@@ -43,6 +45,7 @@ func newRootCommand(cfg *config.AppConfig) *rootCommand {
 	rt.AddCommand(orchestrationCmds.ExposeCmd())
 
 	rt.AddCommand(orchestrationCmds.ChartsCmd(&cfg.UserConfig.ChartConfig))
+	rt.AddCommand(helm.InstallChartFromConfigCmd(cfg.UserConfig.ChartConfig.Charts, cfg.ConfigDir))
 
 	c.cmd = rt
 	return c

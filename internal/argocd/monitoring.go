@@ -220,7 +220,6 @@ func (c *Client) createMonitoringProject(ctx context.Context) (string, error) {
 
 }
 
-
 func (c *Client) createDashboardProject(ctx context.Context) (string, error) {
 	sources := []string{galahMonitoringRepo}
 	namespaces := []string{"kubernetes-dashboards"}
@@ -295,7 +294,7 @@ func (c *Client) createMimirApp(ctx context.Context, project string) error {
 }
 
 func (c *Client) createMinioOperatorApp(ctx context.Context, project string) error {
-	return c.addMonitoringInfrastructureApp(ctx, "mmini-operator-app", minioOperatorPath, project)
+	return c.addMonitoringInfrastructureApp(ctx, "minio-operator-app", minioOperatorPath, project)
 }
 
 func (c *Client) createMinioTenantApp(ctx context.Context, project string) error {

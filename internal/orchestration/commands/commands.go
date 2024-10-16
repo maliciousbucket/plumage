@@ -220,7 +220,7 @@ func ArgoAuthCmd() *cobra.Command {
 	cmd.Flags().BoolP("repo", "r", false, "Add GitHub credentials to ArgoCD")
 	cmd.Flags().BoolP("password", "p", false, "Get the ArgoCD Admin Password")
 	cmd.Flags().BoolP("token", "t", false, "Get the ArgoCD API Token")
-	cmd.MarkFlagsOneRequired("password", "repo")
+	cmd.MarkFlagsOneRequired("password", "repo", "token")
 	cmd.MarkFlagsMutuallyExclusive("password", "repo", "token")
 	return cmd
 }

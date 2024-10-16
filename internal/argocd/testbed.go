@@ -177,7 +177,7 @@ func (c *Client) addTestBedApp(ctx context.Context, ns, name, path, project stri
 					argoFinalizer,
 				},
 				Annotations: map[string]string{
-					skipReconcileAnnotation: "true",
+					//skipReconcileAnnotation: "true",
 				},
 			},
 			Spec: v1alpha1.ApplicationSpec{

@@ -1,0 +1,50 @@
+#compose:
+#  composeFiles:
+#    - "/aks/docker-compose.yml"
+compose:
+  workingDir: "../aks-store-demo"
+  composeFiles:
+    - "../aks-store-demo/docker-compose.yml"
+outputDir: ./dist
+template:
+  templateFile: ./testdata/chirp/template.yaml
+namespace: "galah-testbed"
+
+
+
+
+helmConfig:
+  chartsConfig:
+    charts:
+      - repository: "https://prometheus-community.github.io/helm-charts"
+        namespace: "default"
+        chartName: kube-prometheus-stack
+        releaseName: kube-prometheus-stack
+        version: 65.2.0
+        replace: true
+        upgradeCRDs: true
+        lint: true
+      - repository: "https://prometheus-community.github.io/helm-charts"
+        namespace: "default"
+        chartName: prometheus-windows-exporter
+        releaseName: prometheus-windows-exporter
+        version: 0.7.0
+        replace: true
+        upgradeCRDs: true
+        lint: true
+      - repository: "https://prometheus-community.github.io/helm-charts"
+        namespace: "default"
+        chartName: prometheus-node-exporter
+        releaseName: prometheus-node-exporter
+        version: 4.39.0
+        replace: true
+        upgradeCRDs: true
+        lint: true
+      - repository: "https://prometheus-community.github.io/helm-charts"
+        namespace: "default"
+        chartName: grafana
+        releaseName: grafana
+        version: 8.5.3
+        replace: true
+        upgradeCRDs: true
+        lint: true

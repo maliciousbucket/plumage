@@ -205,6 +205,7 @@ func (c *helmClient) installPromOperatorCrds(ctx context.Context, version, value
 }
 
 func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string, replace bool) error {
+
 	if version == "" {
 		return fmt.Errorf("no version for argo chart specified")
 	}
@@ -237,6 +238,7 @@ func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string
 		Labels:      nil,
 		Lint:        false,
 	}
+	c.setNamespace(config.Namespace)
 	return c.installChart(ctx, config)
 }
 
@@ -258,6 +260,7 @@ func (c *helmClient) installK6(ctx context.Context, version, valuesFile string, 
 		Labels:       nil,
 		Lint:         false,
 	}
+	c.setNamespace(config.Namespace)
 	return c.installChart(ctx, config)
 }
 
@@ -278,5 +281,6 @@ func (c *helmClient) installKubePrometheusStack(ctx context.Context, version, va
 		Labels:      nil,
 		Lint:        false,
 	}
+	c.setNamespace(config.Namespace)
 	return c.installChart(ctx, config)
 }

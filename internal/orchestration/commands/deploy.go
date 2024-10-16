@@ -41,7 +41,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			if args[0] == "" {
 				return fmt.Errorf("app name is required")
 			}
-
+			//TODO: Change to orchestration method
 			ctx := context.Background()
 			if err := kubernetesClient.WatchDeployment(ctx, "argocd", "argo-helm-argocd-server", false); err != nil {
 				log.Fatal(fmt.Errorf("failed to watch argocd deployment: %w", err))
@@ -52,7 +52,7 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 				log.Fatal(fmt.Errorf("failed to create namespace: %w", err))
 			}
 
-			if err = orchestration.AddRepoCredentials(ctx, argoClient, ""); err != nil {
+			if err = orchestration.AddRepoCredentials(ctx, argoClient, ".env"); err != nil {
 				log.Fatal(err)
 			}
 			if cfg == nil {
@@ -175,7 +175,7 @@ func DeployMonitoringCommand() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := context.Background()
 
-			if err := orchestration.AddRepoCredentials(ctx, argoClient, ""); err != nil {
+			if err := orchestration.AddRepoCredentials(ctx, argoClient, ".env"); err != nil {
 				log.Fatal(err)
 			}
 			if err := orchestration.DeployMonitoring(ctx, argoClient, kubernetesClient); err != nil {
@@ -204,7 +204,6 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 
 			if synthGateway {
 				if err := kplus.SynthGateway(outDir, ns); err != nil {
-					fmt.Println("hmm")
 					log.Fatal(err)
 				}
 			}
@@ -221,7 +220,7 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 				log.Fatal("creating GitHub Config", err)
 			}
 
-			if err = orchestration.AddRepoCredentials(ctx, argoClient, ""); err != nil {
+			if err = orchestration.AddRepoCredentials(ctx, argoClient, ".env"); err != nil {
 				log.Fatal("Adding Repo Credentials", err)
 			}
 			if synthGateway {

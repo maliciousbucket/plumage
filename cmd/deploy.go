@@ -25,7 +25,7 @@ func deployCmd(cfg *config.AppConfig) *cobra.Command {
 	cmd.AddCommand(orchestrationCmds.DeployMonitoringCommand())
 	cmd.AddCommand(orchestrationCmds.DeployTemplateCommand(cfg))
 	cmd.AddCommand(orchestrationCmds.DeployGatewayCommand(cfg.ConfigDir, cfg.OutputDir, cfg.Namespace))
-	cmd.AddCommand(helm.InstallChartCmd(cfg.UserConfig.ChartConfig.Charts, cfg.ConfigDir))
+	//cmd.AddCommand(helm.InstallChartCmd(cfg.UserConfig.ChartConfig.Charts, cfg.ConfigDir))
 
 	return cmd
 }

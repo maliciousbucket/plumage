@@ -210,7 +210,7 @@ func CreateNamespace(ctx context.Context, kubeClient KubeClient, ns string) erro
 }
 
 func DeployAndWaitForApp(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, ns, app string, services []string) error {
-	if err := argoClient.CreateServiceApplications(ctx, app, ns, services); err != nil {
+	if err := argoClient.CreateServiceApplications(ctx, ns, app, services); err != nil {
 		return err
 	}
 

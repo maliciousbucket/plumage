@@ -67,7 +67,6 @@ type UserConfig struct {
 	Namespace      string         `yaml:"namespace"`
 	ComposeConfig  ComposeConfig  `yaml:"compose"`
 	TemplateConfig TemplateConfig `yaml:"template"`
-	TraefikConfig  TraefikConfig  `yaml:"traefik"`
 	ChartConfig    ChartConfig    `yaml:"charts"`
 }
 
@@ -87,13 +86,9 @@ func getDefaultUserConfig() UserConfig {
 			EnvFiles:     []string{},
 		},
 		TemplateConfig: TemplateConfig{
-			WorkingDir:              templateDir,
-			TemplateFile:            "galah-template.yaml",
-			ServiceTemplateFiles:    []string{},
-			MonitoringTemplateFiles: []string{},
-			ResilienceTemplateFiles: []string{},
+			WorkingDir:   templateDir,
+			TemplateFile: "galah-template.yaml",
 		},
-		TraefikConfig: getDefaultTraefikConfig(),
 		ChartConfig: ChartConfig{
 			ArgoVersion:                   argoVersion,
 			ArgoValuesFile:                "",
@@ -145,54 +140,15 @@ func loadUserConfig(configDir string, base *UserConfig) (*UserConfig, error) {
 }
 
 type TemplateConfig struct {
-	WorkingDir              string   `yaml:"workingDir"`
-	TemplateFile            string   `yaml:"templateFile"`
-	ServiceTemplateFiles    []string `json:"serviceTemplateFiles"`
-	MonitoringTemplateFiles []string `json:"monitoringTemplateFiles"`
-	ResilienceTemplateFiles []string `json:"resilienceTemplateFiles"`
+	WorkingDir           string   `yaml:"workingDir"`
+	TemplateFile         string   `yaml:"templateFile"`
+	ServiceTemplateFiles []string `json:"serviceTemplateFiles"`
 }
 
 type ComposeConfig struct {
 	WorkingDir   string   `yaml:"workingDir,omitempty" json:"workingDir,omitempty"`
 	ComposeFiles []string `yaml:"composeFiles,omitempty" json:"composeFiles,omitempty"`
 	EnvFiles     []string `yaml:"envFiles,omitempty" json:"envFiles,omitempty"`
-}
-
-type TraefikConfig struct {
-	Image        string  `yaml:"image,omitempty" json:"image,omitempty"`
-	Name         string  `yaml:"name,omitempty" json:"name,omitempty"`
-	Namespace    string  `yaml:"namespace,omitempty" json:"namespace,omitempty"`
-	AdminEnabled bool    `yaml:"adminEnabled,omitempty" json:"adminEnabled,omitempty"`
-	AdminPort    int     `yaml:"adminPort,omitempty" json:"adminPort,omitempty"`
-	Ports        []*Port `yaml:"ports,omitempty" json:"ports,omitempty"`
-}
-
-func getDefaultTraefikConfig() TraefikConfig {
-	image := os.Getenv("TRAEFIK_IMAGE")
-	if image == "" {
-		image = "traefik:v3.1"
-	}
-
-	return TraefikConfig{
-		Image:        image,
-		Name:         "traefik",
-		Namespace:    "test-bed",
-		AdminEnabled: true,
-		AdminPort:    8080,
-		Ports: []*Port{
-			&Port{
-				Protocol: "TCP",
-				Port:     8000,
-				Name:     "http",
-				NodePort: 9000,
-			},
-			&Port{
-				Protocol: "TCP",
-				Port:     8080,
-				Name:     "admin",
-			},
-		},
-	}
 }
 
 type Port struct {

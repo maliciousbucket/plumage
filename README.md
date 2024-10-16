@@ -4,27 +4,44 @@
 
 ### User Config
 
-Default Location:
+Default Location: `<Config Directory>/config.yaml`
 
-#### Helm Charts Config
+| Name      | Default                                       | Description                                                     |
+|-----------|-----------------------------------------------|-----------------------------------------------------------------|
+| outputDir | ~./plumage/dist                               | The output dir where Plumage will create synthesised manifests. |
+| namespace | galah-testbed                                 | The namespace of where plumage will deploy services.            |
+| compose   | **deprecated**                                | To be removed.                                                  |
+| template  | See [Template Config](#template-config)       | Configuration values for the template.                          |
+| charts    | See [Helm Charts Config](#helm-charts-config) | Configuration values for helm charts.                           |
 
-| Name                          | Default       | Description                                                      |
-|-------------------------------|---------------|------------------------------------------------------------------|
-| argoVersion                   | argo-cd-7.6.8 |                                                                  |
-| argoValuesFile                | ""            | Optional values file for the ArgoCD Helm Chart                   |
-| stateMetricsVersion           | 5.25.1        |                                                                  |
-| stateMetricsValuesFile        | ""            | Optional values file for the Kube State Metrics Helm Chart       |
-| metricsVersion                | 3.12.2        |                                                                  |
-| metricsValuesFile             | ""            | Optional values file for the Kube Metrics Server Helm Chart      |
-| promOperatorVersion           | 14.0.0        |                                                                  |
-| promOperatorValuesFile        | ""            | Optional values file for the Prometheus Operator CRDs Helm Chart |
-| certManagerVersion            | v1.15.3       |                                                                  |
-| certManagerValuesFile         | ""            | Optional values file for the Cert Manager Helm Chart             |
-| kubePrometheusStackVersion    | 65.2.0        |                                                                  |
-| kubePrometheusStackValuesFile | ""            | Optional values file for the Kube Prometheus Stack Helm Chart    |
-| k6Version                     | 3.9.0         |                                                                  |
-| k6ValuesFile                  | ""            | Optional values file for the K6Operator Helm Chart               |
-| charts                        | nil           |                                                                  |
+
+#### Template Config
+
+| Name         | Default               | Description                       |
+|--------------|-----------------------|-----------------------------------|
+| workingDir   | ~./plumage/templates  | Location of template files.       |
+| templateFile | plumage-template.yaml | Name of the template file to use. |
+
+
+##### Helm Charts Config
+
+| Name                          | Default       | Description                                                       |
+|-------------------------------|---------------|-------------------------------------------------------------------|
+| argoVersion                   | argo-cd-7.6.8 |                                                                   |
+| argoValuesFile                | ""            | Optional values file for the ArgoCD Helm Chart.                   |
+| stateMetricsVersion           | 5.25.1        |                                                                   |
+| stateMetricsValuesFile        | ""            | Optional values file for the Kube State Metrics Helm Chart.       |
+| metricsVersion                | 3.12.2        |                                                                   |
+| metricsValuesFile             | ""            | Optional values file for the Kube Metrics Server Helm Chart.      |
+| promOperatorVersion           | 14.0.0        |                                                                   |
+| promOperatorValuesFile        | ""            | Optional values file for the Prometheus Operator CRDs Helm Chart. |
+| certManagerVersion            | v1.15.3       |                                                                   |
+| certManagerValuesFile         | ""            | Optional values file for the Cert Manager Helm Chart.             |
+| kubePrometheusStackVersion    | 65.2.0        |                                                                   |
+| kubePrometheusStackValuesFile | ""            | Optional values file for the Kube Prometheus Stack Helm Chart.    |
+| k6Version                     | 3.9.0         |                                                                   |
+| k6ValuesFile                  | ""            | Optional values file for the K6Operator Helm Chart.               |
+| charts                        | nil           |                                                                   |
 
 ### GitHub Config
 

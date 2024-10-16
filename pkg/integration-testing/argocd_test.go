@@ -6,6 +6,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
+	"github.com/stretchr/testify/assert"
 	"log"
 	"testing"
 	"time"
@@ -61,11 +62,98 @@ func newArgoClientWithEnv() (*argocd.Client, error) {
 }
 
 func TestArgoProjects(t *testing.T) {
+	kubeContainer := NewKubernetesContainer()
+	if err := WithHostPorts(30443)(kubeContainer); err != nil {
+		t.Fatalf("error setting up test container: %v", err)
+	}
 
-}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+	if err := SetupKubernetesContainer(ctx, kubeContainer); err != nil {
+		t.Fatalf("error setting up clients: %v", err)
+	}
+	defer func() {
+		if err := kubeContainer.Container.Terminate(ctx); err != nil {
+			t.Fatal(err)
+		}
+	}()
 
-func TestArgoApps(t *testing.T) {
+	helm, kube, err := setupHelmKubeClients(ctx, kubeContainer)
+	if err != nil {
+		t.Fatalf("error setting up kubernetes and helm clients: %v", err)
+	}
+	t.Run("install argo chart", func(t *testing.T) {
+		err = installArgo(t, ctx, helm, kube)
+		if err != nil {
+			t.Fatalf("error installing argo chart: %v", err)
+		}
+	})
 
+	err = setArgoEnv(ctx, kubeContainer, 30443)
+	assert.NoErrorf(t, err, "error setting up argo env")
+
+	t.Run("set argo token", func(t *testing.T) {
+		if err = setArgoToken(ctx, kube); err != nil {
+			t.Fatalf("error setting Argo token: %v", err)
+		}
+	})
+	var argo argoClient
+
+	t.Run("create argo client", func(t *testing.T) {
+		argoC, argoErr := newArgoClientWithEnv()
+		assert.NoErrorf(t, err, "error creating Argo Client: %v", argoErr)
+		if argoC == nil {
+			t.Fatalf("error creating Argo Client: %v", err)
+		}
+		argo = argoC
+	})
+
+	t.Run("create argo project", func(t *testing.T) {
+		project, err := argo.CreateProject(ctx, "testing")
+		assert.NoErrorf(t, err, "error creating project: %v", err)
+		if project.Name != "testing" {
+			t.Errorf("error creating project: %v", project)
+		}
+		found, err := argo.GetProject(ctx, project.Name)
+		assert.NoErrorf(t, err, "error getting project: %v", err)
+		if found == nil {
+			t.Fatalf("error getting project: %v", project)
+		}
+
+	})
+
+	t.Run("create argo application", func(t *testing.T) {
+		err = argo.CreateServiceApplications(ctx, "testing", "test-app", []string{"test-service"})
+		assert.NoErrorf(t, err, "error creating application: %v", err)
+	})
+
+	t.Run("add application to project", func(t *testing.T) {
+		_, err = argo.AddApplicationToProject(ctx, "test-app", "testing", true)
+		assert.NoErrorf(t, err, "error adding application to project: %v", err)
+	})
+
+	t.Run("sync project", func(t *testing.T) {
+		err = argo.SyncProject(ctx, "testing")
+		assert.NoErrorf(t, err, "error syncing project: %v", err)
+	})
+
+	t.Run("delete project", func(t *testing.T) {
+		err = argo.DeleteProjectWithApps(ctx, "testing")
+		assert.NoErrorf(t, err, "error deleting project: %v", err)
+		time.Sleep(30 * time.Second)
+		foundProj, err := argo.GetProject(ctx, "testing")
+		assert.Errorf(t, err, "project should be deleted: %v", err)
+		if foundProj != nil {
+			t.Errorf("project should be deleted: %v", foundProj)
+		}
+
+		foundApp, err := argo.GetApplication(ctx, "test-app")
+		assert.Errorf(t, err, "application should be deleted: %v", err)
+
+		if foundApp != nil {
+			t.Errorf("application should be deleted: %v", foundApp)
+		}
+	})
 }
 
 func installArgo(t *testing.T, ctx context.Context, helm helmClient, kube kubeClient) error {

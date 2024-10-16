@@ -12,7 +12,6 @@ import (
 
 const (
 	traefikPath             = "dist/ingress/traefik"
-	infraDashboardsPath     = "dist/ingress/dashboards"
 	chaosPath               = "dist/tests"
 	appPath                 = "dist"
 	chaosProject            = "chaos"
@@ -253,5 +252,5 @@ func (c *Client) createChaosApp(ctx context.Context, ns, project string) error {
 		return fmt.Errorf("failed to get project: %w", err)
 	}
 
-	return c.addTestBedApp(ctx, ns, "traefik", chaosPath, proj.Name)
+	return c.addTestBedApp(ctx, ns, "chaos", chaosPath, proj.Name)
 }

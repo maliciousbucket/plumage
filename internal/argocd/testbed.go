@@ -246,6 +246,10 @@ func (c *Client) createChaosProject(ctx context.Context, ns string) (string, err
 	)
 }
 
+func (c *Client) CreateChaosApp(ctx context.Context, ns, project, path string) error {
+	return c.createChaosApp(ctx, ns, project)
+}
+
 func (c *Client) createChaosApp(ctx context.Context, ns, project string) error {
 	proj, err := c.GetProject(ctx, project)
 	if err != nil {

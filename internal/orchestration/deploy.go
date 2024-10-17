@@ -9,8 +9,13 @@ import (
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"log"
+	"slices"
 	"sync"
 	"time"
+)
+
+var (
+	chaosPath = "/tests"
 )
 
 func DeployTemplate() {}
@@ -199,6 +204,61 @@ func waitForMonitoringDeployment(ctx context.Context, kubeClient KubeClient) err
 			return watchErr
 		}
 	}
+}
+
+// DeployChaos TODO: Wait for k6
+func DeployChaos(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, helmClient HelmClient, ns, version, outputDir string) error {
+	if err := helmClient.InstallK6(ctx, version, "", false); err != nil {
+		return fmt.Errorf("install k6: %w", err)
+	}
+
+	chaosProj, _ := argoClient.GetProject(ctx, "chaos")
+	if chaosProj == nil {
+		if err := argoClient.CreateChaosProject(ctx, ns); err != nil {
+			return err
+		}
+	} else {
+		if err := argoClient.SyncProject(ctx, chaosProj.Name); err != nil {
+			return err
+		}
+	}
+
+	tests, err := getChaosTests(outputDir, chaosPath)
+	if err != nil {
+		return err
+	}
+	if len(tests) == 0 {
+		return errors.New("no tests found")
+	}
+	apps, err := argoClient.ListApplications(ctx, &argocd.AppQueryParams{Options: []argocd.AppQueryFunc{
+		argocd.WithProject("chaos"),
+	}})
+	if err != nil {
+		return err
+	}
+	if apps != nil && len(apps.Items) > 0 {
+		for _, app := range apps.Items {
+			if slices.Contains(tests, app.Name) {
+				for i, test := range tests {
+					if test == app.Name {
+						tests = append(tests[:i], tests[i+1:]...)
+						break
+					}
+				}
+			}
+		}
+	}
+	if len(tests) == 0 {
+		log.Println("No new tests found")
+		return nil
+	}
+	path := fmt.Sprintf("%s/%s", outputDir, "tests")
+	if err = argoClient.CreateChaosApp(ctx, ns, "chaos", path); err != nil {
+		return err
+	}
+	//TODO: wait for deployment
+	return nil
+
 }
 
 func CreateNamespace(ctx context.Context, kubeClient KubeClient, ns string) error {

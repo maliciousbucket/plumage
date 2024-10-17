@@ -248,6 +248,28 @@ func (s *SynthOpts) validate() error {
 	return err
 }
 
+func getChaosTests(outputDir, testPath string) ([]string, error) {
+	path := filepath.Join(outputDir, testPath)
+	if _, err := os.Stat(path); err != nil {
+		return nil, fmt.Errorf("test path %s does not exist", path)
+	}
+	result := []string{}
+	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			result = append(result, info.Name())
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+
+}
+
 // TODO: Move?=
 func SynthDeployment(opts *SynthOpts) error {
 	if !opts.SynthTemplate && !opts.SynthGateway {

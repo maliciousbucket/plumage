@@ -8,6 +8,7 @@ import (
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/cluster"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/project"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
+	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
 	"github.com/joho/godotenv"
 	"os"
 )
@@ -25,6 +26,7 @@ type Client struct {
 	applicationClient application.ApplicationServiceClient
 	accountClient     account.AccountServiceClient
 	credsClient       repocreds.RepoCredsServiceClient
+	repoClient        repository.RepositoryServiceClient
 }
 
 func GetConnection() (Connection, error) {
@@ -110,5 +112,10 @@ func NewClient(c Connection) (*Client, error) {
 		return nil, err
 	}
 
-	return &Client{projectClient, clusterClient, applicationClient, accountClient, credsClient}, nil
+	_, repoClient, err := apiClient.NewRepoClient()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Client{projectClient, clusterClient, applicationClient, accountClient, credsClient, repoClient}, nil
 }

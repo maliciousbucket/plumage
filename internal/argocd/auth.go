@@ -5,6 +5,7 @@ import (
 	"fmt"
 	account "github.com/argoproj/argo-cd/v2/pkg/apiclient/account"
 	"github.com/argoproj/argo-cd/v2/pkg/apiclient/repocreds"
+	repo "github.com/argoproj/argo-cd/v2/pkg/apiclient/repository"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
 	"github.com/joho/godotenv"
 	"os"
@@ -39,12 +40,25 @@ func (c *Client) AddRepoCredentials(ctx context.Context, envFile string) error {
 			URL:      repository,
 			Username: username,
 			Password: password,
+			Type:     "git",
 		},
-		Upsert: false,
+		Upsert: true,
 	})
+
 	if err != nil {
 		return err
 	}
+
+	_, err = c.repoClient.CreateRepository(ctx, &repo.RepoCreateRequest{
+		Repo: &v1alpha1.Repository{
+			Repo:     repository,
+			Username: username,
+			Password: password,
+		},
+		Upsert:    true,
+		CredsOnly: false,
+	})
+
 	return nil
 }
 

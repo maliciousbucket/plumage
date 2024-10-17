@@ -245,3 +245,61 @@ func DeployGatewayCommand(configDir, outDir, ns string) *cobra.Command {
 	cmd.Flags().BoolVar(&synthGateway, "synth", false, "synth gateway manifests")
 	return cmd
 }
+
+func DeployChaosCommand(outputDir string, ns string, k6Version string) *cobra.Command {
+	var k6 string
+	var synth bool
+	var templateFile string
+	cmd := &cobra.Command{
+		Use:   "chaos",
+		Short: "Deploy chaos tests",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if err := newArgoClient(); err != nil {
+				return err
+			}
+			if err := newKubeClient(); err != nil {
+				return err
+			}
+			if err := newHelmClient(); err != nil {
+				return err
+			}
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
+			}
+			ctx := context.Background()
+			if err := orchestration.AddRepoCredentials(ctx, argoClient, ".env"); err != nil {
+				log.Fatal(err)
+			}
+			//TODO
+			if synth {
+
+			}
+
+			err := orchestration.CreateNamespace(ctx, kubernetesClient, ns)
+			if err != nil {
+				log.Fatal("Error creating namespace", err)
+			}
+
+			version := k6Version
+			if k6 != "" {
+				version = k6
+			}
+
+			err = orchestration.DeployChaos(ctx, argoClient, kubernetesClient, helmClient, ns, version, outputDir)
+			if err != nil {
+				log.Fatal(err)
+			}
+			return nil
+
+		},
+	}
+	cmd.Flags().BoolVar(&synth, "synth", false, "synth chaos test manifests")
+	cmd.Flags().StringVar(&templateFile, "template", "", "Path to a file containing the template definition")
+	cmd.Flags().StringVar(&k6, "k6version", "", "k6 operator version")
+	_ = cmd.MarkFlagFilename("template", "yaml", "yml")
+	cmd.MarkFlagsRequiredTogether("template", "synth")
+	return cmd
+}

@@ -32,6 +32,8 @@ type ArgoClient interface {
 	CreateIngressProject(ctx context.Context, ns string) error
 	CreateApplicationProject(ctx context.Context, app string) error
 	CreateServiceApplications(ctx context.Context, ns, app string, services []string) error
+	CreateChaosProject(ctx context.Context, ns string) error
+	CreateChaosApp(ctx context.Context, ns, project, path string) error
 }
 
 type KubeClient interface {
@@ -56,4 +58,5 @@ type KubeClient interface {
 }
 
 type HelmClient interface {
+	InstallK6(ctx context.Context, version, valuesFile string, replace bool) error
 }

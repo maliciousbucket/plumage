@@ -14,3 +14,4 @@ type ServersTransportProps struct {
 	// ServersTransportSpec defines the desired state of a ServersTransport.
 	Spec *ServersTransportSpec `field:"required" json:"spec" yaml:"spec"`
 }
+

@@ -122,6 +122,7 @@ func (j *jsiiProxy_KubeServiceCidrv1Alpha1) Node() constructs.Node {
 	return returns
 }
 
+
 // Defines a "io.k8s.api.networking.v1alpha1.ServiceCIDR" API object.
 func NewKubeServiceCidrv1Alpha1(scope constructs.Construct, id *string, props *KubeServiceCidrv1Alpha1Props) KubeServiceCidrv1Alpha1 {
 	_init_.Initialize()
@@ -313,3 +314,4 @@ func (k *jsiiProxy_KubeServiceCidrv1Alpha1) ToString() *string {
 
 	return returns
 }
+

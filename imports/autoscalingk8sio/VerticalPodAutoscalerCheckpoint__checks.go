@@ -57,3 +57,4 @@ func validateNewVerticalPodAutoscalerCheckpointParameters(scope constructs.Const
 
 	return nil
 }
+

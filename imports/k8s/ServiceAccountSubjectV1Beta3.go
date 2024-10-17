@@ -1,5 +1,6 @@
 package k8s
 
+
 // ServiceAccountSubject holds detailed information for service-account-kind subject.
 type ServiceAccountSubjectV1Beta3 struct {
 	// `name` is the name of matching ServiceAccount objects, or "*" to match regardless of name.
@@ -11,3 +12,4 @@ type ServiceAccountSubjectV1Beta3 struct {
 	// Required.
 	Namespace *string `field:"required" json:"namespace" yaml:"namespace"`
 }
+

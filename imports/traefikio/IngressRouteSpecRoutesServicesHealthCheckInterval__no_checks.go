@@ -11,3 +11,4 @@ func validateIngressRouteSpecRoutesServicesHealthCheckInterval_FromNumberParamet
 func validateIngressRouteSpecRoutesServicesHealthCheckInterval_FromStringParameters(value *string) error {
 	return nil
 }
+

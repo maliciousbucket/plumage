@@ -1,5 +1,6 @@
 package chaosgalahmonitoringio
 
+
 // Selects a key of a ConfigMap.
 type TestRunJobSpecEnvValueFromConfigMapKeyRef struct {
 	// The key to select.
@@ -14,3 +15,4 @@ type TestRunJobSpecEnvValueFromConfigMapKeyRef struct {
 	// Specify whether the ConfigMap or its key must be defined.
 	Optional *bool `field:"optional" json:"optional" yaml:"optional"`
 }
+

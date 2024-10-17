@@ -1,5 +1,6 @@
 package k8s
 
+
 // ResourceClass is used by administrators to influence how resources are allocated.
 //
 // This is an alpha type and requires enabling the DynamicResourceAllocation feature gate.
@@ -21,3 +22,4 @@ type KubeResourceClassV1Alpha2Props struct {
 	// Setting this field is optional. If null, all nodes are candidates.
 	SuitableNodes *NodeSelector `field:"optional" json:"suitableNodes" yaml:"suitableNodes"`
 }
+

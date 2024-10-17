@@ -1,5 +1,6 @@
 package autoscalingk8sio
 
+
 // Whether autoscaler is enabled for the container.
 //
 // The default is "Auto".
@@ -11,3 +12,4 @@ const (
 	// Off.
 	VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMode_OFF VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMode = "OFF"
 )
+

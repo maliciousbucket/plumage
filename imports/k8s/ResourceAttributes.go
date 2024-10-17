@@ -1,5 +1,6 @@
 package k8s
 
+
 // ResourceAttributes includes the authorization attributes available for resource requests to the Authorizer interface.
 type ResourceAttributes struct {
 	// Group is the API Group of the Resource.
@@ -31,3 +32,4 @@ type ResourceAttributes struct {
 	// "*" means all.
 	Version *string `field:"optional" json:"version" yaml:"version"`
 }
+

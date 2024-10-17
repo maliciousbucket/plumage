@@ -1,5 +1,6 @@
 package traefikio
 
+
 // MiddlewareRef is a reference to a Middleware resource.
 type IngressRouteSpecRoutesMiddlewares struct {
 	// Name defines the name of the referenced Middleware resource.
@@ -7,3 +8,4 @@ type IngressRouteSpecRoutesMiddlewares struct {
 	// Namespace defines the namespace of the referenced Middleware resource.
 	Namespace *string `field:"optional" json:"namespace" yaml:"namespace"`
 }
+

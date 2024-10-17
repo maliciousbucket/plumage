@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Retry holds the retry middleware configuration.
 //
 // This middleware reissues requests a given number of times to a backend server if that server does not reply.
@@ -16,3 +17,4 @@ type MiddlewareSpecRetry struct {
 	// see https://pkg.go.dev/time#ParseDuration.
 	InitialInterval MiddlewareSpecRetryInitialInterval `field:"optional" json:"initialInterval" yaml:"initialInterval"`
 }
+

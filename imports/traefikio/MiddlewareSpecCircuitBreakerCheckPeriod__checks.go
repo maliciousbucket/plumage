@@ -21,3 +21,4 @@ func validateMiddlewareSpecCircuitBreakerCheckPeriod_FromStringParameters(value 
 
 	return nil
 }
+

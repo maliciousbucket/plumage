@@ -23,3 +23,4 @@ func validateKubeResourceClaimListV1Alpha2_OfParameters(c constructs.IConstruct)
 func validateNewKubeResourceClaimListV1Alpha2Parameters(scope constructs.Construct, id *string, props *KubeResourceClaimListV1Alpha2Props) error {
 	return nil
 }
+

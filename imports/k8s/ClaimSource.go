@@ -1,5 +1,6 @@
 package k8s
 
+
 // ClaimSource describes a reference to a ResourceClaim.
 //
 // Exactly one of these fields should be set.  Consumers of this type must treat an empty object as if it has an unknown value.
@@ -13,3 +14,4 @@ type ClaimSource struct {
 	// This field is immutable and no changes will be made to the corresponding ResourceClaim by the control plane after creating the ResourceClaim.
 	ResourceClaimTemplateName *string `field:"optional" json:"resourceClaimTemplateName" yaml:"resourceClaimTemplateName"`
 }
+

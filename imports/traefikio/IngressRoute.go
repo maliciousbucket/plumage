@@ -122,6 +122,7 @@ func (j *jsiiProxy_IngressRoute) Node() constructs.Node {
 	return returns
 }
 
+
 // Defines a "IngressRoute" API object.
 func NewIngressRoute(scope constructs.Construct, id *string, props *IngressRouteProps) IngressRoute {
 	_init_.Initialize()
@@ -313,3 +314,4 @@ func (i *jsiiProxy_IngressRoute) ToString() *string {
 
 	return returns
 }
+

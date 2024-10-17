@@ -1,5 +1,6 @@
 package traefikio
 
+
 // MiddlewareSpec defines the desired state of a Middleware.
 type MiddlewareSpec struct {
 	// AddPrefix holds the add prefix middleware configuration.
@@ -120,3 +121,4 @@ type MiddlewareSpec struct {
 	// More info: https://doc.traefik.io/traefik/v3.1/middlewares/http/stripprefixregex/
 	StripPrefixRegex *MiddlewareSpecStripPrefixRegex `field:"optional" json:"stripPrefixRegex" yaml:"stripPrefixRegex"`
 }
+

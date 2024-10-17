@@ -1,5 +1,6 @@
 package k8s
 
+
 // DeleteOptions may be provided when deleting an API object.
 type DeleteOptions struct {
 	// APIVersion defines the versioned schema of this representation of an object.
@@ -31,3 +32,4 @@ type DeleteOptions struct {
 	// Either this field or OrphanDependents may be set, but not both. The default policy is decided by the existing finalizer set in the metadata.finalizers and the resource-specific default policy. Acceptable values are: 'Orphan' - orphan the dependents; 'Background' - allow the garbage collector to delete the dependents in the background; 'Foreground' - a cascading policy that deletes all dependents in the foreground.
 	PropagationPolicy *string `field:"optional" json:"propagationPolicy" yaml:"propagationPolicy"`
 }
+

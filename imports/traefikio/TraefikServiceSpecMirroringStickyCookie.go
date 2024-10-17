@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Cookie defines the sticky cookie configuration.
 type TraefikServiceSpecMirroringStickyCookie struct {
 	// HTTPOnly defines whether the cookie can be accessed by client-side APIs, such as JavaScript.
@@ -18,3 +19,4 @@ type TraefikServiceSpecMirroringStickyCookie struct {
 	// Secure defines whether the cookie can only be transmitted over an encrypted connection (i.e. HTTPS).
 	Secure *bool `field:"optional" json:"secure" yaml:"secure"`
 }
+

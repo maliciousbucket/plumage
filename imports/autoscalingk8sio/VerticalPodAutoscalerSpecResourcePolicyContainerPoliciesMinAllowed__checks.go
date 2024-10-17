@@ -21,3 +21,4 @@ func validateVerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMinAllowed_
 
 	return nil
 }
+

@@ -85,7 +85,7 @@ func init() {
 		"traefikio.IngressRouteSpecRoutesServicesKind",
 		reflect.TypeOf((*IngressRouteSpecRoutesServicesKind)(nil)).Elem(),
 		map[string]interface{}{
-			"SERVICE":         IngressRouteSpecRoutesServicesKind_SERVICE,
+			"SERVICE": IngressRouteSpecRoutesServicesKind_SERVICE,
 			"TRAEFIK_SERVICE": IngressRouteSpecRoutesServicesKind_TRAEFIK_SERVICE,
 		},
 	)
@@ -379,7 +379,7 @@ func init() {
 		"traefikio.MiddlewareSpecErrorsServiceKind",
 		reflect.TypeOf((*MiddlewareSpecErrorsServiceKind)(nil)).Elem(),
 		map[string]interface{}{
-			"SERVICE":         MiddlewareSpecErrorsServiceKind_SERVICE,
+			"SERVICE": MiddlewareSpecErrorsServiceKind_SERVICE,
 			"TRAEFIK_SERVICE": MiddlewareSpecErrorsServiceKind_TRAEFIK_SERVICE,
 		},
 	)
@@ -761,10 +761,10 @@ func init() {
 		"traefikio.TlsOptionSpecClientAuthClientAuthType",
 		reflect.TypeOf((*TlsOptionSpecClientAuthClientAuthType)(nil)).Elem(),
 		map[string]interface{}{
-			"NO_CLIENT_CERT":                 TlsOptionSpecClientAuthClientAuthType_NO_CLIENT_CERT,
-			"REQUEST_CLIENT_CERT":            TlsOptionSpecClientAuthClientAuthType_REQUEST_CLIENT_CERT,
-			"REQUIRE_ANY_CLIENT_CERT":        TlsOptionSpecClientAuthClientAuthType_REQUIRE_ANY_CLIENT_CERT,
-			"VERIFY_CLIENT_CERT_IF_GIVEN":    TlsOptionSpecClientAuthClientAuthType_VERIFY_CLIENT_CERT_IF_GIVEN,
+			"NO_CLIENT_CERT": TlsOptionSpecClientAuthClientAuthType_NO_CLIENT_CERT,
+			"REQUEST_CLIENT_CERT": TlsOptionSpecClientAuthClientAuthType_REQUEST_CLIENT_CERT,
+			"REQUIRE_ANY_CLIENT_CERT": TlsOptionSpecClientAuthClientAuthType_REQUIRE_ANY_CLIENT_CERT,
+			"VERIFY_CLIENT_CERT_IF_GIVEN": TlsOptionSpecClientAuthClientAuthType_VERIFY_CLIENT_CERT_IF_GIVEN,
 			"REQUIRE_AND_VERIFY_CLIENT_CERT": TlsOptionSpecClientAuthClientAuthType_REQUIRE_AND_VERIFY_CLIENT_CERT,
 		},
 	)
@@ -876,7 +876,7 @@ func init() {
 		"traefikio.TraefikServiceSpecMirroringKind",
 		reflect.TypeOf((*TraefikServiceSpecMirroringKind)(nil)).Elem(),
 		map[string]interface{}{
-			"SERVICE":         TraefikServiceSpecMirroringKind_SERVICE,
+			"SERVICE": TraefikServiceSpecMirroringKind_SERVICE,
 			"TRAEFIK_SERVICE": TraefikServiceSpecMirroringKind_TRAEFIK_SERVICE,
 		},
 	)
@@ -912,7 +912,7 @@ func init() {
 		"traefikio.TraefikServiceSpecMirroringMirrorsKind",
 		reflect.TypeOf((*TraefikServiceSpecMirroringMirrorsKind)(nil)).Elem(),
 		map[string]interface{}{
-			"SERVICE":         TraefikServiceSpecMirroringMirrorsKind_SERVICE,
+			"SERVICE": TraefikServiceSpecMirroringMirrorsKind_SERVICE,
 			"TRAEFIK_SERVICE": TraefikServiceSpecMirroringMirrorsKind_TRAEFIK_SERVICE,
 		},
 	)
@@ -996,7 +996,7 @@ func init() {
 		"traefikio.TraefikServiceSpecWeightedServicesKind",
 		reflect.TypeOf((*TraefikServiceSpecWeightedServicesKind)(nil)).Elem(),
 		map[string]interface{}{
-			"SERVICE":         TraefikServiceSpecWeightedServicesKind_SERVICE,
+			"SERVICE": TraefikServiceSpecWeightedServicesKind_SERVICE,
 			"TRAEFIK_SERVICE": TraefikServiceSpecWeightedServicesKind_TRAEFIK_SERVICE,
 		},
 	)

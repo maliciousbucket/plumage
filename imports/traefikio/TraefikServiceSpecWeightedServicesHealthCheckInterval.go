@@ -27,6 +27,7 @@ func (j *jsiiProxy_TraefikServiceSpecWeightedServicesHealthCheckInterval) Value(
 	return returns
 }
 
+
 func TraefikServiceSpecWeightedServicesHealthCheckInterval_FromNumber(value *float64) TraefikServiceSpecWeightedServicesHealthCheckInterval {
 	_init_.Initialize()
 
@@ -62,3 +63,4 @@ func TraefikServiceSpecWeightedServicesHealthCheckInterval_FromString(value *str
 
 	return returns
 }
+

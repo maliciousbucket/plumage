@@ -21,3 +21,4 @@ func validateTraefikServiceSpecWeightedServicesHealthCheckTimeout_FromStringPara
 
 	return nil
 }
+

@@ -1,5 +1,6 @@
 package traefikio
 
+
 // TLS defines the configuration used to secure the connection to the authentication server.
 type MiddlewareSpecForwardAuthTls struct {
 	// Deprecated: TLS client authentication is a server side option (see https://github.com/golang/go/blob/740a490f71d026bb7d2d13cb8fa2d6d6e0572b70/src/crypto/tls/common.go#L634).
@@ -15,3 +16,4 @@ type MiddlewareSpecForwardAuthTls struct {
 	// InsecureSkipVerify defines whether the server certificates should be validated.
 	InsecureSkipVerify *bool `field:"optional" json:"insecureSkipVerify" yaml:"insecureSkipVerify"`
 }
+

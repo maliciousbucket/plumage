@@ -1,5 +1,6 @@
 package autoscalingk8sio
 
+
 // Specification of the checkpoint.
 //
 // More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status.
@@ -9,3 +10,4 @@ type VerticalPodAutoscalerCheckpointV1Beta2Spec struct {
 	// Name of the VPA object that stored VerticalPodAutoscalerCheckpoint object.
 	VpaObjectName *string `field:"optional" json:"vpaObjectName" yaml:"vpaObjectName"`
 }
+

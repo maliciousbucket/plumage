@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Kind defines the kind of the route.
 //
 // Rule is the only supported kind.
@@ -9,3 +10,4 @@ const (
 	// Rule.
 	IngressRouteSpecRoutesKind_RULE IngressRouteSpecRoutesKind = "RULE"
 )
+

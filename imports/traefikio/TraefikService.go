@@ -127,6 +127,7 @@ func (j *jsiiProxy_TraefikService) Node() constructs.Node {
 	return returns
 }
 
+
 // Defines a "TraefikService" API object.
 func NewTraefikService(scope constructs.Construct, id *string, props *TraefikServiceProps) TraefikService {
 	_init_.Initialize()
@@ -318,3 +319,4 @@ func (t *jsiiProxy_TraefikService) ToString() *string {
 
 	return returns
 }
+

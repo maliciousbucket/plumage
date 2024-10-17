@@ -1,5 +1,6 @@
 package chaosgalahmonitoringio
 
+
 // Selects a resource of the container: only resources limits and requests (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
 type TestRunJobSpecEnvValueFromResourceFieldRef struct {
 	// Required: resource to select.
@@ -9,3 +10,4 @@ type TestRunJobSpecEnvValueFromResourceFieldRef struct {
 	// Specifies the output format of the exposed resources, defaults to "1".
 	Divisor TestRunJobSpecEnvValueFromResourceFieldRefDivisor `field:"optional" json:"divisor" yaml:"divisor"`
 }
+

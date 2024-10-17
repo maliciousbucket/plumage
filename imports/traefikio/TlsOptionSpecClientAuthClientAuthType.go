@@ -1,5 +1,6 @@
 package traefikio
 
+
 // ClientAuthType defines the client authentication type to apply.
 type TlsOptionSpecClientAuthClientAuthType string
 
@@ -15,3 +16,4 @@ const (
 	// RequireAndVerifyClientCert.
 	TlsOptionSpecClientAuthClientAuthType_REQUIRE_AND_VERIFY_CLIENT_CERT TlsOptionSpecClientAuthClientAuthType = "REQUIRE_AND_VERIFY_CLIENT_CERT"
 )
+

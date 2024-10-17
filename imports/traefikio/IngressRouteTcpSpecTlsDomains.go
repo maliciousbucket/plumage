@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Domain holds a domain name with SANs.
 type IngressRouteTcpSpecTlsDomains struct {
 	// Main defines the main domain name.
@@ -7,3 +8,4 @@ type IngressRouteTcpSpecTlsDomains struct {
 	// SANs defines the subject alternative domain names.
 	Sans *[]*string `field:"optional" json:"sans" yaml:"sans"`
 }
+

@@ -126,6 +126,7 @@ func (j *jsiiProxy_TlsStore) Node() constructs.Node {
 	return returns
 }
 
+
 // Defines a "TLSStore" API object.
 func NewTlsStore(scope constructs.Construct, id *string, props *TlsStoreProps) TlsStore {
 	_init_.Initialize()
@@ -317,3 +318,4 @@ func (t *jsiiProxy_TlsStore) ToString() *string {
 
 	return returns
 }
+

@@ -1,5 +1,6 @@
 package chaosgalahmonitoringio
 
+
 // EnvVar represents an environment variable present in a Container.
 type TestRunJobSpecEnv struct {
 	// Name of the environment variable.
@@ -23,3 +24,4 @@ type TestRunJobSpecEnv struct {
 	// Cannot be used if value is not empty.
 	ValueFrom *TestRunJobSpecEnvValueFrom `field:"optional" json:"valueFrom" yaml:"valueFrom"`
 }
+

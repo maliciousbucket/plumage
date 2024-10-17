@@ -1,5 +1,6 @@
 package k8s
 
+
 // UserSubject holds detailed information for user-kind subject.
 type UserSubjectV1Beta3 struct {
 	// `name` is the username that matches, or "*" to match all usernames.
@@ -7,3 +8,4 @@ type UserSubjectV1Beta3 struct {
 	// Required.
 	Name *string `field:"required" json:"name" yaml:"name"`
 }
+

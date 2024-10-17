@@ -23,3 +23,4 @@ func validateKubePriorityLevelConfigurationV1Beta3_OfParameters(c constructs.ICo
 func validateNewKubePriorityLevelConfigurationV1Beta3Parameters(scope constructs.Construct, id *string, props *KubePriorityLevelConfigurationV1Beta3Props) error {
 	return nil
 }
+

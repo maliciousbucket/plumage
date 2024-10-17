@@ -1,5 +1,6 @@
 package k8s
 
+
 // ResourceClassList is a collection of classes.
 type KubeResourceClassListV1Alpha2Props struct {
 	// Items is the list of resource classes.
@@ -7,3 +8,4 @@ type KubeResourceClassListV1Alpha2Props struct {
 	// Standard list metadata.
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
+

@@ -23,3 +23,4 @@ func validateMiddleware_OfParameters(c constructs.IConstruct) error {
 func validateNewMiddlewareParameters(scope constructs.Construct, id *string, props *MiddlewareProps) error {
 	return nil
 }
+

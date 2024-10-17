@@ -122,6 +122,7 @@ func (j *jsiiProxy_KubeResourceClaimParametersListV1Alpha2) Node() constructs.No
 	return returns
 }
 
+
 // Defines a "io.k8s.api.resource.v1alpha2.ResourceClaimParametersList" API object.
 func NewKubeResourceClaimParametersListV1Alpha2(scope constructs.Construct, id *string, props *KubeResourceClaimParametersListV1Alpha2Props) KubeResourceClaimParametersListV1Alpha2 {
 	_init_.Initialize()
@@ -313,3 +314,4 @@ func (k *jsiiProxy_KubeResourceClaimParametersListV1Alpha2) ToString() *string {
 
 	return returns
 }
+

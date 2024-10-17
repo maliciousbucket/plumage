@@ -27,6 +27,7 @@ func (j *jsiiProxy_MiddlewareSpecErrorsServiceHealthCheckInterval) Value() inter
 	return returns
 }
 
+
 func MiddlewareSpecErrorsServiceHealthCheckInterval_FromNumber(value *float64) MiddlewareSpecErrorsServiceHealthCheckInterval {
 	_init_.Initialize()
 
@@ -62,3 +63,4 @@ func MiddlewareSpecErrorsServiceHealthCheckInterval_FromString(value *string) Mi
 
 	return returns
 }
+

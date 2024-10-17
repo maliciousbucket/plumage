@@ -1,5 +1,6 @@
 package autoscalingk8sio
 
+
 // Specifies which resource values should be controlled.
 //
 // The default is "RequestsAndLimits".
@@ -11,3 +12,4 @@ const (
 	// RequestsOnly.
 	VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesControlledValues_REQUESTS_ONLY VerticalPodAutoscalerSpecResourcePolicyContainerPoliciesControlledValues = "REQUESTS_ONLY"
 )
+

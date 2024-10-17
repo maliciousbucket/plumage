@@ -1,5 +1,6 @@
 package k8s
 
+
 // PodSchedulingContext objects hold information that is needed to schedule a Pod with ResourceClaims that use "WaitForFirstConsumer" allocation mode.
 //
 // This is an alpha type and requires enabling the DynamicResourceAllocation feature gate.
@@ -9,3 +10,4 @@ type KubePodSchedulingContextV1Alpha2Props struct {
 	// Standard object metadata.
 	Metadata *ObjectMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
+

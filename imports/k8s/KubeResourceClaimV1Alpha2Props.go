@@ -1,5 +1,6 @@
 package k8s
 
+
 // ResourceClaim describes which resources are needed by a resource consumer.
 //
 // Its status tracks whether the resource has been allocated and what the resulting attributes are.
@@ -13,3 +14,4 @@ type KubeResourceClaimV1Alpha2Props struct {
 	// Standard object metadata.
 	Metadata *ObjectMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
+

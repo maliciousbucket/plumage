@@ -1,5 +1,6 @@
 package traefikio
 
+
 // ObjectReference is a generic reference to a Traefik resource.
 type IngressRouteTcpSpecRoutesMiddlewares struct {
 	// Name defines the name of the referenced Traefik resource.
@@ -7,3 +8,4 @@ type IngressRouteTcpSpecRoutesMiddlewares struct {
 	// Namespace defines the namespace of the referenced Traefik resource.
 	Namespace *string `field:"optional" json:"namespace" yaml:"namespace"`
 }
+

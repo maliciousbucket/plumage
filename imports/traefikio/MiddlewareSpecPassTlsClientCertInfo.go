@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Info selects the specific client certificate details you want to add to the X-Forwarded-Tls-Client-Cert-Info header.
 type MiddlewareSpecPassTlsClientCertInfo struct {
 	// Issuer defines the client certificate issuer details to add to the X-Forwarded-Tls-Client-Cert-Info header.
@@ -15,3 +16,4 @@ type MiddlewareSpecPassTlsClientCertInfo struct {
 	// Subject defines the client certificate subject details to add to the X-Forwarded-Tls-Client-Cert-Info header.
 	Subject *MiddlewareSpecPassTlsClientCertInfoSubject `field:"optional" json:"subject" yaml:"subject"`
 }
+

@@ -11,3 +11,4 @@ func validateVerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMinAllowed_
 func validateVerticalPodAutoscalerSpecResourcePolicyContainerPoliciesMinAllowed_FromStringParameters(value *string) error {
 	return nil
 }
+

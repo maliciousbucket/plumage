@@ -21,3 +21,4 @@ func validateTraefikServiceSpecWeightedServicesHealthCheckInterval_FromStringPar
 
 	return nil
 }
+

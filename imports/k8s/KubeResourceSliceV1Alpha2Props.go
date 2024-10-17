@@ -1,5 +1,6 @@
 package k8s
 
+
 // ResourceSlice provides information about available resources on individual nodes.
 type KubeResourceSliceV1Alpha2Props struct {
 	// DriverName identifies the DRA driver providing the capacity information.
@@ -15,3 +16,4 @@ type KubeResourceSliceV1Alpha2Props struct {
 	// A field selector can be used to list only ResourceSlice objects with a certain node name.
 	NodeName *string `field:"optional" json:"nodeName" yaml:"nodeName"`
 }
+

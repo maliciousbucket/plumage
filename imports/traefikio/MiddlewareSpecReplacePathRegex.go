@@ -1,5 +1,6 @@
 package traefikio
 
+
 // ReplacePathRegex holds the replace path regex middleware configuration.
 //
 // This middleware replaces the path of a URL using regex matching and replacement.
@@ -10,3 +11,4 @@ type MiddlewareSpecReplacePathRegex struct {
 	// Replacement defines the replacement path format, which can include captured variables.
 	Replacement *string `field:"optional" json:"replacement" yaml:"replacement"`
 }
+

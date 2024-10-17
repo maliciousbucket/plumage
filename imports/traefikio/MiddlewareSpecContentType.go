@@ -1,5 +1,6 @@
 package traefikio
 
+
 // ContentType holds the content-type middleware configuration.
 //
 // This middleware exists to enable the correct behavior until at least the default one can be changed in a future version.
@@ -9,3 +10,4 @@ type MiddlewareSpecContentType struct {
 	// Deprecated: AutoDetect option is deprecated, Content-Type middleware is only meant to be used to enable the content-type detection, please remove any usage of this option.
 	AutoDetect *bool `field:"optional" json:"autoDetect" yaml:"autoDetect"`
 }
+

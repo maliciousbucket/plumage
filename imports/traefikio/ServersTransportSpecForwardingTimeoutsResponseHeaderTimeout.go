@@ -25,6 +25,7 @@ func (j *jsiiProxy_ServersTransportSpecForwardingTimeoutsResponseHeaderTimeout) 
 	return returns
 }
 
+
 func ServersTransportSpecForwardingTimeoutsResponseHeaderTimeout_FromNumber(value *float64) ServersTransportSpecForwardingTimeoutsResponseHeaderTimeout {
 	_init_.Initialize()
 
@@ -60,3 +61,4 @@ func ServersTransportSpecForwardingTimeoutsResponseHeaderTimeout_FromString(valu
 
 	return returns
 }
+

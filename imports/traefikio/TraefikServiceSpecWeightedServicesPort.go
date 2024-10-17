@@ -27,6 +27,7 @@ func (j *jsiiProxy_TraefikServiceSpecWeightedServicesPort) Value() interface{} {
 	return returns
 }
 
+
 func TraefikServiceSpecWeightedServicesPort_FromNumber(value *float64) TraefikServiceSpecWeightedServicesPort {
 	_init_.Initialize()
 
@@ -62,3 +63,4 @@ func TraefikServiceSpecWeightedServicesPort_FromString(value *string) TraefikSer
 
 	return returns
 }
+

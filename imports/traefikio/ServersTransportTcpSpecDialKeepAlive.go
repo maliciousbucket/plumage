@@ -27,6 +27,7 @@ func (j *jsiiProxy_ServersTransportTcpSpecDialKeepAlive) Value() interface{} {
 	return returns
 }
 
+
 func ServersTransportTcpSpecDialKeepAlive_FromNumber(value *float64) ServersTransportTcpSpecDialKeepAlive {
 	_init_.Initialize()
 
@@ -62,3 +63,4 @@ func ServersTransportTcpSpecDialKeepAlive_FromString(value *string) ServersTrans
 
 	return returns
 }
+

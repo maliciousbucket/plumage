@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Healthcheck defines health checks for ExternalName services.
 type MiddlewareSpecErrorsServiceHealthCheck struct {
 	// FollowRedirects defines whether redirects should be followed during the health check calls.
@@ -34,3 +35,4 @@ type MiddlewareSpecErrorsServiceHealthCheck struct {
 	// Default: 5s.
 	Timeout MiddlewareSpecErrorsServiceHealthCheckTimeout `field:"optional" json:"timeout" yaml:"timeout"`
 }
+

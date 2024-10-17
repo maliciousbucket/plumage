@@ -25,6 +25,7 @@ func (j *jsiiProxy_TestRunJobSpecEnvValueFromResourceFieldRefDivisor) Value() in
 	return returns
 }
 
+
 func TestRunJobSpecEnvValueFromResourceFieldRefDivisor_FromNumber(value *float64) TestRunJobSpecEnvValueFromResourceFieldRefDivisor {
 	_init_.Initialize()
 
@@ -60,3 +61,4 @@ func TestRunJobSpecEnvValueFromResourceFieldRefDivisor_FromString(value *string)
 
 	return returns
 }
+

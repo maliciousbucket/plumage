@@ -1,5 +1,6 @@
 package k8s
 
+
 // ResourceClaimParameters defines resource requests for a ResourceClaim in an in-tree format understood by Kubernetes.
 type KubeResourceClaimParametersV1Alpha2Props struct {
 	// DriverRequests describes all resources that are needed for the allocated claim.
@@ -17,3 +18,4 @@ type KubeResourceClaimParametersV1Alpha2Props struct {
 	// Shareable indicates whether the allocated claim is meant to be shareable by multiple consumers at the same time.
 	Shareable *bool `field:"optional" json:"shareable" yaml:"shareable"`
 }
+

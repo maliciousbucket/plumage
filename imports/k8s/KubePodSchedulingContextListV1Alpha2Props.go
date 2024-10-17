@@ -1,5 +1,6 @@
 package k8s
 
+
 // PodSchedulingContextList is a collection of Pod scheduling objects.
 type KubePodSchedulingContextListV1Alpha2Props struct {
 	// Items is the list of PodSchedulingContext objects.
@@ -7,3 +8,4 @@ type KubePodSchedulingContextListV1Alpha2Props struct {
 	// Standard list metadata.
 	Metadata *ListMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
+

@@ -1,5 +1,6 @@
 package traefikio
 
+
 // ServiceUDP defines an upstream UDP service to proxy traffic to.
 type IngressRouteUdpSpecRoutesServices struct {
 	// Name defines the name of the referenced Kubernetes Service.
@@ -23,3 +24,4 @@ type IngressRouteUdpSpecRoutesServices struct {
 	// Weight defines the weight used when balancing requests between multiple Kubernetes Service.
 	Weight *float64 `field:"optional" json:"weight" yaml:"weight"`
 }
+

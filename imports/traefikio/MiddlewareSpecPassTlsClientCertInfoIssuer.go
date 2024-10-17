@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Issuer defines the client certificate issuer details to add to the X-Forwarded-Tls-Client-Cert-Info header.
 type MiddlewareSpecPassTlsClientCertInfoIssuer struct {
 	// CommonName defines whether to add the organizationalUnit information into the issuer.
@@ -17,3 +18,4 @@ type MiddlewareSpecPassTlsClientCertInfoIssuer struct {
 	// SerialNumber defines whether to add the serialNumber information into the issuer.
 	SerialNumber *bool `field:"optional" json:"serialNumber" yaml:"serialNumber"`
 }
+

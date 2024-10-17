@@ -23,3 +23,4 @@ func validateKubeValidatingAdmissionPolicyV1Alpha1_OfParameters(c constructs.ICo
 func validateNewKubeValidatingAdmissionPolicyV1Alpha1Parameters(scope constructs.Construct, id *string, props *KubeValidatingAdmissionPolicyV1Alpha1Props) error {
 	return nil
 }
+

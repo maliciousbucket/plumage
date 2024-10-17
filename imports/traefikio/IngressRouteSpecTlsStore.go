@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Store defines the reference to the TLSStore, that will be used to store certificates.
 //
 // Please note that only `default` TLSStore can be used.
@@ -13,3 +14,4 @@ type IngressRouteSpecTlsStore struct {
 	// More info: https://doc.traefik.io/traefik/v3.1/routing/providers/kubernetes-crd/#kind-tlsstore
 	Namespace *string `field:"optional" json:"namespace" yaml:"namespace"`
 }
+

@@ -27,6 +27,7 @@ func (j *jsiiProxy_TraefikServiceSpecMirroringMirrorsPort) Value() interface{} {
 	return returns
 }
 
+
 func TraefikServiceSpecMirroringMirrorsPort_FromNumber(value *float64) TraefikServiceSpecMirroringMirrorsPort {
 	_init_.Initialize()
 
@@ -62,3 +63,4 @@ func TraefikServiceSpecMirroringMirrorsPort_FromString(value *string) TraefikSer
 
 	return returns
 }
+

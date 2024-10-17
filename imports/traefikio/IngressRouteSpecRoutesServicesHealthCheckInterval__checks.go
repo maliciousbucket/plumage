@@ -21,3 +21,4 @@ func validateIngressRouteSpecRoutesServicesHealthCheckInterval_FromStringParamet
 
 	return nil
 }
+

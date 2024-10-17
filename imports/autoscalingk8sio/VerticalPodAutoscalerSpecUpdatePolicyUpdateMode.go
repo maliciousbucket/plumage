@@ -1,5 +1,6 @@
 package autoscalingk8sio
 
+
 // Controls when autoscaler applies changes to the pod resources.
 //
 // The default is 'Auto'.
@@ -15,3 +16,4 @@ const (
 	// Auto.
 	VerticalPodAutoscalerSpecUpdatePolicyUpdateMode_AUTO VerticalPodAutoscalerSpecUpdatePolicyUpdateMode = "AUTO"
 )
+

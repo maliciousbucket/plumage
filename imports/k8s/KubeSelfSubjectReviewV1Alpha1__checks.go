@@ -57,3 +57,4 @@ func validateNewKubeSelfSubjectReviewV1Alpha1Parameters(scope constructs.Constru
 
 	return nil
 }
+

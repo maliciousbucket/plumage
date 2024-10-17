@@ -1,5 +1,6 @@
 package traefikio
 
+
 // ServersTransportTCPSpec defines the desired state of a ServersTransportTCP.
 type ServersTransportTcpSpec struct {
 	// DialKeepAlive is the interval between keep-alive probes for an active network connection.
@@ -13,3 +14,4 @@ type ServersTransportTcpSpec struct {
 	// TLS defines the TLS configuration.
 	Tls *ServersTransportTcpSpecTls `field:"optional" json:"tls" yaml:"tls"`
 }
+

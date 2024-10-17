@@ -12,3 +12,4 @@ type TlsOptionProps struct {
 	// TLSOptionSpec defines the desired state of a TLSOption.
 	Spec *TlsOptionSpec `field:"required" json:"spec" yaml:"spec"`
 }
+

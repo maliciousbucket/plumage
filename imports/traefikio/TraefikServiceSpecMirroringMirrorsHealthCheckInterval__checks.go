@@ -21,3 +21,4 @@ func validateTraefikServiceSpecMirroringMirrorsHealthCheckInterval_FromStringPar
 
 	return nil
 }
+

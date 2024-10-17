@@ -25,6 +25,7 @@ func (j *jsiiProxy_ServersTransportSpecForwardingTimeoutsIdleConnTimeout) Value(
 	return returns
 }
 
+
 func ServersTransportSpecForwardingTimeoutsIdleConnTimeout_FromNumber(value *float64) ServersTransportSpecForwardingTimeoutsIdleConnTimeout {
 	_init_.Initialize()
 
@@ -60,3 +61,4 @@ func ServersTransportSpecForwardingTimeoutsIdleConnTimeout_FromString(value *str
 
 	return returns
 }
+

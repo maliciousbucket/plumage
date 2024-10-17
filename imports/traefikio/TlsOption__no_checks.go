@@ -23,3 +23,4 @@ func validateTlsOption_OfParameters(c constructs.IConstruct) error {
 func validateNewTlsOptionParameters(scope constructs.Construct, id *string, props *TlsOptionProps) error {
 	return nil
 }
+

@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Store defines the reference to the TLSStore, that will be used to store certificates.
 //
 // Please note that only `default` TLSStore can be used.
@@ -9,3 +10,4 @@ type IngressRouteTcpSpecTlsStore struct {
 	// Namespace defines the namespace of the referenced Traefik resource.
 	Namespace *string `field:"optional" json:"namespace" yaml:"namespace"`
 }
+

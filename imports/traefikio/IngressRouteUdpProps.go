@@ -10,3 +10,4 @@ type IngressRouteUdpProps struct {
 	// IngressRouteUDPSpec defines the desired state of a IngressRouteUDP.
 	Spec *IngressRouteUdpSpec `field:"required" json:"spec" yaml:"spec"`
 }
+

@@ -122,6 +122,7 @@ func (j *jsiiProxy_TestRunJob) Node() constructs.Node {
 	return returns
 }
 
+
 // Defines a "TestRunJob" API object.
 func NewTestRunJob(scope constructs.Construct, id *string, props *TestRunJobProps) TestRunJob {
 	_init_.Initialize()
@@ -313,3 +314,4 @@ func (t *jsiiProxy_TestRunJob) ToString() *string {
 
 	return returns
 }
+

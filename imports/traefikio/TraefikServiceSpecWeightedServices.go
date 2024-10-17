@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Service defines an upstream HTTP service to proxy traffic to.
 type TraefikServiceSpecWeightedServices struct {
 	// Name defines the name of the referenced Kubernetes Service or TraefikService.
@@ -52,3 +53,4 @@ type TraefikServiceSpecWeightedServices struct {
 	// Weight defines the weight and should only be specified when Name references a TraefikService object (and to be precise, one that embeds a Weighted Round Robin).
 	Weight *float64 `field:"optional" json:"weight" yaml:"weight"`
 }
+

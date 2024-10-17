@@ -1,5 +1,6 @@
 package traefikio
 
+
 // ErrorPage holds the custom error middleware configuration.
 //
 // This middleware returns a custom page in lieu of the default, according to configured ranges of HTTP Status codes.
@@ -21,3 +22,4 @@ type MiddlewareSpecErrors struct {
 	// or a combination of the two (404,418,500-599).
 	Status *[]*string `field:"optional" json:"status" yaml:"status"`
 }
+

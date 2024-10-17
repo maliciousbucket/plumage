@@ -27,6 +27,7 @@ func (j *jsiiProxy_TraefikServiceSpecMirroringHealthCheckInterval) Value() inter
 	return returns
 }
 
+
 func TraefikServiceSpecMirroringHealthCheckInterval_FromNumber(value *float64) TraefikServiceSpecMirroringHealthCheckInterval {
 	_init_.Initialize()
 
@@ -62,3 +63,4 @@ func TraefikServiceSpecMirroringHealthCheckInterval_FromString(value *string) Tr
 
 	return returns
 }
+

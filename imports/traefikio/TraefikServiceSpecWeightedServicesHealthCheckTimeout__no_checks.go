@@ -11,3 +11,4 @@ func validateTraefikServiceSpecWeightedServicesHealthCheckTimeout_FromNumberPara
 func validateTraefikServiceSpecWeightedServicesHealthCheckTimeout_FromStringParameters(value *string) error {
 	return nil
 }
+

@@ -1,5 +1,6 @@
 package k8s
 
+
 type GrpcAction struct {
 	// Port number of the gRPC service.
 	//
@@ -10,3 +11,4 @@ type GrpcAction struct {
 	// If this is not specified, the default behavior is defined by gRPC.
 	Service *string `field:"optional" json:"service" yaml:"service"`
 }
+

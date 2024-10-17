@@ -25,6 +25,7 @@ func (j *jsiiProxy_ServersTransportSpecForwardingTimeoutsPingTimeout) Value() in
 	return returns
 }
 
+
 func ServersTransportSpecForwardingTimeoutsPingTimeout_FromNumber(value *float64) ServersTransportSpecForwardingTimeoutsPingTimeout {
 	_init_.Initialize()
 
@@ -60,3 +61,4 @@ func ServersTransportSpecForwardingTimeoutsPingTimeout_FromString(value *string)
 
 	return returns
 }
+

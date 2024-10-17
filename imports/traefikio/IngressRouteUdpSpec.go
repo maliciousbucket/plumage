@@ -1,5 +1,6 @@
 package traefikio
 
+
 // IngressRouteUDPSpec defines the desired state of a IngressRouteUDP.
 type IngressRouteUdpSpec struct {
 	// Routes defines the list of routes.
@@ -11,3 +12,4 @@ type IngressRouteUdpSpec struct {
 	// Default: all.
 	EntryPoints *[]*string `field:"optional" json:"entryPoints" yaml:"entryPoints"`
 }
+

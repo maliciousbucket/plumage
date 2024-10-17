@@ -1,5 +1,6 @@
 package k8s
 
+
 // ResourceClassParametersReference contains enough information to let you locate the parameters for a ResourceClass.
 type ResourceClassParametersReferenceV1Alpha2 struct {
 	// Kind is the type of resource being referenced.
@@ -17,3 +18,4 @@ type ResourceClassParametersReferenceV1Alpha2 struct {
 	// Must be empty for cluster-scoped resources and non-empty for namespaced resources.
 	Namespace *string `field:"optional" json:"namespace" yaml:"namespace"`
 }
+

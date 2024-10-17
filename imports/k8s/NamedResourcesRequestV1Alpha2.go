@@ -1,5 +1,6 @@
 package k8s
 
+
 // NamedResourcesRequest is used in ResourceRequestModel.
 type NamedResourcesRequestV1Alpha2 struct {
 	// Selector is a CEL expression which must evaluate to true if a resource instance is suitable.
@@ -12,3 +13,4 @@ type NamedResourcesRequestV1Alpha2 struct {
 	// attributes.stringslice["b"].isSorted()
 	Selector *string `field:"required" json:"selector" yaml:"selector"`
 }
+

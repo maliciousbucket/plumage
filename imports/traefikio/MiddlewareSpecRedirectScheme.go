@@ -1,5 +1,6 @@
 package traefikio
 
+
 // RedirectScheme holds the redirect scheme middleware configuration.
 //
 // This middleware redirects requests from a scheme/port to another.
@@ -12,3 +13,4 @@ type MiddlewareSpecRedirectScheme struct {
 	// Scheme defines the scheme of the new URL.
 	Scheme *string `field:"optional" json:"scheme" yaml:"scheme"`
 }
+

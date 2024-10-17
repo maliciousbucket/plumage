@@ -1,5 +1,6 @@
 package chaosgalahmonitoringio
 
+
 // Selects a key of a secret in the pod's namespace.
 type TestRunJobSpecEnvValueFromSecretKeyRef struct {
 	// The key of the secret to select from.
@@ -16,3 +17,4 @@ type TestRunJobSpecEnvValueFromSecretKeyRef struct {
 	// Specify whether the Secret or its key must be defined.
 	Optional *bool `field:"optional" json:"optional" yaml:"optional"`
 }
+

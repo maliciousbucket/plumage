@@ -1,5 +1,6 @@
 package traefikio
 
+
 // CircuitBreaker holds the circuit breaker configuration.
 type MiddlewareSpecCircuitBreaker struct {
 	// CheckPeriod is the interval between successive checks of the circuit breaker condition (when in standby state).
@@ -13,3 +14,4 @@ type MiddlewareSpecCircuitBreaker struct {
 	// ResponseCode is the status code that the circuit breaker will return while it is in the open state.
 	ResponseCode *float64 `field:"optional" json:"responseCode" yaml:"responseCode"`
 }
+

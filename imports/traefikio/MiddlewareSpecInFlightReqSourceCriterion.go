@@ -1,5 +1,6 @@
 package traefikio
 
+
 // SourceCriterion defines what criterion is used to group requests as originating from a common source.
 //
 // If several strategies are defined at the same time, an error will be raised.
@@ -15,3 +16,4 @@ type MiddlewareSpecInFlightReqSourceCriterion struct {
 	// RequestHost defines whether to consider the request Host as the source.
 	RequestHost *bool `field:"optional" json:"requestHost" yaml:"requestHost"`
 }
+

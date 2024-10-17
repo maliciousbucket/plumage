@@ -63,3 +63,4 @@ func validateNewKubeResourceClaimTemplateV1Alpha2Parameters(scope constructs.Con
 
 	return nil
 }
+

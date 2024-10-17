@@ -23,3 +23,4 @@ func validateTraefikService_OfParameters(c constructs.IConstruct) error {
 func validateNewTraefikServiceParameters(scope constructs.Construct, id *string, props *TraefikServiceProps) error {
 	return nil
 }
+

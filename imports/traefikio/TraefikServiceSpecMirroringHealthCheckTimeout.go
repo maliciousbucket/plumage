@@ -27,6 +27,7 @@ func (j *jsiiProxy_TraefikServiceSpecMirroringHealthCheckTimeout) Value() interf
 	return returns
 }
 
+
 func TraefikServiceSpecMirroringHealthCheckTimeout_FromNumber(value *float64) TraefikServiceSpecMirroringHealthCheckTimeout {
 	_init_.Initialize()
 
@@ -62,3 +63,4 @@ func TraefikServiceSpecMirroringHealthCheckTimeout_FromString(value *string) Tra
 
 	return returns
 }
+

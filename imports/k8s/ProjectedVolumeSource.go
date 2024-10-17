@@ -1,5 +1,6 @@
 package k8s
 
+
 // Represents a projected volume source.
 type ProjectedVolumeSource struct {
 	// defaultMode are the mode bits used to set permissions on created files by default.
@@ -9,3 +10,4 @@ type ProjectedVolumeSource struct {
 	// sources is the list of volume projections.
 	Sources *[]*VolumeProjection `field:"optional" json:"sources" yaml:"sources"`
 }
+

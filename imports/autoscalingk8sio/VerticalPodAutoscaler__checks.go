@@ -63,3 +63,4 @@ func validateNewVerticalPodAutoscalerParameters(scope constructs.Construct, id *
 
 	return nil
 }
+

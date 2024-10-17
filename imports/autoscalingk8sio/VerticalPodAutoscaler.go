@@ -122,6 +122,7 @@ func (j *jsiiProxy_VerticalPodAutoscaler) Node() constructs.Node {
 	return returns
 }
 
+
 // Defines a "VerticalPodAutoscaler" API object.
 func NewVerticalPodAutoscaler(scope constructs.Construct, id *string, props *VerticalPodAutoscalerProps) VerticalPodAutoscaler {
 	_init_.Initialize()
@@ -313,3 +314,4 @@ func (v *jsiiProxy_VerticalPodAutoscaler) ToString() *string {
 
 	return returns
 }
+

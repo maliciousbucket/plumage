@@ -57,3 +57,4 @@ func validateNewKubeResourceClassParametersV1Alpha2Parameters(scope constructs.C
 
 	return nil
 }
+

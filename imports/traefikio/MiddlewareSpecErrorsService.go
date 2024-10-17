@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Service defines the reference to a Kubernetes Service that will serve the error page.
 //
 // More info: https://doc.traefik.io/traefik/v3.1/middlewares/http/errorpages/#service
@@ -54,3 +55,4 @@ type MiddlewareSpecErrorsService struct {
 	// Weight defines the weight and should only be specified when Name references a TraefikService object (and to be precise, one that embeds a Weighted Round Robin).
 	Weight *float64 `field:"optional" json:"weight" yaml:"weight"`
 }
+

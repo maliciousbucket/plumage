@@ -1,5 +1,6 @@
 package k8s
 
+
 // Subject matches the originator of a request, as identified by the request authentication system.
 //
 // There are three ways of matching an originator; by user, group, or service account.
@@ -15,3 +16,4 @@ type SubjectV1Beta3 struct {
 	// `user` matches based on username.
 	User *UserSubjectV1Beta3 `field:"optional" json:"user" yaml:"user"`
 }
+

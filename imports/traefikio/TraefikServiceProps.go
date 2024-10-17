@@ -15,3 +15,4 @@ type TraefikServiceProps struct {
 	// TraefikServiceSpec defines the desired state of a TraefikService.
 	Spec *TraefikServiceSpec `field:"required" json:"spec" yaml:"spec"`
 }
+

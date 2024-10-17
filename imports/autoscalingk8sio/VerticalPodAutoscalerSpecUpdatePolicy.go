@@ -1,5 +1,6 @@
 package autoscalingk8sio
 
+
 // Describes the rules on how changes are applied to the pods.
 //
 // If not specified, all fields in the `PodUpdatePolicy` are set to their default values.
@@ -17,3 +18,4 @@ type VerticalPodAutoscalerSpecUpdatePolicy struct {
 	// The default is 'Auto'.
 	UpdateMode VerticalPodAutoscalerSpecUpdatePolicyUpdateMode `field:"optional" json:"updateMode" yaml:"updateMode"`
 }
+

@@ -10,3 +10,4 @@ type TestRunJobProps struct {
 	// TestRunJobSpec defines the desired state of TestRunJob.
 	Spec *TestRunJobSpec `field:"optional" json:"spec" yaml:"spec"`
 }
+

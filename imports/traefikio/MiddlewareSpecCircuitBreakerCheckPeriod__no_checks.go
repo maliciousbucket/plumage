@@ -11,3 +11,4 @@ func validateMiddlewareSpecCircuitBreakerCheckPeriod_FromNumberParameters(value 
 func validateMiddlewareSpecCircuitBreakerCheckPeriod_FromStringParameters(value *string) error {
 	return nil
 }
+

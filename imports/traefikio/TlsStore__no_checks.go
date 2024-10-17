@@ -23,3 +23,4 @@ func validateTlsStore_OfParameters(c constructs.IConstruct) error {
 func validateNewTlsStoreParameters(scope constructs.Construct, id *string, props *TlsStoreProps) error {
 	return nil
 }
+

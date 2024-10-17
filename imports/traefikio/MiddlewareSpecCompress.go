@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Compress holds the compress middleware configuration.
 //
 // This middleware compresses responses before sending them to the client, using gzip, brotli, or zstd compression.
@@ -20,3 +21,4 @@ type MiddlewareSpecCompress struct {
 	// Default: 1024.
 	MinResponseBodyBytes *float64 `field:"optional" json:"minResponseBodyBytes" yaml:"minResponseBodyBytes"`
 }
+

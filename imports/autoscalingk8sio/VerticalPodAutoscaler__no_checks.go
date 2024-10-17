@@ -23,3 +23,4 @@ func validateVerticalPodAutoscaler_OfParameters(c constructs.IConstruct) error {
 func validateNewVerticalPodAutoscalerParameters(scope constructs.Construct, id *string, props *VerticalPodAutoscalerProps) error {
 	return nil
 }
+

@@ -1,5 +1,6 @@
 package k8s
 
+
 // PodSchedulingContextSpec describes where resources for the Pod are needed.
 type PodSchedulingContextSpecV1Alpha2 struct {
 	// PotentialNodes lists nodes where the Pod might be able to run.
@@ -9,3 +10,4 @@ type PodSchedulingContextSpecV1Alpha2 struct {
 	// SelectedNode is the node for which allocation of ResourceClaims that are referenced by the Pod and that use "WaitForFirstConsumer" allocation is to be attempted.
 	SelectedNode *string `field:"optional" json:"selectedNode" yaml:"selectedNode"`
 }
+

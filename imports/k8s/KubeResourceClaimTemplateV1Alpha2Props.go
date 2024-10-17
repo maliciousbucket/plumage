@@ -1,5 +1,6 @@
 package k8s
 
+
 // ResourceClaimTemplate is used to produce ResourceClaim objects.
 type KubeResourceClaimTemplateV1Alpha2Props struct {
 	// Describes the ResourceClaim that is to be generated.
@@ -9,3 +10,4 @@ type KubeResourceClaimTemplateV1Alpha2Props struct {
 	// Standard object metadata.
 	Metadata *ObjectMeta `field:"optional" json:"metadata" yaml:"metadata"`
 }
+

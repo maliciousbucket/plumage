@@ -1,5 +1,6 @@
 package traefikio
 
+
 // RateLimit holds the rate limit configuration.
 //
 // This middleware ensures that services will receive a fair amount of requests, and allows one to define what fair is.
@@ -25,3 +26,4 @@ type MiddlewareSpecRateLimit struct {
 	// If none are set, the default is to use the request's remote address field (as an ipStrategy).
 	SourceCriterion *MiddlewareSpecRateLimitSourceCriterion `field:"optional" json:"sourceCriterion" yaml:"sourceCriterion"`
 }
+

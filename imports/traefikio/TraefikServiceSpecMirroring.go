@@ -1,5 +1,6 @@
 package traefikio
 
+
 // Mirroring defines the Mirroring service configuration.
 type TraefikServiceSpecMirroring struct {
 	// Name defines the name of the referenced Kubernetes Service or TraefikService.
@@ -59,3 +60,4 @@ type TraefikServiceSpecMirroring struct {
 	// Weight defines the weight and should only be specified when Name references a TraefikService object (and to be precise, one that embeds a Weighted Round Robin).
 	Weight *float64 `field:"optional" json:"weight" yaml:"weight"`
 }
+

@@ -250,6 +250,7 @@ func (s *SynthOpts) validate() error {
 
 func CommitAndPushChaos(ctx context.Context, cfg *config.GitHubConfig, outputDir string) (*GitHubCommitResponse, error) {
 	testsDir := filepath.Join(outputDir, "tests")
+	fmt.Println(testsDir)
 	msg := fmt.Sprintf("plumage manifests - chaos tests - %s", time.Now().String())
 
 	return CommitAndPush(ctx, cfg, testsDir, msg)
@@ -267,6 +268,9 @@ func getChaosTests(outputDir, testPath string) ([]string, error) {
 			return err
 		}
 		if info.IsDir() {
+			if info.Name() == "tests" {
+				return nil
+			}
 			result = append(result, info.Name())
 		}
 		return nil

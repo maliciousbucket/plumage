@@ -245,16 +245,16 @@ func (chart *ChartConfig) chartSpec(client *helmClient, opts ...chartOpts) (*hel
 	}
 
 	spec := &helmc.ChartSpec{
-		ChartName:       chart.Name,
-		ReleaseName:     chart.ReleaseName,
-		Namespace:       chart.Namespace,
-		Version:         chart.Version,
-		Replace:         chart.Replace,
-		CleanupOnFail:   true,
-		Labels:          chart.Labels,
-		CreateNamespace: true,
-		GenerateName:    generateNamespace,
-		ValuesOptions:   valuesOpts,
+		ChartName:     chart.Name,
+		ReleaseName:   chart.ReleaseName,
+		Namespace:     chart.Namespace,
+		Version:       chart.Version,
+		Replace:       chart.Replace,
+		CleanupOnFail: true,
+		Labels:        chart.Labels,
+		//CreateNamespace: true,
+		GenerateName:  generateNamespace,
+		ValuesOptions: valuesOpts,
 	}
 
 	if chart.Lint {

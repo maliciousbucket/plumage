@@ -72,41 +72,6 @@ func deployGateway(ctx context.Context, argoClient ArgoClient, kubeClient KubeCl
 	if err := argoClient.SyncProject(ctx, "ingress"); err != nil {
 		return err
 	}
-	projects, err := argoClient.ListProjects(ctx)
-	if err != nil {
-		return err
-	}
-	if err = prettyPrint(projects); err != nil {
-		return err
-	}
-
-	apps, err := argoClient.ListApplications(ctx, &argocd.AppQueryParams{Options: []argocd.AppQueryFunc{
-		argocd.WithProject("ingress"),
-	}})
-	if err != nil {
-		return err
-	}
-	fmt.Println("Apps?")
-	if err = prettyPrint(apps); err != nil {
-		return err
-	}
-	log.Println("Pods???")
-	pods, err := kubeClient.ListPods(ctx, ns)
-	if err != nil {
-		return err
-	}
-	log.Println(len(pods.Items))
-	if err = prettyPrint(pods); err != nil {
-		return err
-	}
-	log.Println("Deployments?")
-	deployments, err := kubeClient.ListDeployments(ctx, ns)
-	if err != nil {
-		return err
-	}
-	if err = prettyPrint(deployments); err != nil {
-		return err
-	}
 
 	return nil
 }
@@ -253,9 +218,13 @@ func DeployChaos(ctx context.Context, argoClient ArgoClient, kubeClient KubeClie
 		return nil
 	}
 	path := fmt.Sprintf("%s/%s", outputDir, "tests")
-	if err = argoClient.CreateChaosApp(ctx, ns, "chaos", path); err != nil {
-		return err
+	for _, test := range tests {
+		log.Println(test)
+		if err = argoClient.CreateChaosApp(ctx, ns, "chaos", path, test); err != nil {
+			return err
+		}
 	}
+
 	//TODO: wait for deployment
 	return nil
 

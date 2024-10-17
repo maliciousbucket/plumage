@@ -193,7 +193,7 @@ func commitChaosCommand(configDir, fileName string, cfg *config.AppConfig) *cobr
 			log.Printf("Commit Created: %+v", cmt)
 		},
 	}
-	cmd.Flags().StringVar(&testName, "test", "", "test name")
+	cmd.Flags().StringVar(&testName, "test", "", "Chaos Test Name")
 	return cmd
 }
 

@@ -246,15 +246,15 @@ func (c *Client) createChaosProject(ctx context.Context, ns string) (string, err
 	)
 }
 
-func (c *Client) CreateChaosApp(ctx context.Context, ns, project, path string) error {
-	return c.createChaosApp(ctx, ns, project)
+func (c *Client) CreateChaosApp(ctx context.Context, ns, project, path, test string) error {
+	return c.createChaosApp(ctx, ns, project, path, test)
 }
 
-func (c *Client) createChaosApp(ctx context.Context, ns, project string) error {
+func (c *Client) createChaosApp(ctx context.Context, ns, project, path, name string) error {
 	proj, err := c.GetProject(ctx, project)
 	if err != nil {
 		return fmt.Errorf("failed to get project: %w", err)
 	}
-
-	return c.addTestBedApp(ctx, ns, "chaos", chaosPath, proj.Name)
+	testPath := fmt.Sprintf("%s/%s", path, name)
+	return c.addTestBedApp(ctx, ns, name, testPath, proj.Name)
 }

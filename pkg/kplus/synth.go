@@ -43,22 +43,30 @@ func SynthTemplate(filePath, outputDir string, monitoring map[string]string) err
 	}
 
 	ProjectNamespace(app, namespace)
+	app.Synth()
 	i := 30100
 	for _, service := range template.Services {
 		log.Println("Generating manifests for " + service.Name)
+		serviceOut := fmt.Sprintf("%s/%s", out, service.Name)
+		serviceApp := cdk8s.NewApp(&cdk8s.AppProps{
+			Outdir:                  jsii.String(serviceOut),
+			OutputFileExtension:     nil,
+			RecordConstructMetadata: jsii.Bool(false),
+			Resolvers:               nil,
+			YamlOutputType:          cdk8s.YamlOutputType_FILE_PER_CHART,
+		})
 		name := fmt.Sprintf("%s", service.Name)
-		chart := cdk8s.NewChart(app, jsii.String(name), &cdk8s.ChartProps{
+		chart := cdk8s.NewChart(serviceApp, jsii.String(name), &cdk8s.ChartProps{
 			DisableResourceNameHashes: jsii.Bool(true),
 			Labels:                    nil,
 			Namespace:                 jsii.String(namespace),
 		})
 
 		NewServiceManifests(chart, service.Name, namespace, &service, monitoring, i)
+		serviceApp.Synth()
 		i++
 
 	}
-
-	app.Synth()
 
 	return nil
 }
@@ -132,7 +140,7 @@ func SynthService(filePath, outputDir, service string, monitoring map[string]str
 		OutputFileExtension:     nil,
 		RecordConstructMetadata: jsii.Bool(true),
 		Resolvers:               nil,
-		YamlOutputType:          cdk8s.YamlOutputType_FOLDER_PER_CHART_FILE_PER_RESOURCE,
+		YamlOutputType:          cdk8s.YamlOutputType_FILE_PER_CHART,
 	})
 
 	ProjectNamespace(app, namespace)
@@ -167,7 +175,7 @@ func SynthGateway(outputDir, ns string) error {
 	})
 
 	kubernetes.NewTraefikIngress(app, "traefik-chart", ns)
-	ProjectNamespace(app, ns)
+	//ProjectNamespace(app, ns)
 	app.Synth()
 	return nil
 }

@@ -37,7 +37,7 @@ func (c *Client) createProject(ctx context.Context, proj *v1alpha1.AppProject) (
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(output.Name)
+	log.Printf("Project %s has been created\n", proj.Name)
 	return output, nil
 }
 

@@ -138,7 +138,7 @@ func (c *Client) deleteApplication(ctx context.Context, project, appName string)
 		projectName = &project
 	}
 	cascade := true
-	res, err := c.applicationClient.Delete(ctx, &application.ApplicationDeleteRequest{
+	_, err = c.applicationClient.Delete(ctx, &application.ApplicationDeleteRequest{
 		Name:    &app.Name,
 		Cascade: &cascade,
 		Project: projectName,
@@ -146,6 +146,6 @@ func (c *Client) deleteApplication(ctx context.Context, project, appName string)
 	if err != nil {
 		return err
 	}
-	log.Println(res.String())
+	log.Printf("App %s has been deleted\n", app.Name)
 	return nil
 }

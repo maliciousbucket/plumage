@@ -33,7 +33,7 @@ type ArgoClient interface {
 	CreateApplicationProject(ctx context.Context, app string) error
 	CreateServiceApplications(ctx context.Context, ns, app string, services []string) error
 	CreateChaosProject(ctx context.Context, ns string) error
-	CreateChaosApp(ctx context.Context, ns, project, path string) error
+	CreateChaosApp(ctx context.Context, ns, project, path, test string) error
 }
 
 type KubeClient interface {

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
 	"log"
@@ -59,6 +60,12 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 					values = valuesFile
 				}
 				if err := helmClient.InstallArgoChart(ctx, argoVersion, values); err != nil {
+					log.Fatal(err)
+				}
+				if err := newKubeClient(); err != nil {
+					log.Fatal(err)
+				}
+				if err := orchestration.WatchArgoDeployment(ctx, kubernetesClient); err != nil {
 					log.Fatal(err)
 				}
 				return nil

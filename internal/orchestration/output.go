@@ -219,8 +219,8 @@ func getResourceName(fileName string) string {
 	return fileName
 }
 
-func CommitAndPushGateway(ctx context.Context, cfg *config.GitHubConfig, dir string) (*GitHubCommitResponse, error) {
-	ingressDir := filepath.Join(dir, "ingress")
+func CommitAndPushGateway(ctx context.Context, cfg *config.GitHubConfig, outputDir string) (*GitHubCommitResponse, error) {
+	ingressDir := filepath.Join(outputDir, "ingress")
 	msg := fmt.Sprintf("plumage manifests - gateway - %s", time.Now().String())
 
 	return CommitAndPushService(ctx, cfg, ingressDir, "traefik", msg)
@@ -246,6 +246,14 @@ func (s *SynthOpts) validate() error {
 	}
 
 	return err
+}
+
+func CommitAndPushChaos(ctx context.Context, cfg *config.GitHubConfig, outputDir string) (*GitHubCommitResponse, error) {
+	testsDir := filepath.Join(outputDir, "tests")
+	msg := fmt.Sprintf("plumage manifests - chaos tests - %s", time.Now().String())
+
+	return CommitAndPush(ctx, cfg, testsDir, msg)
+
 }
 
 func getChaosTests(outputDir, testPath string) ([]string, error) {

@@ -9,6 +9,7 @@ import (
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
 	"log"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -57,6 +58,7 @@ func CommitPushCmd(configDir, fileName string, cfg *config.AppConfig) *cobra.Com
 
 	cmd.AddCommand(commitManifestsCmd(configDir, fileName, cfg))
 	cmd.AddCommand(commitGatewayCommand(configDir, fileName, cfg))
+	cmd.AddCommand(commitChaosCommand(configDir, fileName, cfg))
 
 	err := cmd.MarkFlagRequired("message")
 	if err != nil {
@@ -160,6 +162,38 @@ func commitGatewayCommand(configDir, fileName string, cfg *config.AppConfig) *co
 			return nil
 		},
 	}
+	return cmd
+}
+
+func commitChaosCommand(configDir, fileName string, cfg *config.AppConfig) *cobra.Command {
+	var testName string
+	cmd := &cobra.Command{
+		Use:   "chaos",
+		Short: "Commit chaos test manifests",
+		Run: func(cmd *cobra.Command, args []string) {
+			ghCfg, err := config.NewGithubConfig(configDir, fileName)
+			if err != nil {
+				log.Fatal(err)
+			}
+			ctx := context.Background()
+			if testName != "" {
+				path := filepath.Join(cfg.OutputDir, "tests")
+				msg := fmt.Sprintf("plumage manifests - chaos tests - %s", time.Now().String())
+				cmt, cmtErr := orchestration.CommitAndPushService(ctx, ghCfg, path, testName, msg)
+				if cmtErr != nil {
+					log.Fatal(cmtErr)
+				}
+				log.Printf("Commit Created: %+v", cmt)
+				return
+			}
+			cmt, cmtErr := orchestration.CommitAndPushChaos(ctx, ghCfg, cfg.OutputDir)
+			if cmtErr != nil {
+				log.Fatal(cmtErr)
+			}
+			log.Printf("Commit Created: %+v", cmt)
+		},
+	}
+	cmd.Flags().StringVar(&testName, "test", "", "test name")
 	return cmd
 }
 

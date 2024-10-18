@@ -20,6 +20,7 @@ func newJobServiceAccount(scope constructs.Construct, id string, ns string) kplu
 	account := kplus.NewServiceAccount(scope, jsii.String(id), &kplus.ServiceAccountProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
 			Name: jsii.String(name),
+			//Namespace: jsii.String(ns),
 		},
 	})
 	return account
@@ -30,6 +31,7 @@ func newJobRole(scope constructs.Construct, id string, ns string) kplus.Role {
 	role := kplus.NewRole(scope, jsii.String(id), &kplus.RoleProps{
 		Metadata: &cdk8s.ApiObjectMetadata{
 			Name: jsii.String(name),
+			//Namespace: jsii.String(ns),
 		},
 		Rules: &[]*kplus.RolePolicyRule{
 			{

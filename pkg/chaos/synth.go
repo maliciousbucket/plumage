@@ -30,13 +30,13 @@ func SynthTemplateFile(file, outDir, ns, alloy string, account string) error {
 		accountChart := cdk8s.NewChart(app, jsii.String("account"), &cdk8s.ChartProps{
 			DisableResourceNameHashes: jsii.Bool(true),
 		})
-		_, newAccount := NewTestRunRBAC(accountChart, "default")
+		_, newAccount := NewTestRunRBAC(accountChart, ns)
 		accountName = newAccount
 	}
 	template.ServiceAccount = accountName
 
 	for _, test := range template.Scripts {
-		_, err = NewTestRunFromTemplate(app, test.Name, "default", alloy, template, &test)
+		_, err = NewTestRunFromTemplate(app, test.Name, ns, alloy, template, &test)
 		if err != nil {
 			return err
 		}

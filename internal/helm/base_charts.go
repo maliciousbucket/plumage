@@ -204,6 +204,7 @@ func (c *helmClient) installPromOperatorCrds(ctx context.Context, version, value
 	return nil
 }
 
+// TODO: Add default node port to values
 func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string, replace bool) error {
 
 	if version == "" {
@@ -216,7 +217,7 @@ func (c *helmClient) installArgo(ctx context.Context, version, valuesFile string
 				"enabled": true,
 			},
 			"service": map[string]interface{}{
-				"type": "NodePort",
+				"type": "LoadBalancer",
 			},
 		},
 	}

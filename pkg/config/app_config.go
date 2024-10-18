@@ -57,7 +57,6 @@ func NewAppConfig(projectDir string, namespace string, outputDir string, monitor
 		MonitoringConfig: monitoringConfig,
 		OutputDir:        outDir,
 	}
-	log.Println(len(userConfig.ChartConfig.Charts.Charts))
 	appConfig.OutputDir = userConfig.OutputDir
 	appConfig.Namespace = userConfig.Namespace
 	return appConfig, nil
@@ -129,7 +128,6 @@ func loadUserConfig(configDir string, base *UserConfig) (*UserConfig, error) {
 			return nil, err
 		}
 	}
-	fmt.Println(fileName)
 	content, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, err

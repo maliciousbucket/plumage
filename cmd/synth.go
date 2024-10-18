@@ -11,11 +11,6 @@ import (
 	"log"
 )
 
-const (
-	//tmplFile = "testdata/kplus/template.yaml"
-	tmpFile = "testdata/manifests/gcs.yaml"
-)
-
 func synthCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "synth",
@@ -28,7 +23,7 @@ func synthCommand() *cobra.Command {
 	cmd.AddCommand(synthTemplateCommand("testdata/chirp/template.yaml", appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
 	cmd.AddCommand(synthServiceCmd(appCfg.OutputDir, appCfg.Namespace))
 	alloyAddress := fmt.Sprintf("%s:%d", appCfg.MonitoringConfig.AlloyAddress, appCfg.MonitoringConfig.Collectors.OtlpGRPCPort)
-	cmd.AddCommand(synthTestCommand(appCfg.OutputDir, appCfg.Namespace, alloyAddress))
+	cmd.AddCommand(synthChaosCommand(appCfg.OutputDir, appCfg.Namespace, alloyAddress))
 	return cmd
 
 }
@@ -105,13 +100,13 @@ func synthServiceCmd(file string, outputDir string) *cobra.Command {
 	return cmd
 }
 
-func synthTestCommand(outputDir, ns, alloy string) *cobra.Command {
+func synthChaosCommand(outputDir, ns, alloy string) *cobra.Command {
 	var outDir string
 	var fileName string
 	var account string
 	cmd := &cobra.Command{
-		Use:   "tests",
-		Short: "Synth manifests for a tests",
+		Use:   "chaos",
+		Short: "Synth manifests for a chaos tests",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := cmd.ValidateRequiredFlags(); err != nil {
 				return err

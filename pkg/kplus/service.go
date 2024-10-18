@@ -24,14 +24,11 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 
 	serviceName := fmt.Sprintf("%s", template.Name)
 	service := deployment.ExposeViaService(&kplus.DeploymentExposeViaServiceOptions{
-		ServiceType: kplus.ServiceType_LOAD_BALANCER,
+		ServiceType: kplus.ServiceType_CLUSTER_IP,
 		Name:        jsii.String(serviceName),
-		//Ports: &[]kplus.ServicePort,
 	})
 	service.Metadata().AddLabel(jsii.String("app"), jsii.String(template.Name))
 	service.SelectLabel(jsii.String("app"), jsii.String(template.Name))
-	//service.Bind(jsii.Number(template.Ports[0].Port), &kplus.ServiceBindOptions{NodePort: jsii.Number(nodePort)})
-	//service.Bind(jsii.Number(8000), &kplus.ServiceBindOptions{Name: jsii.String("disruptor"), TargetPort: jsii.Number(template.Ports[0].Port)})
 
 	accountName := fmt.Sprintf("%s-account", template.Name)
 	kplus.NewServiceAccount(ct, jsii.String(accountName), &kplus.ServiceAccountProps{
@@ -89,13 +86,8 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 }
 
 func newServiceDeployment(scope constructs.Construct, id string, service *ServiceTemplate, m map[string]string) kplus.Deployment {
-	//replicas := 2
-	//if service.Replicas != 0 {
-	//	replicas = service.Replicas
-	//}
 
 	deployment := kplus.NewDeployment(scope, jsii.String(id), &kplus.DeploymentProps{
-		//Replicas: jsii.Number(replicas),
 		SecurityContext: &kplus.PodSecurityContextProps{
 			EnsureNonRoot: jsii.Bool(false),
 		},

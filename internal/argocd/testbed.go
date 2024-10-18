@@ -226,7 +226,7 @@ func (c *Client) CreateChaosProject(ctx context.Context, ns string) error {
 
 func (c *Client) createChaosProject(ctx context.Context, ns string) (string, error) {
 	sources := []string{argoCDRepo}
-	namespaces := []string{"galah-testbed"}
+	namespaces := []string{ns}
 	destinations := []v1alpha1.ApplicationDestination{
 		{
 			Server:    defaultServer,
@@ -235,6 +235,10 @@ func (c *Client) createChaosProject(ctx context.Context, ns string) (string, err
 		{
 			Server:    defaultServer,
 			Namespace: ns,
+		},
+		{
+			Server:    defaultServer,
+			Namespace: "default",
 		},
 	}
 	return c.createGalahProject(ctx,

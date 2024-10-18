@@ -144,8 +144,6 @@ func newTestRun(scope constructs.Construct, id string, props *TestRunProps, opts
 		props.envMap = props.ExistingEnv.Name
 	}
 
-	fmt.Println("DEBUG _ ARGS: ", props.Args)
-
 	jobTemplate := newJobTemplate(props.Labels, props.Annotations)
 
 	job := chaos.NewTestRunJob(scope, jsii.String(id), &chaos.TestRunJobProps{
@@ -367,7 +365,6 @@ func WithOtelOutput(addr string, prefix string) TestRunOpt {
 		//	fmt.Println(arg)
 		//}
 		if addOtel {
-			fmt.Println("OK _ DEBUG _ ADD OTEL")
 			metricPrefix := defaultMetricPrefix
 			if prefix != "" {
 				metricPrefix = prefix
@@ -382,7 +379,6 @@ func WithOtelOutput(addr string, prefix string) TestRunOpt {
 			result = strings.Join([]string{result, prefixStr, exportStr, outputStr}, " ")
 			t.Args = strings.TrimSpace(result)
 
-			fmt.Println("DEBUG _ RESULT - ", result)
 			return nil
 		}
 		if prefix != "" {

@@ -37,6 +37,7 @@ func newRootCommand(cfg *config.AppConfig) *rootCommand {
 	rt.AddCommand(orchestrationCmds.CommitPushCmd(cfg.ConfigDir, "github.yaml", cfg))
 	rt.AddCommand(orchestrationCmds.ProjectCmd(cfg.Namespace))
 	rt.AddCommand(commands.ArgoApplicationCmd())
+	rt.AddCommand(orchestrationCmds.ArgoAuthCmd())
 
 	rt.AddCommand(kubeCmd.ServiceCmd())
 	rt.AddCommand(kubeCmd.WaitRelatedPodsCmd())

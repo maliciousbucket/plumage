@@ -31,9 +31,6 @@ fmt:
 vet:
 	go vet ./...
 
-.PHONY: build ## Build Plumage
-build:
-	go build -o bin/plumage .
 
 .PHONY: k3d ## Install K3D to the project's /bin/ directory
 k3d: $(K3D)
@@ -59,6 +56,20 @@ argo-ingress: ## Add an ingress pointing to the argocd server
 
 argo-node: ## Open a nodepoprt to the argocd server
 	$(SHELL ./tools/pf-argp.sh)
+
+##@ Build
+
+.PHONY: build ## Build Plumage
+build:
+	go build -o bin/plumage .
+
+.PHONY: docker-build
+docker-build: ## Build the docker image
+	docker build -t ${IMG}
+
+.PHONY: docker-push
+docker-push: ## Push the docker image
+	docker push ${IMG}
 
 ##@ Tests
 

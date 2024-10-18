@@ -187,7 +187,3 @@ func (t *Template) applyHost() {
 		}
 	}
 }
-
-func loadTemplate(filePath string) (*Template, error) {
-	return nil, nil
-}

@@ -21,7 +21,6 @@ func deployCmd(cfg *config.AppConfig) *cobra.Command {
 	cmd.AddCommand(orchestrationCmds.SyncCommand())
 	cmd.AddCommand(argoCmds.ClusterCommand())
 	cmd.AddCommand(orchestrationCmds.DeployAppCmd("testdata/chirp/template.yaml", cfg.Namespace))
-	cmd.AddCommand(orchestrationCmds.ArgoAuthCmd())
 	cmd.AddCommand(orchestrationCmds.DeployMonitoringCommand())
 	cmd.AddCommand(orchestrationCmds.DeployTemplateCommand(cfg))
 	cmd.AddCommand(orchestrationCmds.DeployGatewayCommand(cfg.ConfigDir, cfg.OutputDir, cfg.Namespace))

@@ -56,6 +56,38 @@ Default Location: `<Config Directory>/config.yaml`
 | k6ValuesFile                  | ""            | Optional values file for the K6Operator Helm Chart.               |
 | charts                        | nil           |                                                                   |
 
+
+#### Charts Config
+
+
+| Name      | Default | Description                   |
+|-----------|---------|-------------------------------|
+| configDir |         |                               |
+| fileName  | ""      |                               |
+| charts    | nil     | List of `ChartConfig` objects |
+
+
+
+
+### ChartConfig
+
+| Name        | Default | Description                                                   |
+|-------------|---------|---------------------------------------------------------------|
+| repository  | ""      |                                                               |
+| namespace   | default |                                                               |
+| chartName   | ""      |                                                               |
+| releaseName | ""      |                                                               |
+| version     | ""      |                                                               |
+| replace     | false   |                                                               |
+| valuesFiles | ""      |                                                               |
+| values      | ""      |                                                               |
+| localFile   | ""      |                                                               |
+| skipCRDs    | false   |                                                               |
+| upgradeCRDs | false   |                                                               |
+| labels      | nil     | Additional labels for the chart.                              |
+| lint        | false   | Determines if the chart will be linted prior to installation. |
+
+
 ### GitHub Config
 
 Default Location: `<Config Directory>/github.yaml`
@@ -228,4 +260,54 @@ Flags:
 Global Flags:
       --config string   config file (default is $HOME/.plumage.yaml)
 
+```
+
+### Commit
+
+```console
+Commit and Push synthesised manifests
+
+Usage:
+  plumage commit [flags]
+  plumage commit [command]
+
+Available Commands:
+  gateway     Commit traefik gateway manifests
+  manifests   commit manifests
+
+Flags:
+  -e, --env-files string      comma seperated environment files
+  -h, --help                  help for commit
+  -m, --message string        commit message
+  -t, --target-dir string     target directory
+  -f, --target-files string   comma seperated target files
+
+Global Flags:
+      --config string   config file (default is $HOME/.plumage.yaml)
+
+Use "plumage commit [command] --help" for more information about a command.
+```
+
+### Synth
+
+```console
+Synth Kubernetes manifests
+
+Usage:
+  plumage synth [flags]
+  plumage synth [command]
+
+Available Commands:
+  gateway     Synth gateway manifests
+  service     Synth manifests for a service
+  template    Synth template manifests
+  tests       Synth manifests for a tests
+
+Flags:
+  -h, --help   help for synth
+
+Global Flags:
+      --config string   config file (default is $HOME/.plumage.yaml)
+
+Use "plumage synth [command] --help" for more information about a command.
 ```

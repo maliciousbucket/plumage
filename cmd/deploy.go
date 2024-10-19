@@ -16,7 +16,10 @@ func deployCmd(cfg *config.AppConfig) *cobra.Command {
 			fmt.Println(cmd.UsageString())
 		},
 	}
-	cmd.AddCommand(orchestrationCmds.SetupCmd(cfg.Namespace, cfg.UserConfig.ChartConfig.ArgoVersion, cfg.UserConfig.ChartConfig.ArgoValuesFile))
+	cmd.AddCommand(orchestrationCmds.SetupCmd(cfg.Namespace,
+		cfg.UserConfig.ChartConfig.ArgoVersion,
+		cfg.UserConfig.ChartConfig.PromOperatorVersion,
+		cfg.UserConfig.ChartConfig.ArgoValuesFile))
 	cmd.AddCommand(orchestrationCmds.SyncCommand())
 	cmd.AddCommand(argoCmds.ClusterCommand())
 	cmd.AddCommand(orchestrationCmds.DeployAppCmd("testdata/chirp/template.yaml", cfg.Namespace))

@@ -22,6 +22,7 @@ const (
 	minioTenantPath     = "kubernetes/minio-tenant"
 	tempoPath           = "kubernetes/tempo/helm"
 	userPath            = "kubernetes/user"
+	certManagerPath     = "kubernetes/cert-manager"
 
 	gatewayPath   = "kubernetes/gateway"
 	argoFinalizer = "resources-finalizer.argocd.argoproj.io"
@@ -86,6 +87,8 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 	createMinioTenant := true
 	createTempo := true
 
+	createCertManager := true
+
 	if len(appNames) > 0 {
 		if slices.Contains(appNames, "alloy-app") {
 			createAlloy = false
@@ -113,6 +116,9 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 		}
 		if slices.Contains(appNames, "tempo-app") {
 			createTempo = false
+		}
+		if slices.Contains(appNames, "cert-manager-app") {
+			createCertManager = false
 		}
 
 	}
@@ -166,6 +172,12 @@ func (c *Client) CreateMonitoringProject(ctx context.Context) error {
 
 		if err = c.createTempoApp(ctx, project); err != nil {
 			return fmt.Errorf("error creating tempo application: %w", err)
+		}
+	}
+
+	if createCertManager {
+		if err = c.createCertManagerApp(ctx, project); err != nil {
+			return fmt.Errorf("error creating cert-manager application: %w", err)
 		}
 	}
 
@@ -303,6 +315,10 @@ func (c *Client) createMinioTenantApp(ctx context.Context, project string) error
 
 func (c *Client) createTempoApp(ctx context.Context, project string) error {
 	return c.addMonitoringInfrastructureApp(ctx, "tempo-app", tempoPath, project)
+}
+
+func (c *Client) createCertManagerApp(ctx context.Context, project string) error {
+	return c.addMonitoringInfrastructureApp(ctx, "cert-manager-app", certManagerPath, project)
 }
 
 func (c *Client) addMonitoringInfrastructureApp(ctx context.Context, name, path, project string) error {

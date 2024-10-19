@@ -40,6 +40,7 @@ func newRootCommand(cfg *config.AppConfig) *rootCommand {
 	rt.AddCommand(orchestrationCmds.ArgoAuthCmd())
 
 	rt.AddCommand(kubeCmd.ServiceCmd())
+	rt.AddCommand(kubeCmd.GetLoadBalancersCmd())
 	rt.AddCommand(kubeCmd.WaitRelatedPodsCmd())
 	rt.AddCommand(orchestrationCmds.SetArgoTokenCmd())
 	rt.AddCommand(orchestrationCmds.WatchCmd(cfg.UserConfig.TemplateConfig.TemplateFile))

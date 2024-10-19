@@ -170,7 +170,6 @@ func (k *k8sClient) waitDeploymentReady(ctx context.Context, ns, name string, me
 		}
 	}
 }
-
 func (k *k8sClient) WaitPodInstanceRunning(ctx context.Context, ns, name string) error {
 	//"app.kubernetes.io/instance"
 	watcher, err := k.createPodInstanceWatcher(ctx, ns, name)
@@ -185,7 +184,6 @@ func (k *k8sClient) createPodInstanceWatcher(ctx context.Context, ns, name strin
 		"app.kubernetes.io/instance": name,
 	}
 
-	//labelSelector := fmt.Sprintf("app.kubernetes.io/instance=%s", name)
 	labelSelector, err := labels.ValidatedSelectorFromSet(podsLabels)
 	if err != nil {
 		return nil, err
@@ -198,16 +196,24 @@ func (k *k8sClient) createPodInstanceWatcher(ctx context.Context, ns, name strin
 	return k.kubeClient.CoreV1().Pods(ns).Watch(ctx, opts)
 }
 
-func (k *k8sClient) WaitPodNameRunning(ctx context.Context, ns, name string) error {
+func (k *k8sClient) WaitPodNameLabelRunning(ctx context.Context, ns, name string) error {
 	//app.kubernetes.io/name
-	watcher, err := k.createPodNameWatcher(ctx, ns, name)
+	watcher, err := k.createPodNameLabelWatcher(ctx, ns, name)
 	if err != nil {
 		return err
 	}
 	return k.waitPodRunning(ctx, watcher)
 }
 
-func (k *k8sClient) createPodNameWatcher(ctx context.Context, ns, name string) (watch.Interface, error) {
+func (k *k8sClient) WaitPodNameRunning(ctx context.Context, ns, name string) error {
+	watcher, err := k.createPodFieldWatcher(ctx, ns, name)
+	if err != nil {
+		return err
+	}
+	return k.waitPodRunning(ctx, watcher)
+}
+
+func (k *k8sClient) createPodNameLabelWatcher(ctx context.Context, ns, name string) (watch.Interface, error) {
 	podLabels := map[string]string{
 		"app.kubernetes.io/name": name,
 	}

@@ -40,7 +40,7 @@ type KubeClient interface {
 	WatchDeployment(ctx context.Context, ns string, name string, meta bool) error
 	WatchAppDeployment(ctx context.Context, ns string, services []string) error
 	WaitPodInstanceRunning(ctx context.Context, ns string, name string) error
-	WaitPodNameRunning(ctx context.Context, ns string, name string) error
+	WaitPodNameLabelRunning(ctx context.Context, ns string, name string) error
 	CreateNamespace(ctx context.Context, ns string) (*kubeclient.NameSpaceInfo, error)
 	CheckArgoExists(ctx context.Context, ns string) (*kubeclient.ServiceInfo, error)
 	WaitAllArgoPods(ctx context.Context, ns string) error

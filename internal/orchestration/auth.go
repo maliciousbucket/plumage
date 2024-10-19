@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"io"
+	"log"
 	"net/http"
 	"os"
 )
@@ -48,6 +49,7 @@ func SetArgoToken(ctx context.Context, kubeClient KubeClient) error {
 	if err != nil {
 		return nil
 	}
+	log.Println("ArgoCD API Token Set")
 	return nil
 
 }

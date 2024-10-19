@@ -313,8 +313,8 @@ func ExposeCmd() *cobra.Command {
 	cmd.Flags().IntP("targetPort", "n", 0, "Node port to expose service on")
 	cmd.Flags().BoolVar(&loadBalancer, "loadbalancer", false, "Expose as a load balancer")
 	cmd.Flags().BoolVar(&nodePort, "nodeport", false, "Expose as a node port")
-	cmd.MarkFlagsRequiredTogether("nodePort", "port", "targetPort")
-	cmd.MarkFlagsMutuallyExclusive("loadBalancer", "nodeport")
+	cmd.MarkFlagsRequiredTogether("nodeport", "port", "targetPort")
+	cmd.MarkFlagsMutuallyExclusive("loadbalancer", "nodeport")
 	return cmd
 }
 

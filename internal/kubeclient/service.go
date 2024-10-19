@@ -6,6 +6,7 @@ import (
 	"fmt"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"log"
 	"sync"
 )
 
@@ -21,6 +22,7 @@ func (k *k8sClient) CheckServiceExists(ctx context.Context, namespace string, na
 }
 
 func (k *k8sClient) getService(ctx context.Context, ns string, name string) (*v1.Service, error) {
+	log.Println("getting service", ns, name)
 	res, err := k.kubeClient.CoreV1().Services(ns).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -45,6 +47,7 @@ func (k *k8sClient) getServicePods(ctx context.Context, ns string, name string) 
 
 func (k *k8sClient) WaitServicePods(ctx context.Context, ns string, name string) error {
 	pods, err := k.getServicePods(ctx, ns, name)
+	log.Println(pods)
 	if err != nil {
 		return err
 	}

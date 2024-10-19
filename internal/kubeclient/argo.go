@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	argoCDServerName = "argocd-helm-server"
+	argoCDServerName = "argo-helm-argocd-server"
 )
 
 type ServiceInfo struct {
@@ -24,6 +24,7 @@ type ServiceInfo struct {
 }
 
 func (k *k8sClient) CheckArgoExists(ctx context.Context, ns string) (*ServiceInfo, error) {
+	log.Printf("CheckArgoExists: ns: %v\n", ns)
 	res, err := k.getService(ctx, ns, argoCDServerName)
 
 	if err != nil {
@@ -51,6 +52,10 @@ func (k *k8sClient) WaitAllArgoPods(ctx context.Context, ns string) error {
 	if pods == nil || len(pods.Items) == 0 {
 		return fmt.Errorf("no Argo CD pods found in namespace %s", ns)
 	}
+	log.Println("Waiting for Argo CD pods to be ready...")
+	for _, pod := range pods.Items {
+		log.Printf("Waiting for Argo CD pod %s to be ready", pod.Name)
+	}
 	return k.waitServicePods(ctx, ns, pods)
 }
 
@@ -75,7 +80,7 @@ func (k *k8sClient) SetupArgoLb(ctx context.Context, ns, envFile string) error {
 func (k *k8sClient) checkArgoExternalIp(ctx context.Context, ns, envFIle string) (bool, error) {
 	timeoutCtx, cancel := context.WithTimeout(ctx, time.Minute*2)
 	defer cancel()
-	if err := k.WaitAllArgoPods(timeoutCtx, ns); err != nil {
+	if err := k.WaitAllArgoPods(timeoutCtx, "argocd"); err != nil {
 		return false, err
 	}
 
@@ -91,19 +96,23 @@ func (k *k8sClient) checkArgoExternalIp(ctx context.Context, ns, envFIle string)
 		return false, nil
 	}
 
-	if service.Spec.ExternalIPs == nil || len(service.Spec.ExternalIPs) == 0 {
-		if err = setArgoAddress(service.Spec.ExternalIPs[0], envFIle); err != nil {
-			return false, err
-		}
+	if service.Spec.ExternalIPs == nil {
 		return false, nil
 	}
 
-	return true, nil
+	if service.Spec.ExternalIPs != nil && len(service.Spec.ExternalIPs) != 0 {
+		if err = setArgoAddress(service.Spec.ExternalIPs[0], envFIle); err != nil {
+			return false, err
+		}
+		return true, nil
+	}
+
+	return false, nil
 
 }
 
 func (k *k8sClient) patchArgoToLB(ctx context.Context, ns string, env string) (*LoadBalancerInfo, error) {
-	info, updateErr := k.exposeServiceAsLoadBalancer(ctx, "argocd-helm-server", ns)
+	info, updateErr := k.exposeServiceAsLoadBalancer(ctx, ns, argoCDServerName)
 	if updateErr != nil {
 		return nil, updateErr
 	}

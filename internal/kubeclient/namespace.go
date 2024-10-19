@@ -18,9 +18,9 @@ func (k *k8sClient) CreateNamespace(ctx context.Context, ns string) (*NameSpaceI
 		if !errors.IsNotFound(err) {
 			return nil, err
 		}
-		
+
 	}
-	if namespace != nil {
+	if namespace != nil && namespace.Name != "" {
 		return &NameSpaceInfo{
 			Name:        namespace.Name,
 			Namespace:   namespace.Namespace,

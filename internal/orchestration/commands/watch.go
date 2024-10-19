@@ -53,7 +53,7 @@ func WatchCmd(template string) *cobra.Command {
 
 			if svc {
 
-				if err := kubernetesClient.WaitPodNameRunning(ctx, ns, name); err != nil {
+				if err := kubernetesClient.WaitPodNameLabelRunning(ctx, ns, name); err != nil {
 					log.Fatalf("failed to watch service %s/%s: %v", ns, name, err)
 				}
 			}

@@ -10,10 +10,13 @@ import (
 )
 
 const (
-	defaultIngressName   = "traefik-ingress-controller"
-	defaultTraefikImage  = "traefik:v3.1"
-	entrypointAnnotation = "traefik.ingress.kubernetes.io/router-entrypoints"
-	traefikCrdUrl        = "https://raw.githubusercontent.com/traefik/traefik/refs/heads/master/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
+	defaultIngressName         = "traefik-ingress-controller"
+	defaultTraefikImage        = "traefik:v3.1"
+	entrypointAnnotation       = "traefik.ingress.kubernetes.io/router-entrypoints"
+	traefikCrdUrl              = "https://raw.githubusercontent.com/traefik/traefik/refs/heads/master/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml"
+	externalLbAnnotation       = "service.beta.kubernetes.io/aws-load-balancer-type"
+	externalLbTypeAnnotation   = "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type"
+	externalLbSchemeAnnotation = "service.beta.kubernetes.io/aws-load-balancer-scheme"
 )
 
 func defaultIngressServiceAccountMetadata(namespace string) cdk8s.ApiObjectMetadata {
@@ -178,6 +181,9 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 
 func traefikIngressAnnotations(ns string) map[string]*string {
 	annotations := map[string]*string{
+		externalLbAnnotation:       jsii.String("external"),
+		externalLbTypeAnnotation:   jsii.String("ip"),
+		externalLbSchemeAnnotation: jsii.String("internet-facing"),
 		//entrypointAnnotation: jsii.String("web"),
 	}
 	return annotations

@@ -13,6 +13,7 @@ import (
 
 func SynthTemplate(filePath, outputDir string, monitoring map[string]string) error {
 	file, err := os.Open(filePath)
+	log.Println("kplus-fp: ", filePath)
 	if err != nil {
 		return err
 	}

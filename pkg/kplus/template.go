@@ -26,8 +26,8 @@ type ServiceTemplate struct {
 	Commands           []string                         `yaml:"commands"`
 	Paths              []ServicePath                    `yaml:"paths"`
 	Ports              []Port                           `yaml:"ports"`
-	LivenessProbe      Probe                            `yaml:"liveness_probe,omitempty"`
-	ReadinessProbe     Probe                            `yaml:"readiness_probe,omitempty"`
+	LivenessProbe      Probe                            `yaml:"livenessProbe,omitempty"`
+	ReadinessProbe     Probe                            `yaml:"readinessProbe,omitempty"`
 	HealthCheckProbe   Probe                            `yaml:"health_check_probe,omitempty"`
 	VolumeMounts       map[string]string                `yaml:"volumeMounts,omitempty"`
 	FileMounts         []map[string]string              `yaml:"fileMounts,omitempty"`
@@ -37,6 +37,7 @@ type ServiceTemplate struct {
 	EnvFile            string                           `yaml:"envFile"`
 	Monitoring         *MonitoringTemplate              `yaml:"monitoring,omitempty"`
 	Replicas           int                              `yaml:"replicas"`
+	Resources          *Resources                       `yaml:"resources,omitempty"`
 	Scaling            ScalingTemplate                  `yaml:"scaling"`
 	DefaultMiddleware  []string                         `yaml:"defaultMiddleware,omitempty"`
 	DefaultAutoScaling autoscaling.DefaultAutoScaling   `yaml:"defaultAutoScaling,omitempty"`
@@ -67,6 +68,16 @@ type MonitoringTemplate struct {
 type Probe struct {
 	Type  string       `yaml:"type"`
 	Probe ServiceProbe `yaml:"probe"`
+}
+
+type Resources struct {
+	CPU    *Resource `yaml:"cpu"`
+	Memory *Resource `yaml:"memory"`
+}
+
+type Resource struct {
+	Request int `yaml:"request"`
+	Limit   int `yaml:"limit"`
 }
 
 func (p *Probe) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -139,6 +150,7 @@ func (p *HttpProbe) toKplusProbe() kplus.Probe {
 	if p.HTTPS {
 		scheme = kplus.ConnectionScheme_HTTPS
 	}
+
 	return kplus.Probe_FromHttpGet(jsii.String(p.Path), &kplus.HttpGetProbeOptions{
 		FailureThreshold:    jsii.Number(p.Threshold),
 		InitialDelaySeconds: cdk8s.Duration_Seconds(jsii.Number(p.InitialDelaySeconds)),

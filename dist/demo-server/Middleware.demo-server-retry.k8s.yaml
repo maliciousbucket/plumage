@@ -1,9 +1,0 @@
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: demo-server-retry
-  namespace: galah-testbed
-spec:
-  retry:
-    attempts: 5
-    initialInterval: 100ms

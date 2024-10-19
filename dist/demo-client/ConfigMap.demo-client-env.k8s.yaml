@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo-client-env
-  namespace: galah-testbed
-data:
-  DEMO_SERVER_ENDPOINT: http://demo-server:7080/hello
-  OTEL_EXPORTER_OTLP_ENDPOINT: alloy.galah-monitoring.svc.cluster.local:4317
-immutable: false

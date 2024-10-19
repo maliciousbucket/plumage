@@ -86,8 +86,9 @@ func getDefaultUserConfig() UserConfig {
 			EnvFiles:     []string{},
 		},
 		TemplateConfig: TemplateConfig{
-			WorkingDir:   templateDir,
-			TemplateFile: "galah-template.yaml",
+			//TODO: From Config
+			WorkingDir:   "testdata",
+			TemplateFile: "/chirp/template.yaml",
 		},
 		ChartConfig: ChartConfig{
 			ArgoVersion:                   argoVersion,

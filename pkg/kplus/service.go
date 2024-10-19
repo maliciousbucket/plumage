@@ -79,8 +79,10 @@ func NewServiceManifests(scope constructs.Construct, id string, ns string, templ
 		name := fmt.Sprintf("%s-autoscaler", template.Name)
 		AddDefaultScaling(ct, deployment, name, template.DefaultAutoScaling)
 	}
-	routeName := fmt.Sprintf("%s-ingress-route", template.Name)
-	NewIngressRoute(ct, routeName, ns, template, middlewareRefs)
+	if template.Paths != nil && len(template.Paths) > 0 {
+		routeName := fmt.Sprintf("%s-ingress-route", template.Name)
+		NewIngressRoute(ct, routeName, ns, template, middlewareRefs)
+	}
 
 	return ct
 }
@@ -164,6 +166,11 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate, mon
 
 		containerEnvFrom := append(*props.EnvFrom, envFrom)
 		props.EnvFrom = &containerEnvFrom
+	}
+
+	if service.Resources != nil {
+		resources := toKplusResources(service.Resources)
+		props.Resources = resources
 	}
 
 	return props
@@ -274,6 +281,37 @@ func addEmptyDirs(scope constructs.Construct, container kplus.Container, name st
 		}
 	}
 	return container
+}
+
+func toKplusResources(resources *Resources) *kplus.ContainerResources {
+	if resources == nil {
+		return nil
+	}
+	containerResources := &kplus.ContainerResources{
+		Cpu:              nil,
+		EphemeralStorage: nil,
+		Memory:           nil,
+	}
+	if resources.Memory != nil {
+		containerResources.Memory = &kplus.MemoryResources{}
+		if resources.Memory.Request != 0 {
+			containerResources.Memory.Request = cdk8s.Size_Mebibytes(jsii.Number(resources.Memory.Request))
+		}
+		if resources.Memory.Limit != 0 {
+			containerResources.Memory.Limit = cdk8s.Size_Mebibytes(jsii.Number(resources.Memory.Limit))
+		}
+	}
+
+	if resources.CPU != nil {
+		containerResources.Cpu = &kplus.CpuResources{}
+		if resources.CPU.Request != 0 {
+			containerResources.Cpu.Request = kplus.Cpu_Millis(jsii.Number(resources.CPU.Request))
+		}
+		if resources.CPU.Limit != 0 {
+			containerResources.Cpu.Limit = kplus.Cpu_Millis(jsii.Number(resources.CPU.Limit))
+		}
+	}
+	return containerResources
 }
 
 func portName(port Port, num int) string {

@@ -9,7 +9,10 @@ import (
 )
 
 func AddEnvironmentVariables(scope constructs.Construct, s *ServiceTemplate, monitoring map[string]string) kplus.ConfigMap {
-	monitoringEnvConfig := loadMonitoringEnvWithAliases(monitoring, s.Monitoring.Aliases, s.Monitoring.MonitoringEnv)
+	var monitoringEnvConfig = make(map[string]string)
+	if s.Monitoring != nil {
+		monitoringEnvConfig = loadMonitoringEnvWithAliases(monitoring, s.Monitoring.Aliases, s.Monitoring.MonitoringEnv)
+	}
 
 	env := loadEnv(monitoringEnvConfig, s.Env)
 

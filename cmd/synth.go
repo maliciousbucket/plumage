@@ -20,7 +20,7 @@ func synthCommand() *cobra.Command {
 		},
 	}
 	cmd.AddCommand(synthGatewayCmd(appCfg.OutputDir, appCfg.Namespace))
-	cmd.AddCommand(synthTemplateCommand("testdata/chirp/template.yaml", appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
+	cmd.AddCommand(synthTemplateCommand(appCfg.UserConfig.TemplateConfig.TemplateFile, appCfg.OutputDir, appCfg.MonitoringConfig.Collectors))
 	cmd.AddCommand(synthServiceCmd(appCfg.OutputDir, appCfg.Namespace))
 	alloyAddress := fmt.Sprintf("%s:%d", appCfg.MonitoringConfig.AlloyAddress, appCfg.MonitoringConfig.Collectors.OtlpGRPCPort)
 	cmd.AddCommand(synthChaosCommand(appCfg.OutputDir, appCfg.Namespace, alloyAddress))
@@ -64,19 +64,26 @@ func synthGatewayCmd(outputDir string, namespace string) *cobra.Command {
 }
 
 func synthTemplateCommand(file string, outputDir string, c *config.CollectorConfig) *cobra.Command {
+	var templateFile string
 	cmd := &cobra.Command{
 		Use:   "template",
 		Short: "Synth template manifests",
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Println("synthesizing manifests from " + file)
+			log.Println(templateFile)
+			if templateFile == "" {
+				templateFile = file
+			}
+			log.Println("synthesizing manifests from " + templateFile)
 			m := c.ToStringMap()
-			err := kplus.SynthTemplate(file, outputDir, m)
+			err := kplus.SynthTemplate(templateFile, outputDir, m)
 			if err != nil {
 				log.Fatal(err)
 
 			}
 		},
 	}
+	cmd.Flags().StringVar(&templateFile, "template-file", "", "path to template file")
+	_ = cmd.MarkFlagFilename("template-file", "yaml", "yml")
 	return cmd
 }
 

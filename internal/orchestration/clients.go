@@ -55,9 +55,12 @@ type KubeClient interface {
 	ExposeService(ctx context.Context, ns string, name string, port int, nodePort int, serviceType kubeclient.ExposeServiceType) error
 	ListDeployments(ctx context.Context, ns string) ([]appsV1.Deployment, error)
 	ListPods(ctx context.Context, namespace string) (*v1.PodList, error)
+	GetExternalAddress(ctx context.Context, ns string, name string) ([]string, error)
+	GetLoadBalancersForNamespace(ctx context.Context, ns string) ([]*kubeclient.LoadBalancerInfo, error)
 }
 
 type HelmClient interface {
 	InstallK6(ctx context.Context, version, valuesFile string, replace bool) error
 	InstallArgoChart(ctx context.Context, version, valuesFile string) error
+	InstallPromOperatorCRDs(ctx context.Context, version, valuesFile string, replace bool) error
 }

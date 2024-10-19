@@ -127,7 +127,7 @@ func (k *k8sClient) exposeServiceAsLoadBalancer(ctx context.Context, ns string, 
 		return nil, fmt.Errorf("error deleting service %s/%s: %v", ns, name, deleteRetryErr)
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(30 * time.Second)
 
 	newService := foundSvc.DeepCopy()
 	newService.Spec.Type = v1.ServiceTypeLoadBalancer

@@ -7,7 +7,7 @@ import (
 	"log"
 )
 
-func SetupCmd(ns, argoVersion, valuesFile string) *cobra.Command {
+func SetupCmd(ns, argoVersion, promVersion, valuesFile string) *cobra.Command {
 	var namespace string
 	var envFile string
 	var version string
@@ -35,7 +35,7 @@ func SetupCmd(ns, argoVersion, valuesFile string) *cobra.Command {
 				values = valuesFile
 			}
 			ctx := context.Background()
-			if err := orchestration.Setup(ctx, helmClient, kubernetesClient, namespace, version, values, envFile); err != nil {
+			if err := orchestration.Setup(ctx, helmClient, kubernetesClient, namespace, version, promVersion, values, envFile); err != nil {
 				log.Fatalln(err)
 			}
 		},

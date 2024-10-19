@@ -177,7 +177,7 @@ func (c *Client) addTestBedApp(ctx context.Context, ns, name, path, project stri
 					argoFinalizer,
 				},
 				Annotations: map[string]string{
-					//skipReconcileAnnotation: "true",
+					skipReconcileAnnotation: "true",
 				},
 			},
 			Spec: v1alpha1.ApplicationSpec{
@@ -194,6 +194,10 @@ func (c *Client) addTestBedApp(ctx context.Context, ns, name, path, project stri
 				SyncPolicy: &v1alpha1.SyncPolicy{
 					Automated: &v1alpha1.SyncPolicyAutomated{
 						SelfHeal: false,
+					},
+					SyncOptions: []string{
+						"RespectIgnoreDifferences=true",
+						"CreateNamespace=true",
 					},
 				},
 			},

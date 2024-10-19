@@ -48,6 +48,60 @@ func ServiceCmd() *cobra.Command {
 	return cmd
 }
 
+func GetLoadBalancersCmd() *cobra.Command {
+	var client kubeclient.Client
+	var namespace string
+	var serviceName string
+	cmd := &cobra.Command{
+		Use:   "loadbalancer",
+		Short: "Inspect load balancers in the cluster",
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			newCLient, err := kubeclient.NewClient()
+			if err != nil {
+				return err
+			}
+			client = newCLient
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateRequiredFlags(); err != nil {
+				return err
+			}
+			ctx := context.Background()
+			if serviceName != "" {
+				addresses, err := client.GetServiceAddress(ctx, namespace, serviceName)
+				if err != nil {
+					log.Fatal(err)
+				}
+				if len(addresses) == 0 {
+					log.Printf("No external addresses found for %s/%s\n", namespace, serviceName)
+					return nil
+				}
+				log.Printf("Service %s/%s found. Listening on: \n", namespace, serviceName)
+				for _, address := range addresses {
+					log.Println(address)
+				}
+				return nil
+			}
+			loadbalancers, err := client.GetLoadBalancersForNamespace(ctx, namespace)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if len(loadbalancers) == 0 {
+				log.Printf("No load balancers found for %s\n", namespace)
+			}
+			for _, loadBalancer := range loadbalancers {
+				log.Printf("%+v\n", loadBalancer)
+			}
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&namespace, "namespace", "", "Namespace to to get loadbalancers from")
+	cmd.Flags().StringVar(&serviceName, "service", "", "Service name")
+	_ = cmd.MarkFlagRequired("namespace")
+	return cmd
+}
+
 // WaitRelatedPodsCmd TODO: FIx
 func WaitRelatedPodsCmd() *cobra.Command {
 	cmd := &cobra.Command{

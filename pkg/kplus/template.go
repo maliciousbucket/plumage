@@ -30,7 +30,7 @@ type ServiceTemplate struct {
 	ReadinessProbe     Probe                            `yaml:"readinessProbe,omitempty"`
 	HealthCheckProbe   Probe                            `yaml:"health_check_probe,omitempty"`
 	VolumeMounts       map[string]string                `yaml:"volumeMounts,omitempty"`
-	FileMounts         []map[string]string              `yaml:"fileMounts,omitempty"`
+	FileMounts         []map[string]map[string]string   `yaml:"fileMounts,omitempty"`
 	EmptyDirs          []string                         `yaml:"emptyDirs,omitempty"`
 	WorkingDir         string                           `yaml:"workingDir"`
 	Env                map[string]string                `yaml:"env,omitempty"`

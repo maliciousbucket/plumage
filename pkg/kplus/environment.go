@@ -15,13 +15,10 @@ func AddEnvironmentVariables(scope constructs.Construct, s *ServiceTemplate, mon
 	}
 
 	env := loadEnv(monitoringEnvConfig, s.Env)
-
-	//name := fmt.Sprintf("%s-env", s.Name)
 	configMap := kplus.NewConfigMap(scope, jsii.String("env"), nil)
 
 	for k, v := range env {
 		value := fmt.Sprintf("%s", v)
-		//configMap.AddBinaryData(jsii.String(k), jsii.String(value))
 		configMap.AddData(jsii.String(k), jsii.String(value))
 	}
 	return configMap
@@ -35,7 +32,6 @@ func loadEnv(monitoring, env map[string]string) map[string]string {
 		if _, ok := env[key]; ok {
 			env[key] = monitoring[key]
 		} else {
-			//If the key was only defined in the monitoring env
 			env[key] = value
 		}
 	}

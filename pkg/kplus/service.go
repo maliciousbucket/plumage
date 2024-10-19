@@ -101,6 +101,7 @@ func newServiceDeployment(scope constructs.Construct, id string, service *Servic
 	addEmptyDirs(scope, container, service.Name, service.EmptyDirs)
 	addFileMounts(scope, container, service)
 	addDirectoryMounts(scope, container, service)
+	log.Println(*container.Mounts())
 
 	if service.Monitoring != nil {
 		if service.Monitoring.ScrapePort != 0 || service.Monitoring.ScrapePath != "" {
@@ -138,7 +139,8 @@ func newContainerProps(scope constructs.Construct, service *ServiceTemplate, mon
 		Ports:           &ports,
 		ImagePullPolicy: kplus.ImagePullPolicy_IF_NOT_PRESENT,
 		SecurityContext: &kplus.ContainerSecurityContextProps{
-			EnsureNonRoot: jsii.Bool(false),
+			EnsureNonRoot:          jsii.Bool(false),
+			ReadOnlyRootFilesystem: jsii.Bool(false),
 		},
 	}
 
@@ -229,18 +231,19 @@ func containerEnv(scope constructs.Construct, name string, env map[string]string
 func addFileMounts(scope constructs.Construct, container kplus.Container, service *ServiceTemplate) kplus.Container {
 
 	if len(service.FileMounts) > 0 {
-
 		for i := 0; i < len(service.FileMounts); i++ {
 			if len(service.FileMounts[i]) > 0 {
-				name := fmt.Sprintf("%s-file-configmap-%d", service.Name, i)
-				configMap := kplus.NewConfigMap(scope, jsii.String(name), nil)
-				for k, v := range service.FileMounts[i] {
-					configMap.AddFile(jsii.String(k), jsii.String(v))
-				}
-				mountId := fmt.Sprintf("%s-volumeMount", *configMap.Name())
-				mount := kplus.Volume_FromConfigMap(scope, jsii.String(mountId), configMap, &kplus.ConfigMapVolumeOptions{})
-				container.Mount(jsii.String(""), mount, nil)
+				for destination, fileMap := range service.FileMounts[i] {
+					name := fmt.Sprintf("file-configmap-%d", i)
+					configMap := kplus.NewConfigMap(scope, jsii.String(name), nil)
+					for key, source := range fileMap {
+						configMap.AddFile(jsii.String(source), jsii.String(key))
+					}
 
+					mountId := fmt.Sprintf("%s-volumeMount", *configMap.Metadata().Name())
+					mount := kplus.Volume_FromConfigMap(scope, jsii.String(mountId), configMap, &kplus.ConfigMapVolumeOptions{})
+					container.Mount(jsii.String(destination), mount, &kplus.MountOptions{})
+				}
 			}
 		}
 	}

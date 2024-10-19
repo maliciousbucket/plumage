@@ -123,6 +123,10 @@ func (k *k8sClient) GetServiceAddress(ctx context.Context, ns string, name strin
 	return "", fmt.Errorf("no LoadBalancer or ClusterIP found for service %s/%s", ns, name)
 
 }
+func (k *k8sClient) GetExternalAddress(ctx context.Context, ns string, name string) ([]string, error) {
+	return k.getServiceExternalAddress(ctx, ns, name)
+}
+
 func (k *k8sClient) getServiceExternalAddress(ctx context.Context, ns string, name string) ([]string, error) {
 	service, err := k.getService(ctx, ns, name)
 	if err != nil {
@@ -145,6 +149,10 @@ type LoadBalancerInfo struct {
 	Namespace   string
 	ExternalIPs []string
 	Ports       []v1.ServicePort
+}
+
+func (k *k8sClient) GetLoadBalancersForNamespace(ctx context.Context, ns string) ([]*LoadBalancerInfo, error) {
+	return k.getLoadBalancersForNamespace(ctx, ns)
 }
 
 func (k *k8sClient) getLoadBalancersForNamespace(ctx context.Context, ns string) ([]*LoadBalancerInfo, error) {

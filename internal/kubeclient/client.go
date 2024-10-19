@@ -35,6 +35,10 @@ type Client interface {
 	ListDeployments(ctx context.Context, ns string) ([]appsv1.Deployment, error)
 
 	ListPods(ctx context.Context, namespace string) (*v1.PodList, error)
+
+	GetLoadBalancersForNamespace(ctx context.Context, ns string) ([]*LoadBalancerInfo, error)
+
+	GetExternalAddress(ctx context.Context, ns string, name string) ([]string, error)
 }
 
 type k8sClient struct {

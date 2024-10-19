@@ -304,6 +304,11 @@ func ExposeCmd() *cobra.Command {
 			}
 			if loadBalancer {
 
+				if err := kubernetesClient.ExposeService(ctx, args[1], args[0], 0, 0, kubeclient.ExposeServiceTypeLoadBalancer); err != nil {
+					log.Fatal(err)
+				}
+				return nil
+
 			}
 			fmt.Println(cmd.UsageString())
 			return nil

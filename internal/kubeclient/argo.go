@@ -3,14 +3,15 @@ package kubeclient
 import (
 	"context"
 	"fmt"
+	"github.com/joho/godotenv"
 	v1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"log"
 	"sync"
 	"time"
 )
 
 const (
-	argoCDServerName = "argocd-server"
+	argoCDServerName = "argocd-helm-server"
 )
 
 type ServiceInfo struct {
@@ -53,18 +54,86 @@ func (k *k8sClient) WaitAllArgoPods(ctx context.Context, ns string) error {
 	return k.waitServicePods(ctx, ns, pods)
 }
 
-func (k *k8sClient) PatchArgoToLB(ctx context.Context, ns string) error {
-	service, err := k.getService(ctx, ns, "argocd-helm-server")
+func (k *k8sClient) SetupArgoLb(ctx context.Context, ns, envFile string) error {
+	hasIp, err := k.checkArgoExternalIp(ctx, ns, envFile)
 	if err != nil {
 		return err
+	}
+	if !hasIp {
+		info, err := k.patchArgoToLB(ctx, ns, envFile)
+		if err != nil {
+			return err
+		}
+		if info != nil {
+			log.Printf("\n Created Argo CD lb service %+v", info)
+		}
+	}
+	log.Println("Argo CD lb service has been setup")
+	return nil
+}
+
+func (k *k8sClient) checkArgoExternalIp(ctx context.Context, ns, envFIle string) (bool, error) {
+	timeoutCtx, cancel := context.WithTimeout(ctx, time.Minute*2)
+	defer cancel()
+	if err := k.WaitAllArgoPods(timeoutCtx, ns); err != nil {
+		return false, err
+	}
+
+	service, err := k.getService(ctx, ns, argoCDServerName)
+	if err != nil {
+		return false, err
 	}
 	if service == nil {
-		return fmt.Errorf("service %s not found", argoCDServerName)
+		return false, fmt.Errorf("no Argo CD service found in namespace %s", ns)
 	}
-	service.Spec.Type = v1.ServiceTypeLoadBalancer
-	_, err = k.kubeClient.CoreV1().Services(ns).Update(ctx, service, metav1.UpdateOptions{})
+
+	if service.Spec.Type != v1.ServiceTypeLoadBalancer {
+		return false, nil
+	}
+
+	if service.Spec.ExternalIPs == nil || len(service.Spec.ExternalIPs) == 0 {
+		if err = setArgoAddress(service.Spec.ExternalIPs[0], envFIle); err != nil {
+			return false, err
+		}
+		return false, nil
+	}
+
+	return true, nil
+
+}
+
+func (k *k8sClient) patchArgoToLB(ctx context.Context, ns string, env string) (*LoadBalancerInfo, error) {
+	info, updateErr := k.exposeServiceAsLoadBalancer(ctx, "argocd-helm-server", ns)
+	if updateErr != nil {
+		return nil, updateErr
+	}
+	if info == nil {
+		return nil, fmt.Errorf("error getting updated Argo CD server info")
+	}
+	if info.ExternalIPs == nil || len(info.ExternalIPs) == 0 {
+		return nil, fmt.Errorf("error getting external IP for Argo CD Server")
+	}
+
+	if err := setArgoAddress(info.ExternalIPs[0], env); err != nil {
+		return nil, err
+	}
+
+	return info, nil
+}
+
+func setArgoAddress(address, env string) error {
+	envFile := ".env"
+	if env != "" {
+		envFile += "." + env
+	}
+	var appEnv map[string]string
+	appEnv, err := godotenv.Read(envFile)
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading env file %s: %v", envFile, err)
+	}
+	appEnv["ARGOCD_ADRESS"] = address
+	if err = godotenv.Write(appEnv, envFile); err != nil {
+		return fmt.Errorf("error updating env file %s: %v", envFile, err)
 	}
 	return nil
 }

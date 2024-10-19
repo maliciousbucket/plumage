@@ -5,17 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/argoproj/argo-cd/v2/pkg/apis/application/v1alpha1"
-	"github.com/joho/godotenv"
 	"github.com/maliciousbucket/plumage/internal/argocd"
-	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/spf13/cobra"
-	"io"
 	"log"
-	"os/exec"
-	"sync"
-	"syscall"
-	"time"
 )
 
 var (
@@ -63,99 +56,6 @@ func SetArgoTokenCmd() *cobra.Command {
 		},
 	}
 	return cmd
-}
-
-// SetArgoToken TODO: Remove
-func SetArgoToken() {
-	setArgoToken()
-}
-
-func setArgoToken() {
-	k8sClient, err := kubeclient.NewClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	ctx := context.Background()
-	err = k8sClient.PatchArgoToLB(ctx, "argocd")
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = k8sClient.CreateGalahArgoAccount(ctx, "argocd")
-	if err != nil {
-		log.Fatal(err)
-	}
-	secret, err := k8sClient.GetArgoPassword(ctx, "argocd")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-
-	portForwardCmd := exec.Command("kubectl", "port-forward", "svc/argocd-helm-server", "8081:443", "-n", "argocd")
-	go func() {
-		defer wg.Done()
-		err := portForwardCmd.Run()
-		if err != nil {
-			var exitErr *exec.ExitError
-			if errors.As(err, &exitErr) {
-				if exitErr.Sys().(syscall.WaitStatus).Signaled() && exitErr.Sys().(syscall.WaitStatus).Signal() == syscall.SIGKILL {
-					log.Println("Port-forward Closed")
-					return
-				}
-			}
-			log.Fatal("Port-forward failed: ", err)
-		}
-	}()
-
-	time.Sleep(2 * time.Second)
-
-	fmt.Println("Secret: " + secret)
-	//pss := fmt.Sprintf("--password %s", secret)
-	loginCommand := exec.Command("argocd", "login", "localhost:8081", "--username", "admin", "--password", secret, "--insecure")
-	fmt.Println(loginCommand)
-	aout, err := loginCommand.StdoutPipe()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err = loginCommand.Start(); err != nil {
-		log.Fatal(err)
-	}
-	ad, err := io.ReadAll(aout)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(string(ad))
-
-	tokenCmd := exec.Command("argocd", "account", "generate-token", "--account", "galah")
-	fmt.Println(tokenCmd)
-	stdout, err := tokenCmd.StdoutPipe()
-
-	if err = tokenCmd.Start(); err != nil {
-		log.Fatal(err)
-	}
-	data, err := io.ReadAll(stdout)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Token: %s\n", string(data))
-
-	myEnv, err := godotenv.Read(".env.test")
-	if err != nil {
-		log.Fatal(err)
-	}
-	myEnv["ARGOCD_TOKEN"] = string(data)
-	err = godotenv.Write(myEnv, ".env.test")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := portForwardCmd.Process.Kill(); err != nil {
-		log.Fatal("Failed to kill port-forward process: ", err)
-	}
-
-	wg.Wait()
 }
 
 func createAppsCmd() *cobra.Command {

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
@@ -260,6 +261,8 @@ func ArgoAuthCmd() *cobra.Command {
 }
 
 func ExposeCmd() *cobra.Command {
+	var nodePort bool
+	var loadBalancer bool
 	cmd := &cobra.Command{
 		Use:   "expose",
 		Short: "Expose as service for testing",
@@ -271,36 +274,47 @@ func ExposeCmd() *cobra.Command {
 			if err := cmd.ValidateRequiredFlags(); err != nil {
 				return err
 			}
+			if err := cmd.ValidateFlagGroups(); err != nil {
+				return err
+			}
 			if err := cobra.MinimumNArgs(2)(cmd, args); err != nil {
 				return err
 			}
-			nodePort, _ := cmd.Flags().GetInt("nodePort")
-			port, _ := cmd.Flags().GetInt("port")
-			if port == 0 {
-				return fmt.Errorf("port must be specified")
-			}
-			if nodePort < 30000 || nodePort > 32767 {
-				return fmt.Errorf("node port must be between 30000 and 32767")
-			}
-			if args[0] == "" {
-				return fmt.Errorf("service name must be specified")
-			}
-			if args[1] == "" {
-				return fmt.Errorf("namespace must be specified")
-			}
-			fmt.Println(port)
-			fmt.Println(nodePort)
 			ctx := context.Background()
-			if err := kubernetesClient.ExposeService(ctx, args[1], args[0], port, nodePort); err != nil {
-				log.Fatal(err)
+			if nodePort {
+				targetPort, _ := cmd.Flags().GetInt("targetPort")
+				port, _ := cmd.Flags().GetInt("port")
+				if port == 0 {
+					return fmt.Errorf("port must be specified")
+				}
+				if targetPort < 30000 || targetPort > 32767 {
+					return fmt.Errorf("node port must be between 30000 and 32767")
+				}
+				if args[0] == "" {
+					return fmt.Errorf("service name must be specified")
+				}
+				if args[1] == "" {
+					return fmt.Errorf("namespace must be specified")
+				}
+
+				if err := kubernetesClient.ExposeService(ctx, args[1], args[0], port, targetPort, kubeclient.ExposeServiceTypeNodePort); err != nil {
+					log.Fatal(err)
+				}
+				return nil
 			}
+			if loadBalancer {
+
+			}
+			fmt.Println(cmd.UsageString())
 			return nil
 		},
 	}
 	cmd.Flags().IntP("port", "p", 0, "Port to expose service on")
-	cmd.Flags().IntP("nodePort", "n", 0, "Node port to expose service on")
-	_ = cmd.MarkFlagRequired("port")
-	_ = cmd.MarkFlagRequired("nodePort")
+	cmd.Flags().IntP("targetPort", "n", 0, "Node port to expose service on")
+	cmd.Flags().BoolVar(&loadBalancer, "loadbalancer", false, "Expose as a load balancer")
+	cmd.Flags().BoolVar(&nodePort, "nodeport", false, "Expose as a node port")
+	cmd.MarkFlagsRequiredTogether("nodePort", "port", "targetPort")
+	cmd.MarkFlagsMutuallyExclusive("loadBalancer", "nodeport")
 	return cmd
 }
 

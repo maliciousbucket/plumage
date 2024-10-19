@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	argoCmds "github.com/maliciousbucket/plumage/internal/argocd/commands"
-	"github.com/maliciousbucket/plumage/internal/helm"
 	orchestrationCmds "github.com/maliciousbucket/plumage/internal/orchestration/commands"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
@@ -17,7 +16,7 @@ func deployCmd(cfg *config.AppConfig) *cobra.Command {
 			fmt.Println(cmd.UsageString())
 		},
 	}
-	cmd.AddCommand(helm.InstallArgoCmd(cfg.UserConfig.ChartConfig.ArgoVersion))
+	cmd.AddCommand(orchestrationCmds.SetupCmd(cfg.Namespace, cfg.UserConfig.ChartConfig.ArgoVersion, cfg.UserConfig.ChartConfig.ArgoValuesFile))
 	cmd.AddCommand(orchestrationCmds.SyncCommand())
 	cmd.AddCommand(argoCmds.ClusterCommand())
 	cmd.AddCommand(orchestrationCmds.DeployAppCmd("testdata/chirp/template.yaml", cfg.Namespace))

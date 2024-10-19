@@ -44,7 +44,7 @@ type KubeClient interface {
 	CreateNamespace(ctx context.Context, ns string) (*kubeclient.NameSpaceInfo, error)
 	CheckArgoExists(ctx context.Context, ns string) (*kubeclient.ServiceInfo, error)
 	WaitAllArgoPods(ctx context.Context, ns string) error
-	PatchArgoToLB(ctx context.Context, ns string) error
+	SetupArgoLb(ctx context.Context, ns, envFile string) error
 	WaitServicePods(ctx context.Context, ns string, name string) error
 	WaitAppPods(ctx context.Context, ns, name string, expected int, timeout time.Duration) error
 
@@ -52,11 +52,12 @@ type KubeClient interface {
 	CreateGalahArgoAccount(ctx context.Context, ns string) error
 	GetArgoPassword(ctx context.Context, ns string) (string, error)
 	CheckServiceExists(ctx context.Context, ns string, name string) (bool, error)
-	ExposeService(ctx context.Context, ns string, name string, port int, nodePort int) error
+	ExposeService(ctx context.Context, ns string, name string, port int, nodePort int, serviceType kubeclient.ExposeServiceType) error
 	ListDeployments(ctx context.Context, ns string) ([]appsV1.Deployment, error)
 	ListPods(ctx context.Context, namespace string) (*v1.PodList, error)
 }
 
 type HelmClient interface {
 	InstallK6(ctx context.Context, version, valuesFile string, replace bool) error
+	InstallArgoChart(ctx context.Context, version, valuesFile string) error
 }

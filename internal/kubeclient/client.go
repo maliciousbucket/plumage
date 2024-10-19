@@ -21,7 +21,8 @@ type Client interface {
 	CreateNamespace(ctx context.Context, ns string) (*NameSpaceInfo, error)
 	CheckArgoExists(ctx context.Context, ns string) (*ServiceInfo, error)
 	WaitAllArgoPods(ctx context.Context, ns string) error
-	PatchArgoToLB(ctx context.Context, ns string) error
+
+	SetupArgoLb(ctx context.Context, ns, envFile string) error
 	WaitServicePods(ctx context.Context, ns string, name string) error
 	WaitAppPods(ctx context.Context, ns, name string, expected int, timeout time.Duration) error
 
@@ -29,7 +30,7 @@ type Client interface {
 	CreateGalahArgoAccount(ctx context.Context, ns string) error
 	GetArgoPassword(ctx context.Context, ns string) (string, error)
 	CheckServiceExists(ctx context.Context, ns string, name string) (bool, error)
-	ExposeService(ctx context.Context, ns string, name string, port int, nodePort int) error
+	ExposeService(ctx context.Context, ns string, name string, port int, nodePort int, serviceType ExposeServiceType) error
 
 	ListDeployments(ctx context.Context, ns string) ([]appsv1.Deployment, error)
 

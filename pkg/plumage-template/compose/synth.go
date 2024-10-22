@@ -2,8 +2,6 @@ package compose
 
 import (
 	"fmt"
-	"github.com/aws/constructs-go/constructs/v10"
-	"github.com/aws/jsii-runtime-go"
 	"github.com/maliciousbucket/plumage/imports/k8s"
 	plumagetemplate "github.com/maliciousbucket/plumage/pkg/plumage-template"
 	"github.com/maliciousbucket/plumage/pkg/plumage-template/autoscaling"
@@ -46,92 +44,6 @@ type WebServiceProps struct {
 	Ingress        *ingress.RouteConfig
 }
 
-type SynthOpts struct {
-	Options []SynthFunc
-}
-
-func newWebService(scope constructs.Construct, id string, props *WebServiceProps) constructs.Construct {
-	return nil
-}
-
-type SynthFunc func(scope constructs.Construct, p *WebServiceProps) constructs.Construct
-
-func WithDeployment() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		props := p.deploymentProps()
-		id := fmt.Sprintf("%s-%s", p.Name, "deployment")
-		return NewDeployment(scope, id, p.Namespace, p.Name, props)
-	}
-}
-
-func WithService() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		props := p.serviceProps()
-		id := fmt.Sprintf("%s-%s", p.Name, "service")
-		return NewService(scope, id, props)
-	}
-}
-
-func WithHorizontalAutoScaling() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		props := p.autoScalingProps()
-		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
-		return autoscaling.NewHorizontalAutoscaler(scope, id, props)
-	}
-}
-
-func WithDefaultHorizontalAutoScaling() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		id := fmt.Sprintf("%s-%s", p.Name, "autoscaler")
-		return autoscaling.DefaultHorizontalAutoScaler(scope, id, p.Namespace, p.Name)
-	}
-}
-
-// WithVerticalScaling TODO: Vertical scaling props and exclusion with horizontal
-func WithVerticalScaling() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		return nil
-	}
-}
-
-func WithDefaultVerticalScaling() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		return nil
-	}
-}
-
-func WithIngressRoute() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		props := p.ingressRouteProps()
-		id := fmt.Sprintf("%s-%s", p.Name, "ingressroute")
-		return ingress.NewIngressRoute(scope, id, props)
-	}
-}
-
-func WithRetry() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		props := p.retryProps()
-		id := fmt.Sprintf("%s-%s", p.Name, "retry")
-		return middleware.NewRetryMiddleware(scope, id, p.Namespace, p.Name, props)
-	}
-}
-
-func WithCircuitBreaker() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		props := p.circuitBreakerProps()
-		id := fmt.Sprintf("%s-%s", p.Name, "circuitbreaker")
-		return middleware.NewCircuitBreakerMiddleware(scope, id, p.Namespace, p.Name, props)
-	}
-}
-
-func WithRateLimit() SynthFunc {
-	return func(scope constructs.Construct, p *WebServiceProps) constructs.Construct {
-		props := p.rateLimitProps()
-		id := fmt.Sprintf("%s-%s", p.Name, "ratelimit")
-		return middleware.NewRateLimitMiddleware(scope, id, p.Namespace, p.Name, props)
-	}
-}
-
 func (p *WebServiceProps) deploymentProps() *DeploymentProps {
 	minReplicas := 1
 	if p.Scaling != nil {
@@ -152,15 +64,6 @@ func (p *WebServiceProps) deploymentProps() *DeploymentProps {
 		InitContainers: p.InitContainers,
 		MinReplicas:    minReplicas,
 		Env:            p.Env,
-	}
-}
-
-func (p *WebServiceProps) serviceProps() *ServiceProps {
-	return &ServiceProps{
-		Name:       p.Name,
-		Namespace:  p.Namespace,
-		Ports:      p.Ports,
-		Monitoring: p.Monitoring,
 	}
 }
 
@@ -221,27 +124,6 @@ func (p *WebServiceProps) ingressRouteProps() *ingress.RouteProps {
 	}
 }
 
-func InitContainersToK8s(containers []*plumagetemplate.InitContainer) *[]*k8s.Container {
-	var k8sContainers []*k8s.Container
-	for _, container := range containers {
-		init := initContainerToK8s(container)
-		k8sContainers = append(k8sContainers, init)
-	}
-	return &k8sContainers
-}
-
-func initContainerToK8s(container *plumagetemplate.InitContainer) *k8s.Container {
-	commands := StringSliceToK8s(container.Commands)
-	resources := ContainerResources(container.Resources)
-
-	return &k8s.Container{
-		Name:      jsii.String(container.Name),
-		Image:     jsii.String(container.Image),
-		Command:   commands,
-		Resources: resources,
-	}
-}
-
 func PortName(rpc bool, count int) string {
 	var protocol string
 	switch rpc {
@@ -276,36 +158,10 @@ func StringMapToEnv(m map[string]string) *[]*k8s.EnvVar {
 	return &env
 }
 
-func StringMapToK8s(m map[string]string) *map[string]*string {
-	var k8sMap map[string]*string
-	for k, v := range m {
-		k8sMap[k] = &v
-	}
-	return &k8sMap
-}
-
 func StringSliceToK8s(sl []string) *[]*string {
 	var k8sSlice []*string
 	for _, v := range sl {
 		k8sSlice = append(k8sSlice, &v)
 	}
 	return &k8sSlice
-}
-
-func loadMonitoringEnv(values, config, env map[string]string) map[string]string {
-	for k, v := range values {
-		if _, ok := env[k]; ok {
-			env[k] = v
-		}
-	}
-	//If a value in the config map is a key in the values map
-	//Set  the key from the config map - to the value of the value map's value
-	// In the env map
-	//So that some keys cna be provided for non-standard otel etc env variables
-	for key, configValue := range config {
-		if v, ok := values[configValue]; ok {
-			env[key] = v
-		}
-	}
-	return env
 }

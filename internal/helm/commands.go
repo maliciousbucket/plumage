@@ -9,55 +9,6 @@ import (
 	"path/filepath"
 )
 
-func InstallArgoCmd(argoVersion string) *cobra.Command {
-	var client *helmClient
-	var chartVersion string
-	cmd := &cobra.Command{
-		Use:   "install-argo",
-		Short: "Install Argo CD",
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			cfg := &ClientCfg{}
-			helm, err := newClient(cfg)
-			if err != nil {
-				return err
-			}
-			client = helm
-			return nil
-		},
-		RunE: func(cmd *cobra.Command, args []string) error {
-			err := cmd.ParseFlags(args)
-			if err != nil {
-				return err
-			}
-			file := cmd.Flag("file").Value.String()
-			chartVersion = argoVersion
-			version := cmd.Flag("version").Value.String()
-			if version != "" {
-				chartVersion = version
-			}
-
-			ctx := context.Background()
-
-			err = client.InstallArgoChart(ctx, chartVersion, file)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			return nil
-		},
-	}
-	cmd.Flags().StringP("file", "f", "", "Specify a values file for the ArgoCD helm chart")
-	cmd.Flags().StringP("namespace", "n", "", "Specify the namespace for ArgoCD")
-	cmd.Flags().BoolP("local", "l", false, "Use a local version of the ArgoCD chart")
-	cmd.Flags().StringP("chart", "c", "", "The relative path to the local ArgoCD chart")
-	cmd.MarkFlagsRequiredTogether("chart", "local")
-	cmd.Flags().StringP("remote", "r", "", "Specfy the repo to pull the chart from")
-	cmd.MarkFlagsMutuallyExclusive("remote", "local")
-	cmd.Flags().StringP("version", "v", "", "Specify the version of the ArgoCD chart")
-
-	return cmd
-}
-
 func InstallChartFromConfigCmd(cfg *ChartsConfig, configDir string) *cobra.Command {
 	var appConfig bool
 	var helmConfig string

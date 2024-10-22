@@ -63,6 +63,7 @@ func TestInstallBaseCharts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	//TODO: Create Namespace
 
 	t.Run("Install ArgoCD Chart", func(t *testing.T) {
 		err = client.InstallArgoChart(ctx, argoVersion, "")

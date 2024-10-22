@@ -40,6 +40,13 @@ func TestDeployGateway(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Run("create namespace", func(t *testing.T) {
+		_, err = kube.CreateNamespace(ctx, "argocd")
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
+
 	t.Run("install argo chart", func(t *testing.T) {
 		err = installArgo(t, ctx, helm, kube)
 		if err != nil {

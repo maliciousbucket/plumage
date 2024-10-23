@@ -55,49 +55,47 @@ func TestInstallBaseCharts(t *testing.T) {
 		}
 	}()
 
-	config, err := kubeContainer.KubeConfig(ctx)
+	HelmClient, kube, err := setupHelmKubeClients(ctx, kubeContainer)
 	if err != nil {
 		t.Fatal(err)
 	}
-	client, err := newHelmClient(config)
-	if err != nil {
-		t.Fatal(err)
-	}
-	//TODO: Create Namespace
 
 	t.Run("Install ArgoCD Chart", func(t *testing.T) {
-		err = client.InstallArgoChart(ctx, argoVersion, "")
+		if _, err = kube.CreateNamespace(ctx, "argocd"); err != nil {
+			t.Errorf("failed to create argocd namespace: %v", err)
+		}
+		err = HelmClient.InstallArgoChart(ctx, argoVersion, "")
 		assert.NoError(t, err)
-		_, err = client.GetRelease("argo-helm")
+		_, err = HelmClient.GetRelease("argo-helm")
 		assert.NoError(t, err)
-		err = client.UninstallRelease("argo-helm")
+		err = HelmClient.UninstallRelease("argo-helm")
 		assert.NoError(t, err)
 	})
 
 	t.Run("Install Prometheus Operator CRDs", func(t *testing.T) {
-		err = client.InstallPromOperatorCRDs(ctx, promOperatorVersion, "", false)
+		err = HelmClient.InstallPromOperatorCRDs(ctx, promOperatorVersion, "", false)
 		assert.NoError(t, err)
-		_, err = client.GetRelease("prometheus-operator-crds")
+		_, err = HelmClient.GetRelease("prometheus-operator-crds")
 		assert.NoError(t, err)
-		err = client.UninstallRelease("prometheus-operator-crds")
+		err = HelmClient.UninstallRelease("prometheus-operator-crds")
 		assert.NoError(t, err)
 	})
 
 	t.Run("Install K6 Operator", func(t *testing.T) {
-		err = client.InstallK6(ctx, k6OperatorVersion, "", false)
+		err = HelmClient.InstallK6(ctx, k6OperatorVersion, "", false)
 		assert.NoError(t, err)
-		_, err = client.GetRelease("k6-operator")
+		_, err = HelmClient.GetRelease("k6-operator")
 		assert.NoError(t, err)
-		err = client.UninstallRelease("k6-operator")
+		err = HelmClient.UninstallRelease("k6-operator")
 		assert.NoError(t, err)
 	})
 
 	t.Run("Install Kube Prometheus Stack", func(t *testing.T) {
-		err = client.InstallKubePrometheusStack(ctx, kubePrometheusVersion, "", false)
+		err = HelmClient.InstallKubePrometheusStack(ctx, kubePrometheusVersion, "", false)
 		assert.NoError(t, err)
-		_, err = client.GetRelease("kube-prometheus-stack")
+		_, err = HelmClient.GetRelease("kube-prometheus-stack")
 		assert.NoError(t, err)
-		err = client.UninstallRelease("kube-prometheus-stack")
+		err = HelmClient.UninstallRelease("kube-prometheus-stack")
 		assert.NoError(t, err)
 
 	})

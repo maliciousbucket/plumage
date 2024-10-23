@@ -10,6 +10,7 @@ const (
 	ExpressionResponseCodeRatio = "ResponseCodeRatio"
 )
 
+// CircuitBreakerConfig TODO: refactor expressions
 type CircuitBreakerConfig struct {
 	Expressions             []ExpressionList `yaml:"expressionGroups"`
 	CircuitCheckPeriod      string           `yaml:"checkPeriod"`

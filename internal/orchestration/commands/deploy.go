@@ -63,29 +63,30 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			if template != "" {
 				templateFile = template
 			}
-			m := cfg.MonitoringConfig.Collectors.ToStringMap()
+			if synthApp {
+				m := cfg.MonitoringConfig.Collectors.ToStringMap()
 
-			synthOpts := &orchestration.SynthOpts{
-				SynthTemplate: synthApp,
-				SynthGateway:  synthGateway,
-				SynthTests:    false,
-				TemplateFile:  templateFile,
-				OutputDir:     cfg.OutputDir,
-				Namespace:     cfg.Namespace,
-				Monitoring:    m,
-			}
+				synthOpts := &orchestration.SynthOpts{
+					SynthTemplate: synthApp,
+					SynthGateway:  synthGateway,
+					SynthTests:    false,
+					TemplateFile:  templateFile,
+					OutputDir:     cfg.OutputDir,
+					Namespace:     cfg.Namespace,
+					Monitoring:    m,
+				}
+				if err = orchestration.SynthDeployment(synthOpts); err != nil {
+					log.Fatal(err)
+				}
+				_, _, appName, err := kplus.GetServices(templateFile)
+				if err != nil {
+					log.Fatal(err)
+				}
 
-			if err = orchestration.SynthDeployment(synthOpts); err != nil {
-				log.Fatal(err)
-			}
+				if err = commitAndPushAll(ctx, cfg, appName); err != nil {
+					log.Fatal(err)
+				}
 
-			services, ns, appName, err := kplus.GetServices(templateFile)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			if err = commitAndPushAll(ctx, cfg, appName); err != nil {
-				log.Fatal(err)
 			}
 
 			if monitoring {
@@ -99,32 +100,19 @@ func DeployTemplateCommand(cfg *config.AppConfig) *cobra.Command {
 			}
 
 			if gateway {
-				if err = orchestration.DeployGateway(ctx, argoClient, kubernetesClient, ns); err != nil {
+				if err = orchestration.DeployGateway(ctx, argoClient, kubernetesClient, cfg.Namespace); err != nil {
 					log.Fatal(err)
 				}
 
-				if err = orchestration.WaitForGatewayDeployment(ctx, kubernetesClient, ns); err != nil {
-					log.Fatal(err)
-				}
-
-			}
-			if appProject, _ := argoClient.GetProject(ctx, appName); appProject != nil {
-				if _, err = argoClient.CreateProject(ctx, appName); err != nil {
+				if err = orchestration.WaitForGatewayDeployment(ctx, kubernetesClient, cfg.Namespace); err != nil {
 					log.Fatal(err)
 				}
 
 			}
-
-			if err = argoClient.CreateApplicationProject(ctx, appName); err != nil {
+			err = orchestration.DeployTemplate(ctx, argoClient, kubernetesClient, cfg, templateFile)
+			if err != nil {
 				log.Fatal(err)
 			}
-
-			if err = orchestration.DeployAndWaitForApp(ctx, argoClient, kubernetesClient, ns, appName, services); err != nil {
-				log.Fatal(err)
-			}
-
-			log.Printf("\n Successfully Deployed %s in %s", appName, ns)
-
 			return nil
 		},
 	}

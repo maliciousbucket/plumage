@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"errors"
 	"github.com/maliciousbucket/plumage/internal/orchestration"
 	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/spf13/cobra"
@@ -20,6 +21,7 @@ func ChartsCmd(cfg *config.ChartConfig) *cobra.Command {
 		},
 	}
 	cmd.AddCommand(installChartCmd(cfg))
+	cmd.AddCommand(deleteChartCommand())
 	return cmd
 }
 
@@ -175,6 +177,31 @@ func installChartCmd(cfg *config.ChartConfig) *cobra.Command {
 		"kube-metrics-server", "k6-operator", "kube-prometheus-stack")
 	_ = cmd.MarkFlagFilename("values-file", "yaml", "yml")
 
+	return cmd
+}
+
+func deleteChartCommand() *cobra.Command {
+	var releaseName string
+	cmd := &cobra.Command{
+		Use:   "delete",
+		Short: "Uninstall Helm Charts",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := cmd.ValidateRequiredFlags(); err != nil {
+				return err
+			}
+			if releaseName == "" {
+				return errors.New("must specify release name")
+			}
+			err := helmClient.UninstallRelease(releaseName)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			return nil
+		},
+	}
+	cmd.Flags().StringVar(&releaseName, "release", "", "Release name of chart to uninstall")
+	_ = cmd.MarkFlagRequired("release")
 	return cmd
 }
 

@@ -138,9 +138,24 @@ func (k *k8sClient) getServiceExternalAddress(ctx context.Context, ns string, na
 	if service.Spec.Type != v1.ServiceTypeLoadBalancer {
 		return nil, fmt.Errorf("service %s/%s is not LoadBalancer", ns, name)
 	}
-	if service.Spec.ExternalIPs == nil || len(service.Spec.ExternalIPs) == 0 {
-		return nil, fmt.Errorf("service %s/%s has no external IPs", ns, name)
+	result := []string{}
+	result = append(result, service.Spec.ExternalIPs...)
+	if service.Spec.ExternalIPs != nil || len(service.Spec.ExternalIPs) > 0 {
+		result = append(result, service.Spec.ExternalIPs...)
 	}
+	if service.Status.LoadBalancer.Ingress != nil {
+		for _, ingress := range service.Status.LoadBalancer.Ingress {
+			if ingress.IP != "" {
+				result = append(result, ingress.IP)
+			} else if ingress.Hostname != "" {
+				result = append(result, ingress.Hostname)
+			}
+		}
+	}
+	if len(result) == 0 {
+		return nil, fmt.Errorf("no external IPs found for loadbalancer %s/%s", ns, name)
+	}
+
 	return service.Spec.ExternalIPs, nil
 }
 
@@ -157,12 +172,16 @@ func (k *k8sClient) GetLoadBalancersForNamespace(ctx context.Context, ns string)
 
 func (k *k8sClient) getLoadBalancersForNamespace(ctx context.Context, ns string) ([]*LoadBalancerInfo, error) {
 	serviceClient := k.kubeClient.CoreV1().Services(ns)
-	fieldSelector := fmt.Sprintf("spec.type=LoadBalancer")
-	loadBalancers, err := serviceClient.List(ctx, metav1.ListOptions{
-		FieldSelector: fieldSelector,
-	})
+	//fieldSelector := fmt.Sprintf("spec.type=LoadBalancer")
+	services, err := serviceClient.List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to list load balancers: %v", err)
+	}
+	loadBalancers := &v1.ServiceList{}
+	for _, service := range services.Items {
+		if service.Spec.Type == v1.ServiceTypeLoadBalancer {
+			loadBalancers.Items = append(loadBalancers.Items, service)
+		}
 	}
 
 	if loadBalancers == nil || len(loadBalancers.Items) == 0 {
@@ -170,10 +189,20 @@ func (k *k8sClient) getLoadBalancersForNamespace(ctx context.Context, ns string)
 	}
 	result := make([]*LoadBalancerInfo, 0, len(loadBalancers.Items))
 	for _, lb := range loadBalancers.Items {
+		externalIPs := lb.Spec.ExternalIPs
+		if len(externalIPs) == 0 && len(lb.Status.LoadBalancer.Ingress) > 0 {
+			for _, ingress := range lb.Status.LoadBalancer.Ingress {
+				if ingress.IP != "" {
+					externalIPs = append(externalIPs, ingress.IP)
+				} else if ingress.Hostname != "" {
+					externalIPs = append(externalIPs, ingress.Hostname)
+				}
+			}
+		}
 		result = append(result, &LoadBalancerInfo{
 			Name:        lb.Name,
 			Namespace:   lb.Namespace,
-			ExternalIPs: lb.Spec.ExternalIPs,
+			ExternalIPs: externalIPs,
 			Ports:       lb.Spec.Ports,
 		})
 	}

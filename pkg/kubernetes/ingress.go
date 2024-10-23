@@ -17,6 +17,7 @@ const (
 	externalLbAnnotation       = "service.beta.kubernetes.io/aws-load-balancer-type"
 	externalLbTypeAnnotation   = "service.beta.kubernetes.io/aws-load-balancer-nlb-target-type"
 	externalLbSchemeAnnotation = "service.beta.kubernetes.io/aws-load-balancer-scheme"
+	ingressClassAnnotation     = "kubernetes.io/ingress.class"
 )
 
 func defaultIngressServiceAccountMetadata(namespace string) cdk8s.ApiObjectMetadata {
@@ -129,6 +130,9 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 	})
 
 	web.SelectLabel(jsii.String("app"), jsii.String("traefik"))
+	web.Metadata().AddAnnotation(jsii.String(externalLbAnnotation), jsii.String("external"))
+	web.Metadata().AddAnnotation(jsii.String(externalLbTypeAnnotation), jsii.String("ip"))
+	web.Metadata().AddAnnotation(jsii.String(externalLbSchemeAnnotation), jsii.String("internet-facing"))
 
 	db := deployment.ExposeViaService(&kplus.DeploymentExposeViaServiceOptions{
 		Name: jsii.String("traefik-dashboard-service"),
@@ -160,6 +164,7 @@ func NewTraefikIngress(scope constructs.Construct, id string, ns string) constru
 
 	ig.Metadata().AddLabel(jsii.String("name"), jsii.String("traefik-web-ingress"))
 	ig.Metadata().AddAnnotation(jsii.String("traefik.ingress.kubernetes.io/router.entrypoints"), jsii.String("web"))
+	ig.Metadata().AddAnnotation(jsii.String(ingressClassAnnotation), jsii.String("traefik"))
 
 	be := kplus.IngressBackend_FromService(db, &kplus.ServiceIngressBackendOptions{Port: jsii.Number(8080)})
 

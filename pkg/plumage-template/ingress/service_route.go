@@ -69,7 +69,7 @@ type RouteServiceProps struct {
 
 func withRule(host string, prefix string) ingressRouteRoutesFunc {
 	return func(r *traefikio.IngressRouteSpecRoutes) {
-		rule := fmt.Sprintf("PathPrefix(`/testbed%s`)", prefix)
+		rule := fmt.Sprintf("PathPrefix(`%s`)", prefix)
 		if host != "" {
 			rule = fmt.Sprintf("Host(`%s`) && %s", host, rule)
 		}

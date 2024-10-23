@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/maliciousbucket/plumage/internal/argocd"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
+	"github.com/maliciousbucket/plumage/pkg/config"
 	"github.com/maliciousbucket/plumage/pkg/kplus"
 	"log"
 	"slices"
@@ -18,10 +19,41 @@ var (
 	chaosPath = "/tests"
 )
 
-func DeployTemplate() {}
+// DeployTemplate TODO: implement
+func DeployTemplate(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, cfg *config.AppConfig, template string) error {
+	if err := kubeClient.WaitAllArgoPods(ctx, cfg.Namespace); err != nil {
+		return err
+	}
 
-func deployTemplate() {
+	templateFile := cfg.UserConfig.TemplateConfig.TemplateFile
+	if template != "" {
+		templateFile = template
+	}
 
+	services, ns, appName, err := kplus.GetServices(templateFile)
+	if err != nil {
+		return err
+	}
+
+	return deployTemplate(ctx, argoClient, kubeClient, ns, appName, services)
+}
+
+func deployTemplate(ctx context.Context, argoClient ArgoClient, kubeClient KubeClient, ns, appName string, services []string) error {
+	if appProject, _ := argoClient.GetProject(ctx, appName); appProject != nil {
+		if _, err := argoClient.CreateProject(ctx, appName); err != nil {
+			return err
+		}
+
+	}
+	if err := argoClient.CreateApplicationProject(ctx, appName); err != nil {
+		return err
+	}
+
+	if err := DeployAndWaitForApp(ctx, argoClient, kubeClient, ns, appName, services); err != nil {
+		return err
+	}
+	log.Printf("\n Successfully Deployed %s in %s", appName, ns)
+	return nil
 }
 
 func DeployApp(ctx context.Context, argoClient ArgoClient, ns, path string) (string, error) {

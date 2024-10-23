@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/maliciousbucket/plumage/internal/kubeclient"
 	"github.com/spf13/cobra"
@@ -37,8 +38,8 @@ func ServiceCmd() *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringP("service", "s", "", "Service name")
-	cmd.Flags().StringP("namespace", "n", "", "Namespace to watch")
+	cmd.Flags().StringP("service", "s", "", "service name")
+	cmd.Flags().StringP("namespace", "n", "", "namespace to watch")
 	_ = cmd.MarkFlagRequired("namespace")
 	err := cmd.MarkFlagRequired("service")
 	if err != nil {
@@ -91,13 +92,16 @@ func GetLoadBalancersCmd() *cobra.Command {
 				log.Printf("No load balancers found for %s\n", namespace)
 			}
 			for _, loadBalancer := range loadbalancers {
-				log.Printf("%+v\n", loadBalancer)
+				err = prettyPrint(loadBalancer)
+				if err != nil {
+					log.Fatalf("Failed to print load balancer: %s", err)
+				}
 			}
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&namespace, "namespace", "", "Namespace to to get loadbalancers from")
-	cmd.Flags().StringVar(&serviceName, "service", "", "Service name")
+	cmd.Flags().StringVar(&namespace, "namespace", "", "namespace to to get loadbalancers from")
+	cmd.Flags().StringVar(&serviceName, "service", "", "service name")
 	_ = cmd.MarkFlagRequired("namespace")
 	return cmd
 }
@@ -130,4 +134,13 @@ func WaitRelatedPodsCmd() *cobra.Command {
 		fmt.Println(err)
 	}
 	return cmd
+}
+
+func prettyPrint(v any) error {
+	jsonData, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(jsonData))
+	return nil
 }

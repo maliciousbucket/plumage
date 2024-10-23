@@ -9,7 +9,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/util/retry"
 	"log"
-	"time"
 )
 
 var (
@@ -105,7 +104,7 @@ func (k *k8sClient) exposeServiceAsNodePort(ctx context.Context, ns string, name
 }
 
 func (k *k8sClient) exposeServiceAsLoadBalancer(ctx context.Context, ns string, name string) (*LoadBalancerInfo, error) {
-	log.Println("Exposing..")
+	log.Println("Exposing...")
 	serviceClient := k.kubeClient.CoreV1().Services(ns)
 	foundSvc, err := serviceClient.Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
@@ -115,19 +114,19 @@ func (k *k8sClient) exposeServiceAsLoadBalancer(ctx context.Context, ns string, 
 		return nil, fmt.Errorf("service %s/%s not found", ns, name)
 	}
 
-	deleteRetryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		deleteErr := serviceClient.Delete(ctx, name, metav1.DeleteOptions{})
-		if deleteErr != nil {
-			return fmt.Errorf("could not delete service %s/%s: %v", ns, name, deleteErr)
-		}
-		return nil
-	})
+	//deleteRetryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+	//	deleteErr := serviceClient.Delete(ctx, name, metav1.DeleteOptions{})
+	//	if deleteErr != nil {
+	//		return fmt.Errorf("could not delete service %s/%s: %v", ns, name, deleteErr)
+	//	}
+	//	return nil
+	//})
+	//
+	//if deleteRetryErr != nil {
+	//	return nil, fmt.Errorf("error deleting service %s/%s: %v", ns, name, deleteRetryErr)
+	//}
 
-	if deleteRetryErr != nil {
-		return nil, fmt.Errorf("error deleting service %s/%s: %v", ns, name, deleteRetryErr)
-	}
-
-	time.Sleep(30 * time.Second)
+	//time.Sleep(30 * time.Second)
 
 	newService := foundSvc.DeepCopy()
 	newService.Spec.Type = v1.ServiceTypeLoadBalancer
@@ -137,17 +136,29 @@ func (k *k8sClient) exposeServiceAsLoadBalancer(ctx context.Context, ns string, 
 	newService.Spec.ClusterIPs = nil
 	newService.Spec.ClusterIP = ""
 	newService.ObjectMeta.ResourceVersion = ""
+	newService.Spec.Ports[0].NodePort = 0
 
-	createErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		_, err = serviceClient.Create(ctx, newService, metav1.CreateOptions{})
+	updateRetryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		_, err = serviceClient.Update(ctx, newService, metav1.UpdateOptions{})
 		if err != nil {
 			return err
 		}
 		return nil
 	})
-	if createErr != nil {
-		return nil, fmt.Errorf("could not create service %s/%s: %v", ns, name, createErr)
+	if updateRetryErr != nil {
+		return nil, fmt.Errorf("could not expose service %s/%s with external IP: %v", ns, name, updateRetryErr)
 	}
+
+	//createErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+	//	_, err = serviceClient.Create(ctx, newService, metav1.CreateOptions{})
+	//	if err != nil {
+	//		return err
+	//	}
+	//	return nil
+	//})
+	//if createErr != nil {
+	//	return nil, fmt.Errorf("could not create service %s/%s: %v", ns, name, createErr)
+	//}
 	var service *v1.Service
 	serviceRetryErr := retry.OnError(retry.DefaultRetry, func(err error) bool {
 
@@ -168,10 +179,6 @@ func (k *k8sClient) exposeServiceAsLoadBalancer(ctx context.Context, ns string, 
 	if serviceRetryErr != nil {
 		return nil, fmt.Errorf("error fetching service %s: %v", name, serviceRetryErr)
 	}
-	//service, err := serviceClient.Get(ctx, name, metav1.GetOptions{})
-	//if err != nil {
-	//	return nil, err
-	//}
 
 	if service == nil {
 		return nil, fmt.Errorf("service %s/%s not found after update", ns, name)

@@ -95,16 +95,37 @@ func (k *k8sClient) checkArgoExternalIp(ctx context.Context, ns, envFIle string)
 	if service.Spec.Type != v1.ServiceTypeLoadBalancer {
 		return false, nil
 	}
-
+	result := ""
 	if service.Spec.ExternalIPs == nil {
-		return false, nil
-	}
+		if service.Status.LoadBalancer.Ingress == nil {
+			return false, nil
+		}
+		for _, ingress := range service.Status.LoadBalancer.Ingress {
+			if ingress.IP != "" {
+				result = ingress.IP
+				break
+			} else if ingress.Hostname != "" {
+				result = ingress.Hostname
+				break
+			}
 
-	if service.Spec.ExternalIPs != nil && len(service.Spec.ExternalIPs) != 0 {
-		if err = setArgoAddress(service.Spec.ExternalIPs[0], envFIle); err != nil {
+		}
+
+	}
+	if result != "" {
+		if err = setArgoAddress(result, envFIle); err != nil {
 			return false, err
 		}
 		return true, nil
+	}
+
+	if service.Spec.ExternalIPs != nil && len(service.Spec.ExternalIPs) != 0 {
+		if service.Spec.ExternalIPs[0] != "" {
+			if err = setArgoAddress(service.Spec.ExternalIPs[0], envFIle); err != nil {
+				return false, err
+			}
+			return true, nil
+		}
 	}
 
 	return false, nil
